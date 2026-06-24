@@ -13,12 +13,7 @@ export default function SkillsSection() {
       className="section"
       ref={sectionRef}
       style={{
-        backgroundColor: "#F4F6FF", // Light theme background
-        backgroundImage: `
-          linear-gradient(rgba(0, 102, 255, 0.05) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(0, 102, 255, 0.05) 1px, transparent 1px)
-        `, // Soft blue grid pattern matching screenshot
-        backgroundSize: "32px 32px",
+        backgroundColor: "#ffffff", // Solid white background matching Skills-Section-Final.png
         borderTop: "4px solid var(--border-default)",
         position: "relative",
         overflow: "hidden",
@@ -78,7 +73,7 @@ export default function SkillsSection() {
           }}
         >
           <img
-            src="/skills.png"
+            src="/Skills-Section-Final.png"
             alt="Sre Varshan Tech Stack and Skills Illustration"
             className="skills-themed-image"
             style={{
@@ -99,17 +94,12 @@ export default function SkillsSection() {
           justify-content: center;
         }
         .skills-themed-image {
-          mix-blend-mode: multiply;
-          clip-path: inset(2.8% 2.8% 2.8% 2.8%); /* Crop out the internal grey border cleanly */
           transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
         }
         .skills-image-container:hover .skills-themed-image {
           transform: translateY(-8px) scale(1.015);
         }
         @media (max-width: 768px) {
-          .skills-themed-image {
-            clip-path: inset(2.5% 2.5% 2.5% 2.5%);
-          }
           .skills-image-container:hover .skills-themed-image {
             transform: translateY(-4px) scale(1.008);
           }
