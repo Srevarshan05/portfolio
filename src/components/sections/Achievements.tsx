@@ -1,0 +1,313 @@
+"use client";
+
+import { useRef } from "react";
+import { useScrollReveal } from "@/lib/useScrollReveal";
+
+const ACHIEVEMENTS = [
+  {
+    id: "patent",
+    emoji: "🏛️",
+    title: "Government Patent Published",
+    subtitle: "App No. 202541116228 A",
+    description: "Filed and published a government patent for a novel acoustic-sensing system for early banana weevil detection on edge hardware.",
+    accent: "var(--brand)",
+    accentBg: "rgba(226,45,109,0.15)",
+    isBrand: true,
+  },
+  {
+    id: "spectrum",
+    emoji: "🏆",
+    title: "1st Place — Spectrum '25",
+    subtitle: "National-Level Hackathon",
+    description: "Won first place at the Spectrum '25 National Hackathon competing against teams from across the country.",
+    accent: "var(--warning)",
+    accentBg: "rgba(255,176,32,0.12)",
+  },
+  {
+    id: "tensor",
+    emoji: "⚡",
+    title: "Core Organizer & Developer",
+    subtitle: "TENSOR'26 National AI Hackathon",
+    description: "Core organizer and technical developer for TENSOR'26, a nationally recognised AI hackathon — managed infra and participant experience.",
+    accent: "var(--indigo)",
+    accentBg: "rgba(77,91,255,0.12)",
+  },
+  {
+    id: "edge",
+    emoji: "🤖",
+    title: "Edge AI Pioneer",
+    subtitle: "Offline-First AI Systems",
+    description: "Multiple production AI systems running entirely offline — from Raspberry Pi deployments to mobile on-device inference with fine-tuned models.",
+    accent: "var(--teal)",
+    accentBg: "rgba(45,207,160,0.12)",
+  },
+  {
+    id: "healthcare",
+    emoji: "🏥",
+    title: "90% Automation Rate",
+    subtitle: "Enterprise Healthcare",
+    description: "Eliminated 90% of manual data entry for a healthcare enterprise using NL-to-SQL agents and intelligent extraction pipelines.",
+    accent: "var(--purple)",
+    accentBg: "rgba(162,61,219,0.12)",
+  },
+];
+
+const ALL = [...ACHIEVEMENTS, ...ACHIEVEMENTS];
+
+const STATS = [
+  { value: "1",    label: "Patent Filed" },
+  { value: "98%",  label: "Best Model Accuracy" },
+  { value: "90%",  label: "Data Entry Automated" },
+  { value: "3+",   label: "AI Products Shipped" },
+  { value: "#1",   label: "Hackathon Place" },
+];
+
+export default function AchievementsSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  useScrollReveal(sectionRef as React.RefObject<HTMLElement>);
+
+  return (
+    <section 
+      id="achievements" 
+      className="section" 
+      ref={sectionRef} 
+      style={{ 
+        paddingLeft: 0, 
+        paddingRight: 0, 
+        background: "var(--dark-strong)", // Complete dark background
+        position: "relative" 
+      }}
+    >
+      {/* Complete Dark background - No grid background here */}
+
+      {/* Header */}
+      <div className="section-content" style={{ padding: "0 40px", marginBottom: "64px" }}>
+        <div className="container" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px", alignItems: "flex-end" }}>
+          <div className="reveal reveal-left">
+            <div className="eyebrow" style={{ color: "var(--fg-brand)", display: "flex", alignItems: "center", gap: "8px" }}>
+              <img src="/icons/trophy.png" alt="" style={{ width: "16px", height: "16px", objectFit: "contain" }} />
+              Highlights
+            </div>
+            <h2 style={{ color: "white", marginBottom: 0 }}>The Trophy Room</h2>
+          </div>
+          <div className="reveal reveal-right" style={{ paddingBottom: "4px" }}>
+            <p className="leading" style={{ color: "var(--neutral-primary-soft)", opacity: 0.8 }}>
+              A few things I&apos;m proud of — from government patents to hackathon wins and community impact.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Marquee — full bleed with Custom Stamp themed cards */}
+      <div className="section-content marquee-wrapper reveal" style={{ marginBottom: "80px" }}>
+        <div className="marquee-track">
+          {ALL.map((item, idx) => {
+            const numberStr = String(idx + 1).padStart(2, "0");
+            const badgeColors = ["#2DC8E2", "#E22D6D", "#FFB020", "#4D5BFF", "#A23DDB"];
+            const badgeColor = badgeColors[idx % badgeColors.length];
+            return (
+              <div
+                key={`${item.id}-${idx}`}
+                className="stamp-card-wrapper"
+                style={{
+                  position: "relative",
+                  width: "360px",
+                  margin: "18px 14px 24px 14px",
+                  flexShrink: 0,
+                  filter: "drop-shadow(6px 6px 0px #1C202B)",
+                }}
+              >
+                {/* Stamp Card Body */}
+                <div
+                  className="stamp-card"
+                  style={{
+                    padding: "48px 24px 24px 24px",
+                    minHeight: "220px",
+                    position: "relative",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  {/* Dashed inset border */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: "12px",
+                      border: "2px dashed rgba(28,32,43,0.12)",
+                      pointerEvents: "none",
+                      borderRadius: "2px",
+                    }}
+                  />
+
+                  {/* Top Badges (Number + Icon) */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "-18px",
+                      left: "14px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      zIndex: 10,
+                    }}
+                  >
+                    {/* Number Block */}
+                    <div
+                      style={{
+                        width: "48px",
+                        height: "44px",
+                        background: badgeColor,
+                        border: "3px solid #1C202B",
+                        boxShadow: "3px 3px 0px #1C202B",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontFamily: "'Bangers', cursive",
+                        fontSize: "24px",
+                        color: "white",
+                        letterSpacing: "1px",
+                      }}
+                    >
+                      {numberStr}
+                    </div>
+
+                    {/* Icon Block */}
+                    <div
+                      style={{
+                        width: "36px",
+                        height: "36px",
+                        background: "#1C202B",
+                        border: "3px solid #1C202B",
+                        boxShadow: "3px 3px 0px #1C202B",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "16px",
+                      }}
+                    >
+                      {item.emoji}
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div style={{ position: "relative", zIndex: 2 }}>
+                    <h4
+                      style={{
+                        fontFamily: "'Bangers', cursive",
+                        fontSize: "20px",
+                        color: "#1C202B",
+                        letterSpacing: "0.5px",
+                        textTransform: "uppercase",
+                        marginBottom: "8px",
+                        marginTop: "4px"
+                      }}
+                    >
+                      {item.title}
+                    </h4>
+                    <div
+                      style={{
+                        fontFamily: "'Open Sans', sans-serif",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px",
+                        color: item.accent,
+                        marginBottom: "12px"
+                      }}
+                    >
+                      {item.subtitle}
+                    </div>
+                    <p
+                      style={{
+                        color: "var(--color-body)",
+                        fontSize: "13px",
+                        lineHeight: 1.6,
+                        margin: 0
+                      }}
+                    >
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Stats bar */}
+      <div className="section-content" style={{ padding: "0 40px" }}>
+        <div className="container reveal">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", borderTop: "1px solid rgba(255,255,255,0.1)", borderLeft: "1px solid rgba(255,255,255,0.1)" }}>
+            {STATS.map((s) => (
+              <div
+                key={s.label}
+                style={{
+                  padding: "32px 16px",
+                  textAlign: "center",
+                  borderRight: "1px solid rgba(255,255,255,0.1)",
+                  borderBottom: "1px solid rgba(255,255,255,0.1)",
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: "'Bangers', cursive",
+                    fontSize: "44px",
+                    lineHeight: 1,
+                    background: "linear-gradient(135deg, var(--gradient-from), var(--gradient-to))",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                    marginBottom: "8px",
+                  }}
+                >
+                  {s.value}
+                </div>
+                <div style={{ fontFamily: "'Open Sans', sans-serif", fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", color: "rgba(255,255,255,0.5)" }}>
+                  {s.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        .marquee-track {
+          will-change: transform;
+          transform: translate3d(0, 0, 0);
+          backface-visibility: hidden;
+        }
+        .stamp-card {
+          background-color: transparent;
+          background-image:
+            radial-gradient(circle at 0px 50%, transparent 6px, white 7px),
+            radial-gradient(circle at 100% 50%, transparent 6px, white 7px),
+            radial-gradient(circle at 50% 0px, transparent 6px, white 7px),
+            radial-gradient(circle at 50% 100%, transparent 6px, white 7px),
+            linear-gradient(white, white);
+          background-repeat: repeat-y, repeat-y, repeat-x, repeat-x, no-repeat;
+          background-position: left, right, top, bottom, center;
+          background-size: 12px 24px, 12px 24px, 24px 12px, 24px 12px, calc(100% - 20px) calc(100% - 20px);
+          will-change: transform;
+          transform: translate3d(0, 0, 0);
+          backface-visibility: hidden;
+        }
+        .stamp-card-wrapper {
+          transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1), filter 150ms;
+          will-change: transform, filter;
+          transform: translate3d(0, 0, 0);
+          backface-visibility: hidden;
+        }
+        .stamp-card-wrapper:hover {
+          transform: translateY(-6px) translate3d(0, 0, 0);
+          filter: drop-shadow(8px 8px 0px var(--brand)) !important;
+        }
+        .stamp-card-wrapper:active {
+          transform: translateY(2px) translateX(2px) translate3d(0, 0, 0);
+          filter: drop-shadow(2px 2px 0px #1C202B) !important;
+        }
+      `}</style>
+    </section>
+  );
+}
