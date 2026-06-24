@@ -11,8 +11,8 @@ import './Lanyard.css';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
-const cardGLB = "/card.glb";
-const lanyard = "/lanyard.png";
+import cardGLB from './card.glb';
+import lanyard from './lanyard.png';
 
 // 1x1 transparent pixel — lets useTexture be called unconditionally when a
 // front/back image isn't supplied.
@@ -151,7 +151,8 @@ function Band({
     dir = new THREE.Vector3();
   const segmentProps: any = { type: 'dynamic', canSleep: true, colliders: false, angularDamping: 4, linearDamping: 4 };
   const { nodes, materials } = useGLTF(cardGLB) as any;
-  const texture = useTexture(lanyardImage || lanyard) as THREE.Texture;
+  const defaultLanyardUrl = typeof lanyard === 'object' && lanyard !== null && 'src' in lanyard ? (lanyard as any).src : lanyard;
+  const texture = useTexture(lanyardImage || defaultLanyardUrl) as THREE.Texture;
   // useTexture must be called unconditionally; use a blank pixel when an image
   // isn't supplied for a given face, then skip compositing it below.
   const frontTex = useTexture(frontImage || BLANK_PIXEL) as THREE.Texture;
