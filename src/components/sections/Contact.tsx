@@ -258,6 +258,7 @@ export default function ContactSection() {
                     src="https://lottie.host/4abe3093-fb75-43e0-9c1f-b617e9ea30ce/NndMnqNwnS.lottie"
                     loop
                     autoplay
+                    style={{ width: "100%", height: "100%" }}
                   />
                 </div>
                 <h3 className="gmail-success-title">Message Sent!</h3>
@@ -942,9 +943,13 @@ export default function ContactSection() {
         }
 
         .gmail-lottie-container {
-          width: 160px;
-          height: 160px;
+          width: 100%;
+          max-width: 320px;
+          height: 280px;
           margin-bottom: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .gmail-success-title {
