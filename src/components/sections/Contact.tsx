@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useScrollReveal } from "@/lib/useScrollReveal";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 export default function ContactSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -250,171 +251,193 @@ export default function ContactSection() {
               </div>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="gmail-body">
-              
-              {/* Row 1: To Recipient */}
-              <div className="gmail-field-row">
-                <span className="gmail-field-label">To</span>
-                <div className="gmail-recipient-pill">
-                  <span className="gmail-avatar">S</span>
-                  <span className="gmail-recipient-name">Sre Varshan</span>
-                  <span className="gmail-recipient-email">&lt;srevarshan9600622@gmail.com&gt;</span>
+            {status === "success" ? (
+              <div className="gmail-success-screen">
+                <div className="gmail-lottie-container">
+                  <DotLottieReact
+                    src="https://lottie.host/4abe3093-fb75-43e0-9c1f-b617e9ea30ce/NndMnqNwnS.lottie"
+                    loop
+                    autoplay
+                  />
                 </div>
+                <h3 className="gmail-success-title">Message Sent!</h3>
+                <p className="gmail-success-text">
+                  Thank you for reaching out. Sre Varshan will get back to you shortly.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setStatus("idle")}
+                  className="gmail-success-btn"
+                >
+                  Send Another Message
+                </button>
               </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="gmail-body">
+                
+                {/* Row 1: To Recipient */}
+                <div className="gmail-field-row">
+                  <span className="gmail-field-label">To</span>
+                  <div className="gmail-recipient-pill">
+                    <span className="gmail-avatar">S</span>
+                    <span className="gmail-recipient-name">Sre Varshan</span>
+                    <span className="gmail-recipient-email">&lt;srevarshan9600622@gmail.com&gt;</span>
+                  </div>
+                </div>
 
-              {/* Row 2: From Sender Email */}
-              <div className="gmail-field-row">
-                <label htmlFor="contact-email" className="gmail-field-label">From</label>
-                <input
-                  type="email"
-                  id="contact-email"
-                  name="email"
-                  className="gmail-field-input"
-                  value={form.email}
-                  onChange={handle}
-                  required
-                />
-              </div>
+                {/* Row 2: From Sender Email */}
+                <div className="gmail-field-row">
+                  <label htmlFor="contact-email" className="gmail-field-label">From</label>
+                  <input
+                    type="email"
+                    id="contact-email"
+                    name="email"
+                    className="gmail-field-input"
+                    value={form.email}
+                    onChange={handle}
+                    required
+                  />
+                </div>
 
-              {/* Row 3: Sender Name */}
-              <div className="gmail-field-row">
-                <label htmlFor="contact-name" className="gmail-field-label">Name</label>
-                <input
-                  type="text"
-                  id="contact-name"
-                  name="name"
-                  className="gmail-field-input"
-                  value={form.name}
-                  onChange={handle}
-                  required
-                />
-              </div>
-
-              {/* Row 4: Subject */}
-              <div className="gmail-field-row">
-                <label htmlFor="contact-subject" className="gmail-field-label">Subject</label>
-                {drafting ? (
-                  <div className="gmail-skeleton-subject shimmer"></div>
-                ) : (
+                {/* Row 3: Sender Name */}
+                <div className="gmail-field-row">
+                  <label htmlFor="contact-name" className="gmail-field-label">Name</label>
                   <input
                     type="text"
-                    id="contact-subject"
-                    name="subject"
-                    className={`gmail-field-input ${isAutofilling ? "autofilling" : ""}`}
-                    value={form.subject}
+                    id="contact-name"
+                    name="name"
+                    className="gmail-field-input"
+                    value={form.name}
                     onChange={handle}
-                    onMouseDown={handleInputMouseDown}
                     required
                   />
-                )}
-              </div>
+                </div>
 
-              {/* Row 5: Message Body - Auto Resizing Textarea */}
-              <div className="gmail-textarea-wrapper">
-                {drafting ? (
-                  <div className="gmail-skeleton-message">
-                    <div className="gmail-skeleton-line shimmer" style={{ width: "90%" }}></div>
-                    <div className="gmail-skeleton-line shimmer" style={{ width: "75%" }}></div>
-                    <div className="gmail-skeleton-line shimmer" style={{ width: "85%" }}></div>
-                    <div className="gmail-skeleton-line shimmer" style={{ width: "60%" }}></div>
-                  </div>
-                ) : (
-                  <textarea
-                    ref={textareaRef}
-                    id="contact-message"
-                    name="message"
-                    className={`gmail-textarea ${isAutofilling ? "autofilling" : ""}`}
-                    value={form.message}
-                    onChange={handle}
-                    onMouseDown={handleInputMouseDown}
-                    required
-                  />
-                )}
-              </div>
-
-              {/* AI Draft input tray */}
-              {aiOpen && (
-                <div className="gmail-ai-prompt-box">
-                  <div className="gmail-ai-row">
-                    <img
-                      src="/icons/doodle-stars.png"
-                      alt="AI Sparkles"
-                      style={{ width: "16px", height: "16px", objectFit: "contain" }}
-                    />
+                {/* Row 4: Subject */}
+                <div className="gmail-field-row">
+                  <label htmlFor="contact-subject" className="gmail-field-label">Subject</label>
+                  {drafting ? (
+                    <div className="gmail-skeleton-subject shimmer"></div>
+                  ) : (
                     <input
                       type="text"
-                      className="gmail-ai-input"
-                      value={aiPrompt}
-                      onChange={(e) => setAiPrompt(e.target.value)}
-                      placeholder="Prompt AI to draft email..."
-                      disabled={drafting}
+                      id="contact-subject"
+                      name="subject"
+                      className={`gmail-field-input ${isAutofilling ? "autofilling" : ""}`}
+                      value={form.subject}
+                      onChange={handle}
+                      onMouseDown={handleInputMouseDown}
+                      required
                     />
-                    <button
-                      type="button"
-                      onClick={handleAiDraft}
-                      disabled={drafting || !aiPrompt}
-                      className="gmail-ai-draft-btn"
-                    >
-                      {drafting ? "Drafting..." : "Create"}
+                  )}
+                </div>
+
+                {/* Row 5: Message Body - Auto Resizing Textarea */}
+                <div className="gmail-textarea-wrapper">
+                  {drafting ? (
+                    <div className="gmail-skeleton-message">
+                      <div className="gmail-skeleton-line shimmer" style={{ width: "90%" }}></div>
+                      <div className="gmail-skeleton-line shimmer" style={{ width: "75%" }}></div>
+                      <div className="gmail-skeleton-line shimmer" style={{ width: "85%" }}></div>
+                      <div className="gmail-skeleton-line shimmer" style={{ width: "60%" }}></div>
+                    </div>
+                  ) : (
+                    <textarea
+                      ref={textareaRef}
+                      id="contact-message"
+                      name="message"
+                      className={`gmail-textarea ${isAutofilling ? "autofilling" : ""}`}
+                      value={form.message}
+                      onChange={handle}
+                      onMouseDown={handleInputMouseDown}
+                      required
+                    />
+                  )}
+                </div>
+
+                {/* AI Draft input tray */}
+                {aiOpen && (
+                  <div className="gmail-ai-prompt-box">
+                    <div className="gmail-ai-row">
+                      <img
+                        src="/icons/doodle-stars.png"
+                        alt="AI Sparkles"
+                        style={{ width: "16px", height: "16px", objectFit: "contain" }}
+                      />
+                      <input
+                        type="text"
+                        className="gmail-ai-input"
+                        value={aiPrompt}
+                        onChange={(e) => setAiPrompt(e.target.value)}
+                        placeholder="Prompt AI to draft email..."
+                        disabled={drafting}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAiDraft}
+                        disabled={drafting || !aiPrompt}
+                        className="gmail-ai-draft-btn"
+                      >
+                        {drafting ? "Drafting..." : "Create"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAiOpen(false)}
+                        className="gmail-ai-close-btn"
+                        disabled={drafting}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Row 6: Gmail-style Toolbar Footer */}
+                <div className="gmail-footer">
+                  <div className="gmail-footer-left">
+                    <button type="submit" className="gmail-send-btn" disabled={status === "sending"} id="contact-submit">
+                      {status === "sending" ? "Sending..." : "Send"}
+                      {status !== "sending" && (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "rotate(45deg)", marginLeft: "6px" }}>
+                          <line x1="22" y1="2" x2="11" y2="13" />
+                          <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                        </svg>
+                      )}
                     </button>
+
+                    {/* AI Email Draft Trigger Icon */}
                     <button
                       type="button"
-                      onClick={() => setAiOpen(false)}
-                      className="gmail-ai-close-btn"
-                      disabled={drafting}
+                      className={`toolbar-icon-btn ai-draft-toggle-btn ${aiOpen ? "active" : ""}`}
+                      title="Draft email with AI"
+                      onClick={() => setAiOpen(!aiOpen)}
                     >
-                      ×
+                      <img
+                        src="/icons/doodle-stars.png"
+                        alt="AI Stars Icon"
+                        style={{ width: "18px", height: "18px", objectFit: "contain" }}
+                      />
+                    </button>
+                  </div>
+
+                  <div className="gmail-footer-right">
+                    <button
+                      type="button"
+                      className="toolbar-icon-btn discard-btn"
+                      title="Discard draft"
+                      onClick={() => {
+                        setForm({ name: "", email: "", subject: "", message: "" });
+                        setAiOpen(false);
+                        setAiPrompt("");
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></svg>
                     </button>
                   </div>
                 </div>
-              )}
 
-              {/* Row 6: Gmail-style Toolbar Footer */}
-              <div className="gmail-footer">
-                <div className="gmail-footer-left">
-                  <button type="submit" className="gmail-send-btn" disabled={status === "sending"} id="contact-submit">
-                    {status === "sending" ? "Sending..." : "Send"}
-                    {status !== "sending" && (
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "rotate(45deg)", marginLeft: "6px" }}>
-                        <line x1="22" y1="2" x2="11" y2="13" />
-                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                      </svg>
-                    )}
-                  </button>
-
-                  {/* AI Email Draft Trigger Icon */}
-                  <button
-                    type="button"
-                    className={`toolbar-icon-btn ai-draft-toggle-btn ${aiOpen ? "active" : ""}`}
-                    title="Draft email with AI"
-                    onClick={() => setAiOpen(!aiOpen)}
-                  >
-                    <img
-                      src="/icons/doodle-stars.png"
-                      alt="AI Stars Icon"
-                      style={{ width: "18px", height: "18px", objectFit: "contain" }}
-                    />
-                  </button>
-                </div>
-
-                <div className="gmail-footer-right">
-                  <button
-                    type="button"
-                    className="toolbar-icon-btn discard-btn"
-                    title="Discard draft"
-                    onClick={() => {
-                      setForm({ name: "", email: "", subject: "", message: "" });
-                      setAiOpen(false);
-                      setAiPrompt("");
-                    }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></svg>
-                  </button>
-                </div>
-              </div>
-
-            </form>
+              </form>
+            )}
           </div>
         </div>
       </div>
@@ -903,6 +926,68 @@ export default function ContactSection() {
         @keyframes toastSlideUp {
           from { transform: translateY(40px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Gmail Success screen styling */
+        .gmail-success-screen {
+          background: #ffffff;
+          padding: 40px 24px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          flex: 1;
+          min-height: 380px;
+        }
+
+        .gmail-lottie-container {
+          width: 160px;
+          height: 160px;
+          margin-bottom: 16px;
+        }
+
+        .gmail-success-title {
+          font-family: 'Bangers', cursive;
+          font-size: 32px;
+          color: #1C202B;
+          letter-spacing: 0.5px;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+        }
+
+        .gmail-success-text {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 13px;
+          color: #5f6368;
+          max-width: 340px;
+          line-height: 1.6;
+          margin-bottom: 24px;
+        }
+
+        .gmail-success-btn {
+          background: #1a73e8;
+          color: #ffffff;
+          border: 2px solid #1C202B;
+          box-shadow: 4px 4px 0 0 #1C202B;
+          border-radius: 4px;
+          padding: 10px 24px;
+          font-family: 'Open Sans', sans-serif;
+          font-weight: 700;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          cursor: pointer;
+          transition: transform 80ms ease-out, box-shadow 80ms ease-out, background-color 150ms;
+        }
+
+        .gmail-success-btn:hover {
+          background: #1557b0;
+        }
+
+        .gmail-success-btn:active {
+          transform: translate(2px, 2px);
+          box-shadow: 2px 2px 0 0 #1C202B;
         }
 
         /* Viewport Breakpoints */

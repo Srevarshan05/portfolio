@@ -26,17 +26,15 @@ export async function POST(request: Request) {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: process.env.EMAIL_USER, // always your email address
-      replyTo: email, 
+      replyTo: email,
       subject: `Portfolio Message: ${subject}`,
       text: `
-==================================================
-NEW PORTFOLIO TRANSMISSION
-==================================================
-Sender Name:    ${name}
-Sender Email:   ${email}
-Subject Line:   ${subject}
+Message from Portfolio
 --------------------------------------------------
-Message Payload:
+From: ${name} (${email})
+Subject: ${subject}
+--------------------------------------------------
+Message:
 
 ${message}
 ==================================================
