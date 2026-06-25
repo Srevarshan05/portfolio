@@ -839,3 +839,132 @@ kbd {
   color:var(--color-heading);
   box-shadow:var(--shadow-2xs);
 }
+
+/* ============================================================
+   RESPONSIVE — GLOBAL OVERFLOW GUARD
+   ============================================================ */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* ============================================================
+   RESPONSIVE — TABLET  (< 1024px)
+   ============================================================ */
+@media (max-width: 1023px) {
+
+  /* Nav */
+  .top-nav { padding: 0 24px; }
+
+  /* Section spacing */
+  .section { padding: 80px 32px; }
+  .section-header { margin-bottom: 48px; }
+
+  /* 2-col section headers → stack */
+  .section-header[style*="grid-template-columns: 1fr 1fr"],
+  .section-header[style*="gridTemplateColumns: '1fr 1fr'"] {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  /* Achievement stats bar — 3-col on tablet */
+  .achievements-stats-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  /* Marquee achievement cards — slightly narrower */
+  .achievement-card { min-width: 290px; }
+
+  /* Gallery canvas height */
+  .gallery-canvas { height: 500px !important; }
+}
+
+/* ============================================================
+   RESPONSIVE — MOBILE  (< 768px)
+   ============================================================ */
+@media (max-width: 767px) {
+
+  /* ── Global ── */
+  .section { padding: 56px 20px; }
+  .section-header { margin-bottom: 36px; }
+  .container { padding: 0; }
+
+  /* ── Nav ── */
+  .top-nav { padding: 0 16px; }
+  .nav-links { display: none !important; }
+  .nav-cmd-btn { display: none !important; }
+  .nav-hamburger { display: flex !important; }
+
+  /* ── Buttons — minimum touch target ── */
+  .btn { min-height: 48px; padding: 14px 24px; font-size: 14px; }
+  .btn-sm { min-height: 44px; padding: 12px 18px; }
+
+  /* ── Section headers: all 2-col grids → 1 col ── */
+  div[style*="grid-template-columns: 1fr 1fr"],
+  div[style*="gridTemplateColumns: '1fr 1fr'"] {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  /* ── Achievements section ── */
+  /* Stats bar: 2-col on mobile */
+  div[style*="repeat(5, 1fr)"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  /* Header padding */
+  .section-content[style*="padding: 0 40px"] {
+    padding: 0 20px !important;
+  }
+
+  /* ── Gallery ── */
+  .gallery-canvas { height: 360px !important; }
+
+  /* ── Timeline ── */
+  .timeline::before { left: 16px; }
+  .timeline-item { gap: 16px; }
+  .timeline-dot { width: 36px; height: 36px; }
+
+  /* ── Marquee cards — no interaction on smallest screens ── */
+  .stamp-card-wrapper { margin: 12px 8px 16px 8px !important; width: 300px !important; }
+
+  /* ── Connect section — fix aspect ratio on mobile ── */
+  #connect {
+    aspect-ratio: unset !important;
+    min-height: 300px !important;
+  }
+
+  /* ── Floating dock — shrink on mobile ── */
+  .floating-dock {
+    bottom: 12px !important;
+    gap: 8px !important;
+    padding: 8px 12px !important;
+  }
+
+  /* ── Overflow/absolute element guard ── */
+  .profile-shadow-block,
+  .map-shadow-block {
+    right: -8px !important;
+    bottom: -8px !important;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE — SMALL MOBILE  (< 480px)
+   ============================================================ */
+@media (max-width: 479px) {
+  .section { padding: 48px 16px; }
+
+  /* Stats bar single column on tiny screens */
+  div[style*="repeat(5, 1fr)"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Achievement cards: full width */
+  .achievement-card { min-width: 260px; }
+
+  /* Stamp cards */
+  .stamp-card-wrapper { width: 260px !important; }
+
+  /* Nav logo text — shorten on very small */
+  .nav-logo { font-size: 22px; }
+}

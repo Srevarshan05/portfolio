@@ -1,192 +1,130 @@
 "use client";
 
-import { useState } from "react";
+import { useRef } from "react";
+import { useScrollReveal } from "@/lib/useScrollReveal";
 
 export default function ConsoleSection() {
-  const [hovered, setHovered] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  useScrollReveal(sectionRef as React.RefObject<HTMLElement>);
 
   return (
     <section
       id="console"
-      className="section section-light"
+      className="section"
+      ref={sectionRef}
       style={{
-        borderTop: "4px solid var(--border-default)",
-        padding: "100px 40px",
-        background: "#F4F6FF",
+        backgroundImage: "linear-gradient(to bottom, #FFFFFF 0%, rgba(255, 255, 255, 0) 15%), linear-gradient(to top, var(--dark-strong) 0%, rgba(15, 18, 24, 0) 15%), url('/Resume.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        aspectRatio: "1024 / 572", // Matches the exact aspect ratio of the image (no cropping)
+        width: "100%",
+        position: "relative",
+        display: "flex",
+        alignItems: "stretch", // Stretch height to allow flex alignment inside
+        justifyContent: "center",
+        padding: 0, // Remove padding so image spans full height/width of section
       }}
     >
-      <div className="container" style={{ textAlign: "center" }}>
-        {/* Section Header */}
-        <div className="section-header section-header-center">
-          <div className="eyebrow" style={{ justifyContent: "center" }}>
-            Interactive Terminal
-          </div>
-          <h2>Download my Resume</h2>
-          <p className="normal" style={{ margin: "0 auto", maxWidth: "600px" }}>
-            Grab my resume directly from the retro workstation console or view my current location.
-          </p>
-        </div>
+      {/* Mobile-only Image (hidden on desktop, visible on mobile to stack layout) */}
+      <img
+        src="/Resume.png"
+        alt="Sre Varshan Resume Overview"
+        className="resume-mobile-img"
+        style={{
+          display: "none",
+          width: "100%",
+          height: "auto",
+        }}
+      />
 
-        {/* Side-by-side layout: Retro computer & Map Card */}
-        <div
-          className="console-grid"
+      <div
+        className="resume-btn-container reveal"
+        style={{
+          width: "100%",
+          maxWidth: "1200px",
+          margin: "0 auto",
+          position: "relative",
+          display: "flex",
+          alignItems: "flex-end", // Align button to bottom
+          justifyContent: "flex-start", // Align button to left
+          padding: "0 0 8% 35%", // Pad from left to place in the center-left empty space
+          height: "100%",
+        }}
+      >
+        <a
+          href="/resume.pdf"
+          download="Srevarshan_Resume_AIML27.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn claude-mix-btn"
           style={{
-            display: "grid",
-            gridTemplateColumns: "1.2fr 0.8fr",
-            gap: "48px",
-            alignItems: "stretch",
-            maxWidth: "1150px",
-            margin: "0 auto",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px",
+            padding: "14px 28px",
           }}
         >
-          {/* Retro Computer card */}
-          <div
-            className="reveal reveal-left"
-            style={{
-              position: "relative",
-              border: "8px dashed var(--border-default)",
-              borderRadius: "var(--radius-base)",
-              boxShadow: "var(--shadow-md)",
-              overflow: "hidden",
-              background: "#A1C7E6",
-              transition: "all 300ms cubic-bezier(0.22, 1, 0.36, 1)",
-              transform: hovered ? "translateY(-4px)" : "translateY(0)",
-              display: "flex",
-              alignItems: "center",
-            }}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
           >
-            <img
-              src="/Jukebox-Convert--to-Outlines-Header.webp"
-              alt="Retro Workstation Terminal"
-              style={{
-                width: "100%",
-                height: "auto",
-                display: "block",
-                transition: "transform 500ms cubic-bezier(0.22, 1, 0.36, 1)",
-                transform: hovered ? "scale(1.02)" : "scale(1)",
-              }}
-            />
-
-            {/* Solid Screen Card Overlay covering the original screen size exactly */}
-            <div
-              style={{
-                position: "absolute",
-                top: "26.4%",
-                left: "37.1%",
-                width: "21.3%",
-                height: "30.0%",
-                background: "#E36C2C",
-                borderRadius: "4px",
-                boxShadow: "inset 0 0 12px rgba(0,0,0,0.2)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                zIndex: 10,
-              }}
-            >
-              <a
-                href="/resume.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-dark"
-                style={{
-                  fontSize: "clamp(8px, 1.1vw, 14px)",
-                  padding: "clamp(6px, 0.8vw, 11px) clamp(10px, 1.4vw, 20px)",
-                  border: "0",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  whiteSpace: "nowrap",
-                  transform: hovered ? "scale(1.05)" : "scale(1)",
-                  transition: "transform 150ms",
-                  boxShadow: "var(--shadow-2xs)",
-                  borderRadius: "0",
-                }}
-              >
-                Get Resume
-              </a>
-            </div>
-          </div>
-
-          {/* Map Card */}
-          <div
-            className="card card-interactive reveal reveal-right"
-            style={{
-              background: "white",
-              padding: "28px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "20px",
-              justifyContent: "center",
-              alignItems: "stretch",
-            }}
-          >
-            {/* Location details */}
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <span style={{ fontSize: "24px" }}>📍</span>
-              <div style={{ textAlign: "left" }}>
-                <h4 style={{ fontFamily: "'Bangers', cursive", fontSize: "22px", color: "#1C202B", marginBottom: "4px", textTransform: "uppercase" }}>
-                  Current Location
-                </h4>
-                <div style={{ fontFamily: "'Open Sans', sans-serif", fontSize: "14px", fontWeight: 700, color: "var(--fg-brand)" }}>
-                  Chennai, Tamil Nadu
-                </div>
-                <div style={{ fontFamily: "'Open Sans', sans-serif", fontSize: "11px", color: "var(--color-body-subtle)", marginTop: "2px" }}>
-                  India · IST (UTC+5:30)
-                </div>
-              </div>
-            </div>
-
-            {/* Map Image Widget */}
-            <div
-              style={{
-                width: "100%",
-                borderRadius: "2px",
-                border: "3px solid var(--border-default)",
-                boxShadow: "var(--shadow-xs)",
-                overflow: "hidden",
-                position: "relative",
-                background: "#F4F6FF"
-              }}
-            >
-              <img
-                src="/Location.jpg"
-                alt="My Location map: Chennai, India"
-                style={{
-                  width: "100%",
-                  height: "230px",
-                  objectFit: "cover",
-                  display: "block"
-                }}
-              />
-              {/* Coordinate label */}
-              <div style={{
-                position: "absolute",
-                bottom: "8px",
-                right: "8px",
-                background: "rgba(20,23,31,0.9)",
-                color: "white",
-                padding: "3px 8px",
-                fontSize: "9px",
-                fontWeight: 700,
-                fontFamily: "monospace",
-                borderRadius: "2px",
-                border: "1px solid rgba(255,255,255,0.2)"
-              }}>
-                13.0827° N, 80.2707° E
-              </div>
-            </div>
-          </div>
-        </div>
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Download Resume
+        </a>
       </div>
 
       <style>{`
+        .claude-mix-btn {
+          background-color: #C15F3C !important;
+          color: #FFFFFF !important;
+          border: 0 !important;
+        }
+        .claude-mix-btn:hover {
+          filter: brightness(1.1) !important;
+          color: #FFFFFF !important;
+          text-decoration: none !important;
+        }
         @media (max-width: 900px) {
-          .console-grid {
-            grid-template-columns: 1fr !important;
-            gap: 32px !important;
+          #console {
+            background-image: none !important;
+            aspect-ratio: auto !important;
+            flex-direction: column !important;
+            padding: 48px 20px !important;
+            background-color: #F4F6FF !important;
+            align-items: center !important;
+            overflow: hidden !important;
+          }
+          .resume-mobile-img {
+            display: block !important;
+            width: calc(100% - 12px) !important; /* subtract shadow offset so it stays in viewport */
+            max-width: 480px !important;
+            height: auto !important;
+            border: 4px solid #1C202B !important;
+            box-shadow: 6px 6px 0 0 #1C202B !important;
+            margin-bottom: 24px !important;
+            margin-right: 6px !important; /* offset to balance the shadow without overflow */
+            border-radius: var(--radius-base) !important;
+            align-self: center !important;
+          }
+          .resume-btn-container {
+            width: 100% !important;
+            padding: 0 !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            height: auto !important;
           }
         }
       `}</style>

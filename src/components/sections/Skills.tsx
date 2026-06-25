@@ -99,9 +99,32 @@ export default function SkillsSection() {
         .skills-image-container:hover .skills-themed-image {
           transform: translateY(-8px) scale(1.015);
         }
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
+          #skills {
+            padding: 60px 0 !important;
+          }
+          #skills > div {
+            padding: 0 16px !important;
+          }
+        }
+        @media (max-width: 767px) {
+          #skills {
+            padding: 48px 0 !important;
+          }
+          #skills > div {
+            padding: 0 8px !important;
+          }
           .skills-image-container:hover .skills-themed-image {
             transform: translateY(-4px) scale(1.008);
+          }
+          .skills-themed-image {
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+        }
+        @media (max-width: 479px) {
+          #skills > div {
+            padding: 0 4px !important;
           }
         }
       `}</style>

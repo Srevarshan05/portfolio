@@ -689,7 +689,11 @@ export default function DomeGallery({
                   onClick={onTileClick}
                   onPointerUp={onTilePointerUp}
                 >
-                  <img src={it.src} draggable={false} alt={it.alt} />
+                  <img
+                    src={it.src && it.src.startsWith('/') ? `/_next/image?url=${encodeURIComponent(it.src)}&w=384&q=75` : it.src}
+                    draggable={false}
+                    alt={it.alt}
+                  />
                 </div>
               </div>
             ))}

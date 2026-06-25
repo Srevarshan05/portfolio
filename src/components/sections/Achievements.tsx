@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useScrollReveal } from "@/lib/useScrollReveal";
 
 const ACHIEVEMENTS = [
@@ -66,6 +66,20 @@ export default function AchievementsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   useScrollReveal(sectionRef as React.RefObject<HTMLElement>);
 
+  // Responsive columns for stats grid — bypasses CSS specificity issue with inline styles
+  const [statsCols, setStatsCols] = useState("repeat(5, 1fr)");
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      if (w < 640) setStatsCols("repeat(2, 1fr)");
+      else if (w < 1024) setStatsCols("repeat(3, 1fr)");
+      else setStatsCols("repeat(5, 1fr)");
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   return (
     <section 
       id="achievements" 
@@ -88,7 +102,10 @@ export default function AchievementsSection() {
               <img src="/icons/trophy.png" alt="" style={{ width: "16px", height: "16px", objectFit: "contain" }} />
               Highlights
             </div>
-            <h2 style={{ color: "white", marginBottom: 0 }}>The Trophy Room</h2>
+            <h2 style={{ color: "white", marginBottom: 0, display: "flex", alignItems: "center", gap: "12px" }}>
+              <span>The Trophy Room</span>
+              <img src="/icons/trophy.png" alt="Trophy" style={{ width: "54px", height: "54px", objectFit: "contain" }} />
+            </h2>
           </div>
           <div className="reveal reveal-right" style={{ paddingBottom: "4px" }}>
             <p className="leading" style={{ color: "var(--neutral-primary-soft)", opacity: 0.8 }}>
@@ -139,7 +156,7 @@ export default function AchievementsSection() {
                     }}
                   />
 
-                  {/* Top Badges (Number + Icon) */}
+                  {/* Top Badges (Number Block only, emojis removed) */}
                   <div
                     style={{
                       position: "absolute",
@@ -147,7 +164,6 @@ export default function AchievementsSection() {
                       left: "14px",
                       display: "flex",
                       alignItems: "center",
-                      gap: "8px",
                       zIndex: 10,
                     }}
                   >
@@ -169,23 +185,6 @@ export default function AchievementsSection() {
                       }}
                     >
                       {numberStr}
-                    </div>
-
-                    {/* Icon Block */}
-                    <div
-                      style={{
-                        width: "36px",
-                        height: "36px",
-                        background: "#1C202B",
-                        border: "3px solid #1C202B",
-                        boxShadow: "3px 3px 0px #1C202B",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "16px",
-                      }}
-                    >
-                      {item.emoji}
                     </div>
                   </div>
 
@@ -238,7 +237,15 @@ export default function AchievementsSection() {
       {/* Stats bar */}
       <div className="section-content" style={{ padding: "0 40px" }}>
         <div className="container reveal">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", borderTop: "1px solid rgba(255,255,255,0.1)", borderLeft: "1px solid rgba(255,255,255,0.1)" }}>
+          <div
+            className="achievements-stats-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: statsCols,
+              borderTop: "1px solid rgba(255,255,255,0.1)",
+              borderLeft: "1px solid rgba(255,255,255,0.1)"
+            }}
+          >
             {STATS.map((s) => (
               <div
                 key={s.label}
@@ -306,6 +313,35 @@ export default function AchievementsSection() {
         .stamp-card-wrapper:active {
           transform: translateY(2px) translateX(2px) translate3d(0, 0, 0);
           filter: drop-shadow(2px 2px 0px #1C202B) !important;
+        }
+        
+        /* ── Responsive: Achievements ── */
+        @media (max-width: 1023px) {
+          .achievements-stats-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+          }
+          #achievements .section-content {
+            padding: 0 24px !important;
+          }
+          #achievements .container > div:first-child {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+        }
+        @media (max-width: 767px) {
+          .achievements-stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+          .achievements-stats-grid > div {
+            padding: 20px 12px !important;
+          }
+          #achievements .section-content {
+            padding: 0 16px !important;
+          }
+          #achievements .container > div:first-child {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
         }
       `}</style>
     </section>

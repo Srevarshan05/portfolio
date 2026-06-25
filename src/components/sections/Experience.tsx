@@ -82,6 +82,7 @@ export default function ExperienceSection() {
 
         {/* ── Header ── */}
         <div
+          className="exp-header-grid"
           style={{
             display:       "grid",
             gridTemplateColumns: "1fr 1fr",
@@ -95,7 +96,10 @@ export default function ExperienceSection() {
               <img src="/icons/internship.png" alt="" style={{ width: "16px", height: "16px", objectFit: "contain" }} />
               Work History
             </div>
-            <h2 style={{ marginBottom: 0 }}>Real Work,<br />Real Impact.</h2>
+            <h2 style={{ marginBottom: 0, display: "flex", alignItems: "center", gap: "16px" }}>
+              <span>Real Work,<br />Real Impact.</span>
+              <img src="/icons/internship.png" alt="Work History" style={{ width: "68px", height: "68px", objectFit: "contain" }} />
+            </h2>
           </div>
           <div className="reveal reveal-right" style={{ paddingBottom: "4px" }}>
             <p className="leading" style={{ color: "var(--color-body)" }}>
@@ -106,7 +110,7 @@ export default function ExperienceSection() {
         </div>
 
         {/* ── Cards ── */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "48px" }}>
+        <div className="exp-cards-list" style={{ display: "flex", flexDirection: "column", gap: "48px" }}>
           {ROLES.map((r, i) => {
             const renderPinkL = (
               <div
@@ -186,30 +190,46 @@ export default function ExperienceSection() {
                     {r.type}
                   </div>
 
-                  {/* Title (Oblique italic display headings) */}
-                  <h3
-                    style={{
-                      fontFamily: "'Bangers', cursive",
-                      fontSize: "44px",
-                      color: "#1C202B",
-                      letterSpacing: "0.5px",
-                      textTransform: "uppercase",
-                      lineHeight: 1.15,
-                      margin: "18px 0 14px 0",
-                      transform: "skewX(-6deg)",
-                      fontStyle: "italic",
-                    }}
-                  >
-                    {r.role}.{" "}
-                    <span
+                  {/* Title & Logo Container */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "16px", margin: "18px 0 14px 0" }}>
+                    <img 
+                      src={r.id === "emedlogix" ? "/EmedLogix-logo.jpg" : "/Edunet-Microsoft-logo.png"} 
+                      alt={`${r.company} logo`}
                       style={{
-                        color: "var(--brand)",
-                        textShadow: "2px 2px 0px #1C202B",
+                        width: "90px",
+                        height: "90px",
+                        objectFit: "contain",
+                        border: "3px solid #1C202B",
+                        borderRadius: "10px",
+                        boxShadow: "4px 4px 0 0 #1C202B",
+                        background: "#ffffff",
+                        padding: "6px",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <h3
+                      style={{
+                        fontFamily: "'Open Sans', sans-serif",
+                        fontSize: "26px",
+                        fontWeight: 800,
+                        color: "#1C202B",
+                        letterSpacing: "-0.5px",
+                        textTransform: "uppercase",
+                        lineHeight: 1.2,
+                        margin: 0,
                       }}
                     >
-                      {r.company}.
-                    </span>
-                  </h3>
+                      {r.role}{" "}
+                      <span
+                        style={{
+                          color: "var(--brand)",
+                          display: "inline-block",
+                        }}
+                      >
+                        @ {r.company}
+                      </span>
+                    </h3>
+                  </div>
 
                   {/* Subtext description */}
                   <p
@@ -353,16 +373,36 @@ export default function ExperienceSection() {
           flex-direction: column;
           justify-content: center;
         }
-        @media (max-width: 990px) {
+        @media (max-width: 1023px) {
           .experience-card-wrapper {
             grid-template-columns: 1fr;
-            padding: 32px 24px;
-            gap: 32px;
+            padding: 36px 28px;
+            gap: 28px;
+          }
+          .exp-header-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+            margin-bottom: 48px !important;
           }
         }
-        @media (max-width: 680px) {
-          #experience .section-header {
+        @media (max-width: 767px) {
+          .experience-card-wrapper {
+            grid-template-columns: 1fr;
+            padding: 24px 16px;
+            gap: 24px;
+            box-shadow: 6px 6px 0 0 #1C202B;
+          }
+          .experience-sidebar-card {
+            padding: 24px 16px;
+            min-height: unset;
+          }
+          .exp-header-grid {
             grid-template-columns: 1fr !important;
+            gap: 16px !important;
+            margin-bottom: 36px !important;
+          }
+          .exp-cards-list {
+            gap: 32px !important;
           }
         }
       `}</style>

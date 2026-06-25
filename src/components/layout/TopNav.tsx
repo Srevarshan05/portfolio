@@ -9,7 +9,6 @@ const NAV_LINKS = [
   { id: "skills",       label: "Skills" },
   { id: "experience",   label: "Experience" },
   { id: "projects",     label: "Projects" },
-  { id: "achievements", label: "Achievements" },
   { id: "contact",      label: "Contact" },
 ];
 
@@ -67,14 +66,10 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
     height: isMobile
       ? "auto"
       : (scrolled ? "50px" : "58px"),
-    background: "rgba(20, 23, 31, 0.94)", // deep rich charcoal tetris theme base
-    backdropFilter: "blur(20px) saturate(180%)",
-    WebkitBackdropFilter: "blur(20px) saturate(180%)",
-    border: "2px solid rgba(255, 255, 255, 0.12)",
+    background: "#ffffff", // clean white pill
+    border: "3px solid #1C202B", // neobrutalist border
     borderRadius: isMobile && mobileOpen ? "24px" : "9999px",
-    boxShadow: scrolled
-      ? "0 12px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.05)"
-      : "0 8px 24px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.05)",
+    boxShadow: "5px 5px 0 0 #1C202B", // neobrutalist slab shadow
     zIndex: 1000,
     display: "flex",
     flexDirection: "column",
@@ -118,21 +113,21 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
             flexShrink:     0,
           }}
         >
-          {/* Tetris-clip mark */}
+          {/* Circular badge container SV logo */}
           <div
             aria-hidden="true"
             style={{
-              width:           "32px",
-              height:          "32px",
-              background:      "linear-gradient(135deg, #ff512f, #dd2476)",
-              clipPath:        "polygon(calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 8px), 0 0)",
+              width:           "36px",
+              height:          "36px",
+              background:      "#1C202B",
+              borderRadius:    "50%",
               display:         "flex",
               alignItems:      "center",
               justifyContent:  "center",
               color:           "white",
               fontFamily:      "'Bangers', cursive",
-              fontSize:        "14px",
-              letterSpacing:   "0",
+              fontSize:        "16px",
+              letterSpacing:   "0.5px",
               flexShrink:      0,
             }}
           >
@@ -142,7 +137,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
           {/* Name & Title (hidden on compact mobile mode) */}
           {(!isMobile || mobileOpen) && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1.1, gap: "1px" }}>
-              <span style={{ fontFamily: "'Bangers', cursive", fontSize: "16px", letterSpacing: "1.5px", color: "white", textTransform: "uppercase" }}>
+              <span style={{ fontFamily: "'Bangers', cursive", fontSize: "16px", letterSpacing: "1.5px", color: "#1C202B", textTransform: "uppercase" }}>
                 Sre Varshan
               </span>
               <span style={{ fontFamily: "'Open Sans', sans-serif", fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", color: "var(--brand)" }}>
@@ -181,8 +176,8 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
                     fontWeight:      700,
                     textTransform:   "uppercase",
                     letterSpacing:   "0.8px",
-                    color:           isActive ? "#FFFFFF" : isHovered ? "#FFFFFF" : "rgba(255,255,255,0.7)",
-                    background:      isActive ? "var(--brand)" : isHovered ? "rgba(255,255,255,0.08)" : "transparent",
+                    color:           isActive ? "#FFFFFF" : "#1C202B",
+                    background:      isActive ? "var(--brand)" : isHovered ? "rgba(28, 32, 43, 0.08)" : "transparent",
                     border:          "none",
                     height:          "32px",
                     display:         "inline-flex",
@@ -205,99 +200,6 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
 
         {/* Actions Row */}
         <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "12px", flexShrink: 0 }}>
-          {!isMobile && (
-            <>
-              {/* Cmd+K Search */}
-              <button
-                onClick={onCommandPaletteOpen}
-                aria-label="Open command palette (Ctrl+K)"
-                id="nav-cmd"
-                style={{
-                  display:      "inline-flex",
-                  alignItems:   "center",
-                  justifyContent: "center",
-                  height:       "32px",
-                  gap:          "6px",
-                  fontFamily:   "'Open Sans', sans-serif",
-                  fontSize:     "11px",
-                  fontWeight:   700,
-                  color:        "rgba(255,255,255,0.8)",
-                  background:   "rgba(255,255,255,0.08)",
-                  border:       "1px solid rgba(255,255,255,0.15)",
-                  borderRadius: "9999px",
-                  padding:      "0 12px",
-                  cursor:       "pointer",
-                  transition:   "all 150ms",
-                  whiteSpace:   "nowrap",
-                  boxSizing:    "border-box",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.15)";
-                  (e.currentTarget as HTMLElement).style.color      = "#FFFFFF";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.08)";
-                  (e.currentTarget as HTMLElement).style.color      = "rgba(255,255,255,0.8)";
-                }}
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <circle cx="11" cy="11" r="8"/>
-                  <path d="M21 21l-4.35-4.35"/>
-                </svg>
-                Search
-                <kbd style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  padding: "1px 5px",
-                  fontFamily: "'Open Sans', sans-serif",
-                  fontSize: "9px",
-                  fontWeight: 700,
-                  background: "rgba(255,255,255,0.12)",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  borderRadius: "3px",
-                  color: "rgba(255,255,255,0.7)"
-                }}>
-                  ⌘K
-                </kbd>
-              </button>
-
-              {/* Resume CTA — fully rounded pill style */}
-              <a
-                href="/resume.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                id="nav-resume"
-                style={{
-                  display:        "inline-flex",
-                  alignItems:     "center",
-                  justifyContent: "center",
-                  height:         "32px",
-                  gap:            "6px",
-                  fontFamily:     "'Open Sans', sans-serif",
-                  fontWeight:     700,
-                  fontSize:       "11px",
-                  textTransform:  "uppercase",
-                  letterSpacing:  "0.8px",
-                  color:          "white",
-                  background:     "linear-gradient(135deg, #ff512f, #dd2476)",
-                  border:         "0",
-                  padding:        "0 16px",
-                  borderRadius:   "9999px",
-                  cursor:         "pointer",
-                  textDecoration: "none",
-                  transition:     "transform 80ms ease-out, filter 120ms",
-                  boxShadow:      "0 4px 12px rgba(226, 45, 109, 0.25)",
-                  boxSizing:      "border-box",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(1.15)")}
-                onMouseLeave={(e) => (e.currentTarget.style.filter = "none")}
-              >
-                <img src="/icons/cv.png" alt="" style={{ width: "12px", height: "12px", objectFit: "contain" }} />
-                Resume
-              </a>
-            </>
-          )}
-
           {/* Hamburger (only shown on mobile) */}
           {isMobile && (
             <button
@@ -324,7 +226,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
                     display:    "block",
                     width:      "18px",
                     height:     "2px",
-                    background: "white",
+                    background: "#1C202B",
                     borderRadius: "1px",
                     transition: "transform 300ms, opacity 300ms",
                     transform: mobileOpen
@@ -351,7 +253,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
             flexDirection: "column",
             gap:           "6px",
             marginTop:     "16px",
-            borderTop:     "1px solid rgba(255,255,255,0.1)",
+            borderTop:     "2px solid #1C202B",
             paddingTop:    "12px",
             animation:     "fadeIn 300ms ease-out",
           }}
@@ -366,7 +268,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
                 fontWeight:   700,
                 textTransform:"uppercase",
                 letterSpacing:"0.8px",
-                color:        active === link.id ? "white" : "rgba(255,255,255,0.7)",
+                color:        active === link.id ? "white" : "#1C202B",
                 background:   active === link.id ? "var(--brand)" : "transparent",
                 border:       "none",
                 borderRadius: "12px",
@@ -380,63 +282,6 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
               {link.label}
             </button>
           ))}
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginTop: "10px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "12px" }}>
-            {/* Search */}
-            <button
-              onClick={() => { onCommandPaletteOpen(); setMobileOpen(false); }}
-              style={{
-                display:        "flex",
-                alignItems:     "center",
-                justifyContent: "center",
-                gap:            "6px",
-                fontFamily:     "'Open Sans', sans-serif",
-                fontSize:       "11px",
-                fontWeight:     700,
-                color:          "white",
-                background:     "rgba(255,255,255,0.08)",
-                border:         "1px solid rgba(255,255,255,0.15)",
-                borderRadius:   "12px",
-                padding:        "10px",
-                cursor:         "pointer",
-              }}
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="M21 21l-4.35-4.35"/>
-              </svg>
-              Search
-            </button>
-
-            {/* Resume */}
-            <a
-              href="/resume.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display:        "inline-flex",
-                alignItems:     "center",
-                justifyContent: "center",
-                gap:            "6px",
-                fontFamily:     "'Open Sans', sans-serif",
-                fontWeight:     700,
-                fontSize:       "11px",
-                textTransform:  "uppercase",
-                letterSpacing:  "0.8px",
-                color:          "white",
-                background:     "linear-gradient(135deg, #ff512f, #dd2476)",
-                padding:        "10px",
-                borderRadius:   "12px",
-                textDecoration: "none",
-                textAlign:      "center",
-                boxShadow:      "0 4px 12px rgba(226, 45, 109, 0.25)"
-              }}
-              onClick={() => setMobileOpen(false)}
-            >
-              <img src="/icons/cv.png" alt="" style={{ width: "12px", height: "12px", objectFit: "contain" }} />
-              Resume
-            </a>
-          </div>
         </div>
       )}
     </header>

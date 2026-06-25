@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useScrollReveal } from "@/lib/useScrollReveal";
 
 const PROJECTS = [
@@ -9,6 +9,7 @@ const PROJECTS = [
     accent: "var(--brand)",
     badgeText: "PATENTED AI",
     isPinkCard: true,
+    image: "/photos/banana-weevil-setup.jpg",
     tetromino: (
       <svg width="40" height="40" viewBox="0 0 40 40" fill="var(--brand)">
         {/* T-block */}
@@ -29,17 +30,13 @@ const PROJECTS = [
         <path d="M175 35 C 185 40, 185 50, 175 55" stroke="#1C202B" strokeWidth="2.5" strokeLinecap="round" fill="none" />
       </svg>
     ),
-    title: "BANANA DETECT",
+    title: "Banana Weevil Detection project using Deep Learning",
     description: "A dual-mode acoustic sensing system that detects Odoiporous longicollis infestations in banana crops entirely offline.",
     features: [
       { icon: "⚡", text: "Offline Inference" },
       { icon: "🔊", text: "Acoustic dual-sensing" },
       { icon: "🔋", text: "Low-power Raspberry Pi" },
       { icon: "🏛️", text: "Government Patented" }
-    ],
-    metrics: [
-      { label: "ACCURACY", value: "95%" },
-      { label: "HARDWARE", value: "RPi 4B" }
     ],
     btnText: "READ PATENT",
     btnLink: "https://github.com/srevarshan",
@@ -75,10 +72,6 @@ const PROJECTS = [
       { icon: "🔒", text: "100% On-device Privacy" },
       { icon: "🤖", text: "Fine-tuned Local LLM" },
       { icon: "📱", text: "iOS & Android Support" }
-    ],
-    metrics: [
-      { label: "LATENCY", value: "0s" },
-      { label: "ACCURACY", value: "98%" }
     ],
     btnText: "VIEW ON GITHUB",
     btnLink: "https://github.com/srevarshan/NutriMinds",
@@ -116,10 +109,6 @@ const PROJECTS = [
       { icon: "⚙️", text: "Local + Cloud Runtime" },
       { icon: "📂", text: "Multi-format PDF Parser" }
     ],
-    metrics: [
-      { label: "LATENCY", value: "1.2s" },
-      { label: "ACCURACY", value: "96%" }
-    ],
     btnText: "EXPLORE REPO",
     btnLink: "https://github.com/srevarshan",
   },
@@ -128,6 +117,9 @@ const PROJECTS = [
 export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   useScrollReveal(sectionRef as React.RefObject<HTMLElement>);
+  
+  const [activeProject, setActiveProject] = useState<typeof PROJECTS[0] | null>(null);
+  const [isWorkflowOpen, setIsWorkflowOpen] = useState(false);
 
   return (
     <section id="projects" className="section section-white" ref={sectionRef} style={{ background: "#FFFFFF" }}>
@@ -143,8 +135,8 @@ export default function ProjectsSection() {
           </p>
         </div>
 
-        {/* Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: "32px" }}>
+        {/* Projects Grid */}
+        <div className="projects-grid">
           {PROJECTS.map((p, i) => (
             <article
               key={p.id}
@@ -157,70 +149,341 @@ export default function ProjectsSection() {
               </div>
 
               {/* Top-Right Tetromino decoration */}
-              <div aria-hidden="true" style={{ position: "absolute", top: "24px", right: "24px", zIndex: 5 }}>
+              <div aria-hidden="true" style={{ position: "absolute", top: "20px", right: "20px", zIndex: 5 }}>
                 {p.tetromino}
               </div>
 
-              {/* SVG Illustration spacer */}
-              <div style={{ width: "100%", height: "90px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", marginTop: "24px" }}>
-                {p.illustration}
-              </div>
-
-              {/* Title */}
-              <h3 className="project-card-title">{p.title}</h3>
-
-              {/* Description */}
-              <p className="project-card-desc">{p.description}</p>
-
-              {/* Features List */}
-              <ul className="project-card-features">
-                {p.features.map((f, idx) => (
-                  <li key={idx} className="project-feature-item">
-                    <span className="project-feature-icon">{f.icon}</span>
-                    <span className="project-feature-text">{f.text}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* Dashed Separator */}
-              <div className="project-card-separator" />
-
-              {/* Metrics Row */}
-              <div className="project-card-metrics">
-                {p.metrics.map((m, idx) => (
-                  <div key={idx} style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <span className="project-metric-label">{m.label}</span>
-                    <span className="project-metric-value">{m.value}</span>
+              {/* Card Header (Image or Illustration) */}
+              <div className="project-card-header" style={{ backgroundColor: p.isPinkCard ? "#FFE5EE" : "#F4F6FF" }}>
+                {p.image ? (
+                  <img
+                    src={p.image}
+                    alt={p.title}
+                    className="project-card-image"
+                  />
+                ) : (
+                  <div className="project-card-illustration">
+                    {p.illustration}
                   </div>
-                ))}
+                )}
               </div>
 
-              {/* Action Button */}
-              <a
-                href={p.btnLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="project-card-btn"
-                style={{
-                  ['--btn-shadow-color']: p.isPinkCard ? "var(--brand)" : "#B7C4ED"
-                } as React.CSSProperties}
-              >
-                {p.btnText} →
-              </a>
+              {/* Card Body Content */}
+              <div className="project-card-body">
+                <h3 className="project-card-title">{p.title}</h3>
+                <p className="project-card-desc">{p.description}</p>
+                
+                {/* Dashed Separator */}
+                <div className="project-card-separator" />
+
+                {/* Action Button */}
+                <button
+                  onClick={() => setActiveProject(p)}
+                  className="project-card-btn"
+                  style={{
+                    ['--btn-shadow-color']: p.isPinkCard ? "var(--brand)" : "#B7C4ED"
+                  } as React.CSSProperties}
+                >
+                  Read More →
+                </button>
+              </div>
             </article>
           ))}
         </div>
       </div>
 
+      {/* Project Details Modal */}
+      {activeProject && (
+        <div
+          className="modal-backdrop"
+          onClick={() => setActiveProject(null)}
+        >
+          <div
+            className="project-modal-container"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="project-modal-header" style={{ borderBottomColor: activeProject.accent }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+                <h3 className="project-modal-title">{activeProject.title}</h3>
+                <span className="project-modal-badge" style={{ backgroundColor: activeProject.accent, borderColor: "#1C202B" }}>
+                  {activeProject.badgeText}
+                </span>
+              </div>
+              <button
+                className="project-modal-close-btn"
+                onClick={() => setActiveProject(null)}
+                aria-label="Close details"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="project-modal-body">
+              {activeProject.id === "banana-weevil" ? (
+                /* Banana Weevil Details */
+                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  {/* Overview */}
+                  <div className="modal-overview">
+                    <p>
+                      A portable, non-destructive system designed to detect hidden weevil infestations inside banana plants. By listening to the plant&apos;s internal sounds, it helps farmers identify damaged stems early, preventing crop loss without harming the plant.
+                    </p>
+                  </div>
+
+                  <div className="modal-divider" />
+
+                  {/* 2-Column Grid */}
+                  <div className="modal-details-grid">
+                    {/* Left Column */}
+                    <div className="modal-grid-col">
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#E22D6D" }}>
+                          The Problem
+                        </h4>
+                        <p className="modal-text">
+                          The larvae of the weevil tunnel deep inside the banana stem, making them invisible from the outside. By the time damage is visible on the exterior, the core of the plant is already hollowed out and the crop is destroyed. Traditional inspection methods are slow, require expert knowledge, and require physically cutting into the plant, which damages the crop.
+                        </p>
+                      </div>
+
+                      <div className="modal-section-card" style={{ marginTop: "16px" }}>
+                        <h4 className="modal-section-title" style={{ color: "#2BB04A" }}>
+                          The Solution
+                        </h4>
+                        <p className="modal-text">
+                          A dual-mode acoustic sensor system that acts like a stethoscope for plants:
+                        </p>
+                        <ul className="modal-list">
+                          <li>
+                            <strong>Passive Listening:</strong> The device captures the very faint, microscopic chewing sounds made by the larvae inside the stem.
+                          </li>
+                          <li>
+                            <strong>Active Testing:</strong> The device gently taps the stem and measures how the plant vibrates, confirming if the core is solid or hollowed out.
+                          </li>
+                          <li>
+                            <strong>Machine Learning Detection:</strong> The recorded sounds and vibration patterns are processed directly on-device using a lightweight machine learning algorithm to instantly classify the health status of the plant.
+                          </li>
+                        </ul>
+                        <p className="modal-text" style={{ marginTop: "8px" }}>
+                          By combining physical sensing with local machine learning analysis, the system provides an accurate diagnosis entirely in the field.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Right Column */}
+                    <div className="modal-grid-col">
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#4D5BFF" }}>
+                          Real-World Design
+                        </h4>
+                        <p className="modal-text">
+                          Farms often lack reliable internet connection. The system is designed to run entirely offline on a low-cost, portable microcomputer (a Raspberry Pi) carried by the farmer. This allows instant, real-time results in remote fields without any network connection.
+                        </p>
+                      </div>
+
+                      <div className="modal-section-card" style={{ marginTop: "16px" }}>
+                        <h4 className="modal-section-title" style={{ color: "#8E2DE2" }}>
+                          Research Journey
+                        </h4>
+                        <p className="modal-text">
+                          Developing this solution required extensive scientific validation:
+                        </p>
+                        <ul className="modal-list">
+                          <li>
+                            <strong>National Institute Collaboration:</strong> Got the opportunity to visit the ICAR-National Research Centre for Banana (NRCB) to study the pest behaviour and collect stage-wise sound recordings of the insect.
+                          </li>
+                          <li>
+                            <strong>2-Year Timeline:</strong> Spent around 2 years of continuous engineering and field testing to refine the system up to Technology Readiness Level 5 (TRL 5), demonstrating its effectiveness in actual farm conditions.
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className="modal-section-card" style={{ marginTop: "16px" }}>
+                        <h4 className="modal-section-title" style={{ color: "#FFB020" }}>
+                          Funding and Recognition
+                        </h4>
+                        <ul className="modal-list">
+                          <li>
+                            <strong>Seed Funding:</strong> Secured ₹20,000 in seed funding to support the development and prototyping of this project.
+                          </li>
+                          <li>
+                            <strong>Award Winner:</strong> Won at the Institution&apos;s Innovation Council (IIC) Regional Meet in Tirunelveli, 2025.
+                          </li>
+                          <li>
+                            <strong>Patent Status:</strong> Officially recognized under Indian Patent Application No. <strong>202541116228 A</strong>.
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="modal-divider" />
+
+                  {/* Footer */}
+                  <div className="modal-footer" style={{ justifyContent: "flex-end" }}>
+                    <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                      <button
+                        onClick={() => setIsWorkflowOpen(true)}
+                        className="modal-action-btn secondary-btn"
+                        style={{ cursor: "pointer" }}
+                      >
+                        See Project Workflow →
+                      </button>
+                      <a
+                        href={activeProject.btnLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="modal-action-btn primary-btn"
+                      >
+                        {activeProject.btnText} →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* Nutriminds & Doc Parser Details */
+                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  <div className="modal-overview">
+                    <p style={{ fontStyle: "normal" }}>{activeProject.description}</p>
+                  </div>
+
+                  <div className="modal-divider" />
+
+                  {/* 2-Column Layout */}
+                  <div className="modal-details-grid">
+                    <div className="modal-grid-col">
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: activeProject.accent }}>
+                          Key Features
+                        </h4>
+                        <ul className="modal-list">
+                          {activeProject.features.map((f, idx) => (
+                            <li key={idx}>
+                              <strong>{f.text}</strong>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="modal-grid-col">
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#1C202B" }}>
+                          Technical Specs
+                        </h4>
+                        <p className="modal-text">
+                          This system is designed to run efficiently on-device, leveraging optimized models and modern UI frameworks to deliver a latency-free user experience without compromising user privacy.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="modal-divider" />
+
+                  {/* Footer */}
+                  <div className="modal-footer" style={{ justifyContent: "flex-end" }}>
+                    <a
+                      href={activeProject.btnLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="modal-action-btn primary-btn"
+                    >
+                      {activeProject.btnText} →
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lightbox Modal for Workflow */}
+      {isWorkflowOpen && (
+        <div
+          onClick={() => setIsWorkflowOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(28, 32, 43, 0.85)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 99999,
+            padding: "24px",
+            backdropFilter: "blur(4px)",
+            cursor: "zoom-out",
+          }}
+        >
+          <div
+            style={{
+              position: "relative",
+              maxWidth: "1100px",
+              width: "100%",
+              maxHeight: "90vh",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src="/Banana_Weevil_Portfolio.png"
+              alt="Banana Weevil Pest Detection Workflow"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "90vh",
+                objectFit: "contain",
+                border: "4px solid #1C202B",
+                boxShadow: "10px 10px 0 0 #1C202B",
+                borderRadius: "4px",
+                backgroundColor: "#FFFFFF",
+              }}
+            />
+            <button
+              onClick={() => setIsWorkflowOpen(false)}
+              style={{
+                position: "absolute",
+                top: "-18px",
+                right: "-18px",
+                background: "#E22D6D",
+                border: "3px solid #1C202B",
+                boxShadow: "3px 3px 0 0 #1C202B",
+                color: "white",
+                width: "36px",
+                height: "36px",
+                borderRadius: "50%",
+                fontFamily: "'Bangers', cursive",
+                fontSize: "20px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              title="Close Workflow"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       <style>{`
+        .projects-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 32px;
+        }
+        
         .project-dashed-card {
           border-radius: 8px;
-          padding: 40px 32px 32px 32px;
+          padding: 0;
           position: relative;
           display: flex;
           flex-direction: column;
           box-shadow: 10px 10px 0 0 #1C202B;
           transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 150ms;
+          overflow: hidden;
         }
         .project-dashed-card:hover {
           transform: translateY(-4px);
@@ -228,16 +491,54 @@ export default function ProjectsSection() {
         }
         .project-dashed-card.pink-card {
           background: #FFE5EE;
-          border: 6px dashed var(--brand);
+          border: 4px solid #1C202B;
         }
         .project-dashed-card.white-card {
           background: #FFFFFF;
-          border: 6px dashed #1C202B;
+          border: 4px solid #1C202B;
         }
+        
+        .project-card-header {
+          width: 100%;
+          height: 180px;
+          border-bottom: 4px solid #1C202B;
+          overflow: hidden;
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .project-card-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.3s ease;
+        }
+        .project-dashed-card:hover .project-card-image {
+          transform: scale(1.05);
+        }
+        
+        .project-card-illustration {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+        }
+        
+        .project-card-body {
+          padding: 28px 24px 24px 24px;
+          display: flex;
+          flex-direction: column;
+          flex-grow: 1;
+        }
+        
         .project-card-badge {
           position: absolute;
-          top: -14px;
-          left: 24px;
+          top: 14px;
+          left: 14px;
           padding: 6px 12px;
           font-family: 'Open Sans', sans-serif;
           font-size: 10px;
@@ -257,56 +558,28 @@ export default function ProjectsSection() {
           color: #1C202B;
           border: 2px solid #1C202B;
         }
+        
         .project-card-title {
-          font-family: 'Bangers', cursive;
-          font-size: 34px;
+          font-family: 'Open Sans', sans-serif;
+          font-size: 25px;
+          font-weight: 800;
           color: #1C202B;
-          letter-spacing: 0.5px;
+          letter-spacing: -0.5px;
           text-transform: uppercase;
-          margin: 16px 0 10px 0;
+          margin: 0 0 10px 0;
           transform: skewX(-6deg);
-          font-style: italic;
+          line-height: 1.2;
         }
+        
         .project-card-desc {
           font-family: 'Open Sans', sans-serif;
           font-size: 14px;
           line-height: 1.6;
           color: var(--color-body);
-          margin: 0 0 24px 0;
-          min-height: 64px;
+          margin: 0 0 20px 0;
+          min-height: 68px;
         }
-        .project-card-features {
-          list-style: none;
-          padding: 0;
-          margin: 0 0 24px 0;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          flex: 1;
-        }
-        .project-feature-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-        .project-feature-icon {
-          width: 22px;
-          height: 22px;
-          background: #FFE5EE;
-          border: 1.5px solid var(--brand);
-          border-radius: 4px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 11px;
-          flex-shrink: 0;
-        }
-        .project-feature-text {
-          font-family: 'Open Sans', sans-serif;
-          font-size: 13px;
-          font-weight: 600;
-          color: #1C202B;
-        }
+        
         .project-card-separator {
           border-top: 2px dashed rgba(28, 32, 43, 0.15);
           margin: 0 0 20px 0;
@@ -326,12 +599,16 @@ export default function ProjectsSection() {
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
+        
         .project-metric-value {
           font-family: 'Bangers', cursive;
           font-size: 26px;
           color: #1C202B;
           letter-spacing: 0.5px;
+          font-style: italic;
+          transform: skewX(-4deg);
         }
+        
         .project-card-btn {
           width: 100%;
           background: #1C202B;
@@ -352,6 +629,7 @@ export default function ProjectsSection() {
           gap: 8px;
           text-decoration: none;
           transition: transform 80ms, box-shadow 80ms;
+          margin-top: auto;
         }
         .project-card-btn:hover {
           transform: translate(-2px, -2px);
@@ -360,6 +638,325 @@ export default function ProjectsSection() {
         .project-card-btn:active {
           transform: translate(2px, 2px);
           box-shadow: 1px 1px 0 0 var(--btn-shadow-color);
+        }
+        
+        /* Modal Backdrop */
+        .modal-backdrop {
+          position: fixed;
+          inset: 0;
+          background-color: rgba(28, 32, 43, 0.85);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+          padding: 24px;
+          backdrop-filter: blur(4px);
+        }
+        
+        /* Modal Container */
+        .project-modal-container {
+          background: #FFFFFF;
+          border: 4px solid #1C202B;
+          box-shadow: 10px 10px 0 0 #1C202B;
+          border-radius: 8px;
+          max-width: 860px;
+          width: 100%;
+          max-height: 90vh;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          animation: modalAppear 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        @keyframes modalAppear {
+          from {
+            transform: scale(0.95) translateY(10px);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+          }
+        }
+        
+        /* Modal Header */
+        .project-modal-header {
+          padding: 24px 28px;
+          border-bottom: 4px solid #1C202B;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: #FFFFFF;
+        }
+        
+        .project-modal-title {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 28px;
+          font-weight: 800;
+          color: #1C202B;
+          margin: 0;
+          transform: skewX(-4deg);
+          text-transform: uppercase;
+          line-height: 1.2;
+        }
+        
+        .project-modal-badge {
+          color: #FFFFFF;
+          font-family: 'Open Sans', sans-serif;
+          font-size: 10px;
+          font-weight: 800;
+          padding: 4px 8px;
+          border: 2px solid #1C202B;
+          border-radius: 4px;
+          box-shadow: 2px 2px 0 0 #1C202B;
+          text-transform: uppercase;
+        }
+        
+        .project-modal-close-btn {
+          background: #E22D6D;
+          border: 3px solid #1C202B;
+          box-shadow: 3px 3px 0 0 #1C202B;
+          color: white;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          font-family: 'Bangers', cursive;
+          font-size: 20px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: transform 0.1s;
+        }
+        .project-modal-close-btn:hover {
+          transform: translate(-1px, -1px);
+          box-shadow: 4px 4px 0 0 #1C202B;
+        }
+        .project-modal-close-btn:active {
+          transform: translate(1px, 1px);
+          box-shadow: 1px 1px 0 0 #1C202B;
+        }
+        
+        /* Modal Body */
+        .project-modal-body {
+          padding: 28px;
+        }
+        
+        .modal-overview p {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 15px;
+          line-height: 1.65;
+          color: #1C202B;
+          margin: 0;
+          font-style: italic;
+          border-left: 4px solid var(--brand);
+          padding-left: 16px;
+        }
+        
+        .modal-divider {
+          height: 2px;
+          border-top: 2.5px dashed rgba(28, 32, 43, 0.15);
+          margin: 20px 0;
+        }
+        
+        .modal-details-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 28px;
+        }
+        
+        .modal-grid-col {
+          display: flex;
+          flex-direction: column;
+        }
+        
+        .modal-section-card {
+          background: #F8FAFC;
+          border: 2.5px solid #1C202B;
+          box-shadow: 4px 4px 0 0 #1C202B;
+          border-radius: 6px;
+          padding: 20px;
+        }
+        
+        .modal-section-title {
+          font-family: 'Bangers', cursive;
+          font-size: 22px;
+          letter-spacing: 0.5px;
+          margin: 0 0 10px 0;
+          text-transform: uppercase;
+        }
+        
+        .modal-text {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 13.5px;
+          line-height: 1.6;
+          color: var(--color-body);
+          margin: 0;
+        }
+        
+        .modal-list {
+          list-style: none;
+          padding: 0;
+          margin: 8px 0 0 0;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .modal-list li {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 13px;
+          line-height: 1.55;
+          color: var(--color-body);
+          position: relative;
+          padding-left: 16px;
+        }
+        
+        .modal-list li::before {
+          content: "•";
+          color: var(--brand);
+          font-size: 16px;
+          position: absolute;
+          left: 0;
+          top: -2px;
+        }
+        
+        .modal-footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 20px;
+        }
+        
+        .modal-metrics {
+          display: flex;
+          gap: 36px;
+        }
+        
+        .modal-metric {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        
+        .modal-metric-label {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 10px;
+          font-weight: 800;
+          color: var(--color-body-subtle);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        .modal-metric-value {
+          font-family: 'Bangers', cursive;
+          font-size: 26px;
+          color: #1C202B;
+          letter-spacing: 0.5px;
+          font-style: italic;
+          transform: skewX(-4deg);
+        }
+        
+        .modal-action-btn {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 12px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          padding: 12px 20px;
+          border-radius: 4px;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          text-decoration: none;
+          transition: transform 80ms, box-shadow 80ms;
+        }
+        
+        .modal-action-btn.primary-btn {
+          background: #1C202B;
+          color: #FFFFFF;
+          border: 3px solid #1C202B;
+          box-shadow: 4px 4px 0 0 var(--brand);
+        }
+        .modal-action-btn.primary-btn:hover {
+          transform: translate(-1px, -1px);
+          box-shadow: 5px 5px 0 0 var(--brand);
+        }
+        .modal-action-btn.primary-btn:active {
+          transform: translate(1px, 1px);
+          box-shadow: 2px 2px 0 0 var(--brand);
+        }
+        
+        .modal-action-btn.secondary-btn {
+          background: #FFFFFF;
+          color: #1C202B;
+          border: 3px solid #1C202B;
+          box-shadow: 4px 4px 0 0 #B7C4ED;
+        }
+        .modal-action-btn.secondary-btn:hover {
+          transform: translate(-1px, -1px);
+          box-shadow: 5px 5px 0 0 #B7C4ED;
+        }
+        .modal-action-btn.secondary-btn:active {
+          transform: translate(1px, 1px);
+          box-shadow: 2px 2px 0 0 #B7C4ED;
+        }
+        
+        @media (max-width: 1024px) {
+          .projects-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+          }
+          #projects .section-header {
+            max-width: 100% !important;
+          }
+        }
+        
+        @media (max-width: 768px) {
+          .projects-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+          }
+          .project-dashed-card {
+            box-shadow: 6px 6px 0 0 #1C202B;
+          }
+          .project-card-header {
+            height: 160px;
+          }
+          .project-card-body {
+            padding: 20px 16px 16px 16px;
+          }
+          .project-card-btn {
+            min-height: 48px;
+            padding: 14px 20px;
+          }
+          .modal-details-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+          .modal-footer {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+          }
+          .modal-action-btn {
+            min-height: 48px;
+            width: 100%;
+            justify-content: center;
+          }
+          .project-modal-container {
+            max-height: 95vh;
+            border-radius: 4px;
+          }
+          .project-modal-body {
+            padding: 20px 16px;
+          }
+          .project-modal-header {
+            padding: 16px 20px;
+          }
         }
       `}</style>
     </section>

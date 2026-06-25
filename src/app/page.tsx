@@ -10,6 +10,7 @@ import AchievementsSection from "@/components/sections/Achievements";
 import GallerySection      from "@/components/sections/Gallery";
 import AboutSection        from "@/components/sections/About";
 import SkillsSection       from "@/components/sections/Skills";
+import ConnectSection      from "@/components/sections/Connect";
 import ContactSection      from "@/components/sections/Contact";
 
 import TopNav            from "@/components/layout/TopNav";
@@ -45,6 +46,7 @@ export default function Home() {
         <ProjectsSection />
         <ConsoleSection />
         <AchievementsSection />
+        <ConnectSection />
         <ContactSection />
 
         {/* ── Footer ── */}
