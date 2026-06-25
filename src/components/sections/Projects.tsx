@@ -523,19 +523,33 @@ export default function ProjectsSection() {
                       </div>
 
                       <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#2DC8E2" }}>
+                          UIDAI Metadata Pattern Analysis (EDA)
+                        </h4>
+                        <p className="modal-text">
+                          Performed Exploratory Data Analysis (EDA) on raw operational metadata provided by UIDAI to identify structural demand behaviors and key seasonal patterns:
+                        </p>
+                        <ul className="modal-list">
+                          <li><strong>Mandatory Biometric Updates (MBU):</strong> Tracks MBU updates for children to predict demand surges during school admission seasons.</li>
+                          <li><strong>Temporal Surges:</strong> Captures month-end/year-end rushes and consistent weekday vs. weekend demand differences.</li>
+                          <li><strong>Resident Migration:</strong> Explores cross-district movement of residents to capture spatial load distribution.</li>
+                        </ul>
+                      </div>
+
+                      <div className="modal-section-card">
                         <h4 className="modal-section-title" style={{ color: "#2BB04A" }}>
                           Spatio-Temporal Stress Index
                         </h4>
                         <p className="modal-text">
-                          Instead of simple footfall count, stress index dynamically aggregates multiple key signals:
+                          Instead of simple footfall count, the stress index dynamically aggregates multiple key signals:
                         </p>
                         <div style={{ padding: "10px", margin: "10px 0", border: "1.5px dashed #1C202B", background: "#FFFFFF", borderRadius: "4px", textAlign: "center", fontFamily: "'Bangers', cursive", fontSize: "16px", color: "#1C202B", transform: "skewX(-3deg)" }}>
                           Stress Index = (Biometric Intensity + Student Lead Factor) / Temporal Weight
                         </div>
                         <ul className="modal-list">
                           <li><strong>Signal 1 (The Monday Effect):</strong> Multiplies stress index by 1.4× to account for consistent 40% surges at week-start.</li>
-                          <li><strong>Signal 2 (Student Lead Factor):</strong> Tracks mandatory biometric update (MBU) cycles to predict surges 3–5 days prior to queues.</li>
-                          <li><strong>Signal 3 (Spatial Spillover ST-GNN):</strong> Captures spatial propagation from high-load centers to neighboring nodes using Spatio-Temporal Graph Neural Networks.</li>
+                          <li><strong>Signal 2 (Student Lead Factor):</strong> Tracks MBU cycles to predict surges 3–5 days prior to queue formation.</li>
+                          <li><strong>Signal 3 (Spatial Spillover GNN):</strong> Captures spatial propagation from high-load centers to neighboring nodes using Graph Neural Networks.</li>
                         </ul>
                       </div>
 
@@ -594,28 +608,44 @@ export default function ProjectsSection() {
 
                       <div className="modal-section-card">
                         <h4 className="modal-section-title" style={{ color: "#8E2DE2" }}>
-                          Decision Automation Tech Stack
+                          Predictive Machine Learning Core
                         </h4>
-                        <div style={{ background: "#1C202B", color: "#A5D6FF", padding: "12px", borderRadius: "6px", fontFamily: "monospace", fontSize: "11px", lineHeight: "1.4", overflowX: "auto", border: "2px solid #1C202B", boxShadow: "inset 2px 2px 5px rgba(0,0,0,0.5)" }}>
-                          <pre style={{ margin: 0 }}>{`{
-  "frontend": {
-    "Next.js 14 / TypeScript": "SSR dashboard",
-    "Tailwind CSS / Leaflet.js": "Spatial map layers"
-  },
-  "automation": {
-    "n8n Workflow Engine": "Alert routing & Sheets logs",
-    "Google Sheets API": "Governance trails"
-  },
-  "ml_core": {
-    "XGBoost": "Wait-time regression",
-    "ST-GNN": "Graph-based spatial spillover"
-  }
-}`}</pre>
-                        </div>
+                        <ul className="modal-list">
+                          <li>
+                            <strong>XGBoost Model (Temporal Demand):</strong>
+                            <div style={{ fontSize: "12px", marginTop: "3px" }}>
+                              Learns historical demand patterns to forecast enrollment center stress up to 7 days in advance. Utilizes time-based features (weekday, month, trends) and engineered signals (baseline, student lead factor) for structured data accuracy.
+                            </div>
+                          </li>
+                          <li style={{ marginTop: "8px" }}>
+                            <strong>Graph Neural Network (GNN / ST-GNN):</strong>
+                            <div style={{ fontSize: "12px", marginTop: "3px" }}>
+                              Detects hidden network pressure and spatial spillover across neighboring districts. Models centers as connected nodes in a graph to capture migration-driven loads, even when local historical averages appear normal.
+                            </div>
+                          </li>
+                        </ul>
                       </div>
 
                       <div className="modal-section-card">
                         <h4 className="modal-section-title" style={{ color: "#4D5BFF" }}>
+                          Technology Stack
+                        </h4>
+                        <p className="modal-text" style={{ fontWeight: "bold", marginBottom: "4px" }}>
+                          Frontend & Mapping:
+                        </p>
+                        <div style={{ fontSize: "12.5px", color: "var(--color-body)", marginBottom: "8px" }}>
+                          Next.js 14 (SSR), React 18, TypeScript, Tailwind CSS, Framer Motion, and Leaflet.js for high-performance spatial stress mapping of 173,225+ nodes.
+                        </div>
+                        <p className="modal-text" style={{ fontWeight: "bold", marginBottom: "4px" }}>
+                          Backend & Automation:
+                        </p>
+                        <div style={{ fontSize: "12.5px", color: "var(--color-body)" }}>
+                          n8n Workflow Engine for automated data ingestion and alert routing, and Google Sheets API for closed-loop governance auditing.
+                        </div>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#FFB020" }}>
                           Framework Scalability
                         </h4>
                         <p className="modal-text">
