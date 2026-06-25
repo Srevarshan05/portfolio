@@ -364,9 +364,21 @@ export default function DomeGallery({
         
         const dxTotal = clientX - startPosRef.current.x;
         const dyTotal = clientY - startPosRef.current.y;
+        
         if (!movedRef.current) {
           const dist2 = dxTotal * dxTotal + dyTotal * dyTotal;
-          if (dist2 > 16) movedRef.current = true;
+          if (dist2 > 16) {
+            // If the user drags primarily vertically on mobile/touch, treat it as a page scroll
+            // and cancel the sphere rotation gesture.
+            if (Math.abs(dyTotal) > Math.abs(dxTotal)) {
+              draggingRef.current = false;
+              startPosRef.current = null;
+              return;
+            }
+            movedRef.current = true;
+          } else {
+            return;
+          }
         }
         const nextX = clamp(
           startRotRef.current.x - dyTotal / dragSensitivity,
