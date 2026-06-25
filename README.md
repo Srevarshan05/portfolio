@@ -37,7 +37,8 @@ Welcome to my portfolio! This project is a premium, highly interactive developer
 
 ### 6. 🔬 Rich Project Detail Modals & Workflows
 - Enhanced the **NutriMinds AI** project detail page with granular technical specs (VLM OCR, Mistral 7B Unsloth training table, Open Food Facts database, and structured output descriptions).
-- Programmed a modal workflow lightbox that dynamically swaps between **Banana Weevil Pest Detection** and **NutriMinds AI** workflow diagrams depending on the active project card.
+- Integrated the **ACAS Dhristi** predictive governance project card, featuring Spatio-Temporal Stress Index mapping, priority tables, and an autonomous n8n agentic workflow.
+- Programmed a modal workflow lightbox that dynamically swaps between **Banana Weevil Pest Detection**, **NutriMinds AI**, and **ACAS Dhristi** workflow diagrams depending on the active project card.
 
 ---
 

@@ -78,10 +78,11 @@ const PROJECTS = [
     btnLink: "https://github.com/srevarshan/NutriMinds",
   },
   {
-    id: "doc-parser",
+    id: "acas-dhristi",
     accent: "#FFB020",
-    badgeText: "VISION RAG SYSTEM",
+    badgeText: "PREDICTIVE GOVERNANCE",
     isPinkCard: false,
+    image: "/ACAS_Thumbnail.png",
     tetromino: (
       <svg width="40" height="40" viewBox="0 0 40 40" fill="#FFB020">
         {/* L-block */}
@@ -102,16 +103,16 @@ const PROJECTS = [
         <line x1="117" y1="62" x2="128" y2="73" stroke="#1C202B" strokeWidth="3" strokeLinecap="round" />
       </svg>
     ),
-    title: "DOC PARSER VLM",
-    description: "A PDF Q&A system allowing natural document chats. Runs fully locally or via an optional fast cloud mode.",
+    title: "ACAS DHRISTI",
+    description: "A predictive governance framework for UIDAI proactively forecasting stress at 173,225+ Tamil Nadu Aadhaar centers 7 days in advance.",
     features: [
-      { icon: "📄", text: "Smart VLM Chunking" },
-      { icon: "💬", text: "Chat Q&A Interface" },
-      { icon: "⚙️", text: "Local + Cloud Runtime" },
-      { icon: "📂", text: "Multi-format PDF Parser" }
+      { icon: "🗺️", text: "173,225 centers mapped" },
+      { icon: "🔮", text: "7-Day Stress Forecast" },
+      { icon: "🤖", text: "n8n autonomous routing" },
+      { icon: "🛡️", text: "CIDR Privacy Compliant" }
     ],
-    btnText: "EXPLORE REPO",
-    btnLink: "https://github.com/srevarshan",
+    btnText: "VIEW ON GITHUB",
+    btnLink: "https://github.com/Srevarshan05/UIDAI-Acas",
   },
 ];
 
@@ -497,38 +498,128 @@ export default function ProjectsSection() {
                   </div>
                 </div>
               ) : (
-                /* Doc Parser Details */
+                /* ACAS Dhristi Details */
                 <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  {/* Overview */}
                   <div className="modal-overview">
-                    <p style={{ fontStyle: "normal" }}>{activeProject.description}</p>
+                    <p style={{ borderLeftColor: "#FFB020" }}>
+                      ACAS Dhristi is a predictive governance framework designed for the Unique Identification Authority of India (UIDAI). Built after deep research of actual UIDAI enrollment systems, it proactively forecasts operational stress up to 7 days in advance across all 173,225+ Tamil Nadu Aadhaar centers. The system takes proactive decisions on real-time data ingested from UIDAI&apos;s CIDR database while strictly preserving privacy by never accessing personal identity data.
+                    </p>
                   </div>
 
                   <div className="modal-divider" />
 
-                  {/* 2-Column Layout */}
+                  {/* 2-Column Grid */}
                   <div className="modal-details-grid">
-                    <div className="modal-grid-col">
+                    {/* Left Column */}
+                    <div className="modal-grid-col" style={{ gap: "16px" }}>
                       <div className="modal-section-card">
-                        <h4 className="modal-section-title" style={{ color: activeProject.accent }}>
-                          Key Features
+                        <h4 className="modal-section-title" style={{ color: "#FFB020" }}>
+                          The Problem Solved
+                        </h4>
+                        <p className="modal-text">
+                          Traditional Aadhaar enrollment centers operate reactively — staff is deployed only after queues form or biometric delays trigger citizen complaints. ACAS Dhristi converts raw, aggregated operational metadata into prioritized, spatially-mapped stress alerts to prevent disruptions before they happen.
+                        </p>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#2BB04A" }}>
+                          Spatio-Temporal Stress Index
+                        </h4>
+                        <p className="modal-text">
+                          Instead of simple footfall count, stress index dynamically aggregates multiple key signals:
+                        </p>
+                        <div style={{ padding: "10px", margin: "10px 0", border: "1.5px dashed #1C202B", background: "#FFFFFF", borderRadius: "4px", textAlign: "center", fontFamily: "'Bangers', cursive", fontSize: "16px", color: "#1C202B", transform: "skewX(-3deg)" }}>
+                          Stress Index = (Biometric Intensity + Student Lead Factor) / Temporal Weight
+                        </div>
+                        <ul className="modal-list">
+                          <li><strong>Signal 1 (The Monday Effect):</strong> Multiplies stress index by 1.4× to account for consistent 40% surges at week-start.</li>
+                          <li><strong>Signal 2 (Student Lead Factor):</strong> Tracks mandatory biometric update (MBU) cycles to predict surges 3–5 days prior to queues.</li>
+                          <li><strong>Signal 3 (Spatial Spillover ST-GNN):</strong> Captures spatial propagation from high-load centers to neighboring nodes using Spatio-Temporal Graph Neural Networks.</li>
+                        </ul>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#4D5BFF" }}>
+                          Privacy & Compliance
                         </h4>
                         <ul className="modal-list">
-                          {activeProject.features.map((f, idx) => (
-                            <li key={idx}>
-                              <strong>{f.text}</strong>
-                            </li>
-                          ))}
+                          <li><strong>Data Anonymization:</strong> Ingests aggregated operational metadata only — zero resident private identifier files.</li>
+                          <li><strong>Isolated Scope:</strong> Operates without connecting to central CIDR resident identity records.</li>
+                          <li><strong>Regulatory Compliance:</strong> Fully compliant with UIDAI data protection guidelines and GIGW 3.0 government standards.</li>
                         </ul>
                       </div>
                     </div>
 
-                    <div className="modal-grid-col">
+                    {/* Right Column */}
+                    <div className="modal-grid-col" style={{ gap: "16px" }}>
                       <div className="modal-section-card">
-                        <h4 className="modal-section-title" style={{ color: "#1C202B" }}>
-                          Technical Specs
+                        <h4 className="modal-section-title" style={{ color: "#E22D6D" }}>
+                          Force-Detection Priority Engine
                         </h4>
                         <p className="modal-text">
-                          This system is designed to run efficiently on-device, leveraging optimized models and modern UI frameworks to deliver a latency-free user experience without compromising user privacy.
+                          Stress levels trigger automated response protocols according to a 5-tier classification model:
+                        </p>
+                        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px", fontFamily: "'Open Sans', sans-serif", fontSize: "12px" }}>
+                          <thead>
+                            <tr style={{ borderBottom: "2px solid #1C202B" }}>
+                              <th style={{ textAlign: "left", padding: "6px 0", fontWeight: "800" }}>Priority & Condition</th>
+                              <th style={{ textAlign: "left", padding: "6px 0", fontWeight: "800" }}>Automated Response</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr style={{ borderBottom: "1px solid rgba(28,32,43,0.1)" }}>
+                              <td style={{ padding: "6px 0", color: "#E22D6D" }}>🔴 <strong>P5 - EMERGENCY</strong> (Risk &gt; 50 & Demand &gt; 100)</td>
+                              <td style={{ padding: "6px 0" }}>Deploy Mobile Enrollment Vans</td>
+                            </tr>
+                            <tr style={{ borderBottom: "1px solid rgba(28,32,43,0.1)" }}>
+                              <td style={{ padding: "6px 0", color: "#FFB020" }}>🟠 <strong>P4 - SATURATED</strong> (Risk &gt; 30 or Demand &gt; 150)</td>
+                              <td style={{ padding: "6px 0" }}>Activate 2nd Shift Staffing</td>
+                            </tr>
+                            <tr style={{ borderBottom: "1px solid rgba(28,32,43,0.1)" }}>
+                              <td style={{ padding: "6px 0", color: "#8E2DE2" }}>🟡 <strong>P3 - MISSION</strong> (Student Lead &gt; 2.5)</td>
+                              <td style={{ padding: "6px 0" }}>Dedicate Counter #1 for MBUs</td>
+                            </tr>
+                            <tr style={{ borderBottom: "1px solid rgba(28,32,43,0.1)" }}>
+                              <td style={{ padding: "6px 0", color: "#4D5BFF" }}>🔵 <strong>P2 - MONITOR</strong> (Risk &gt; 15)</td>
+                              <td style={{ padding: "6px 0" }}>Monitor Real-time Wait Times</td>
+                            </tr>
+                            <tr style={{ borderBottom: "1px solid rgba(28,32,43,0.1)" }}>
+                              <td style={{ padding: "6px 0", color: "#2BB04A" }}>🟢 <strong>P1 - STABLE</strong> (Risk &lt; 15)</td>
+                              <td style={{ padding: "6px 0" }}>Standard Preventive Maintenance</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#8E2DE2" }}>
+                          Decision Automation Tech Stack
+                        </h4>
+                        <div style={{ background: "#1C202B", color: "#A5D6FF", padding: "12px", borderRadius: "6px", fontFamily: "monospace", fontSize: "11px", lineHeight: "1.4", overflowX: "auto", border: "2px solid #1C202B", boxShadow: "inset 2px 2px 5px rgba(0,0,0,0.5)" }}>
+                          <pre style={{ margin: 0 }}>{`{
+  "frontend": {
+    "Next.js 14 / TypeScript": "SSR dashboard",
+    "Tailwind CSS / Leaflet.js": "Spatial map layers"
+  },
+  "automation": {
+    "n8n Workflow Engine": "Alert routing & Sheets logs",
+    "Google Sheets API": "Governance trails"
+  },
+  "ml_core": {
+    "XGBoost": "Wait-time regression",
+    "ST-GNN": "Graph-based spatial spillover"
+  }
+}`}</pre>
+                        </div>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#4D5BFF" }}>
+                          Framework Scalability
+                        </h4>
+                        <p className="modal-text">
+                          Designed with a state-agnostic architecture. Expanding the pilot from Tamil Nadu (173,225 nodes) to other states requires zero layout redesign — only center coordinate ingestion and retraining baseline temporal multipliers.
                         </p>
                       </div>
                     </div>
@@ -538,14 +629,23 @@ export default function ProjectsSection() {
 
                   {/* Footer */}
                   <div className="modal-footer" style={{ justifyContent: "flex-end" }}>
-                    <a
-                      href={activeProject.btnLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="modal-action-btn primary-btn"
-                    >
-                      {activeProject.btnText} →
-                    </a>
+                    <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                      <button
+                        onClick={() => setIsWorkflowOpen(true)}
+                        className="modal-action-btn secondary-btn"
+                        style={{ cursor: "pointer" }}
+                      >
+                        See Project Workflow →
+                      </button>
+                      <a
+                        href={activeProject.btnLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="modal-action-btn primary-btn"
+                      >
+                        {activeProject.btnText} →
+                      </a>
+                    </div>
                   </div>
                 </div>
               )}
@@ -584,8 +684,20 @@ export default function ProjectsSection() {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={activeProject?.id === "nutriminds" ? "/Nutriminds.png" : "/Banana_Weevil_Portfolio.png"}
-              alt={activeProject?.id === "nutriminds" ? "NutriMinds AI Workflow Diagram" : "Banana Weevil Pest Detection Workflow"}
+              src={
+                activeProject?.id === "acas-dhristi"
+                  ? "/Acas_Workflow.png"
+                  : activeProject?.id === "nutriminds"
+                  ? "/Nutriminds.png"
+                  : "/Banana_Weevil_Portfolio.png"
+              }
+              alt={
+                activeProject?.id === "acas-dhristi"
+                  ? "ACAS Dhristi Workflow Diagram"
+                  : activeProject?.id === "nutriminds"
+                  ? "NutriMinds AI Workflow Diagram"
+                  : "Banana Weevil Pest Detection Workflow"
+              }
               style={{
                 maxWidth: "100%",
                 maxHeight: "90vh",
