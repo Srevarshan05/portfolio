@@ -315,7 +315,7 @@ export default function GallerySection() {
           </div>
           <div className="reveal reveal-right" style={{ paddingBottom: "4px" }}>
             <p className="leading" style={{ color: "var(--neutral-primary-soft)", opacity: 0.8 }}>
-              An interactive 3D dome workspace showcasing snapshots of my projects, research locations, and technical interests. Drag to rotate the dome, and click any item to inspect.
+              A 3D gallery of my engineering journey. This sphere holds snapshots of the competitions I've tackled, the places my work has taken me, and the physical builds I am most proud of. Drag to rotate and click to view
             </p>
           </div>
         </div>

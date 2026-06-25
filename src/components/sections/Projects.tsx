@@ -129,7 +129,6 @@ export default function ProjectsSection() {
 
         {/* Header */}
         <div className="section-header section-header-center" style={{ maxWidth: "620px", margin: "0 auto 72px" }}>
-          <div className="reveal eyebrow" style={{ justifyContent: "center" }}>The Workshop</div>
           <h2 className="reveal stagger-2">What I&apos;ve Built</h2>
           <p className="leading reveal stagger-3" style={{ margin: "0 auto", color: "var(--color-body)" }}>
             Practical AI engineered to run anywhere — from hospital servers to

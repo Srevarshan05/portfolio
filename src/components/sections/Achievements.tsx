@@ -3,53 +3,128 @@
 import { useRef, useState, useEffect } from "react";
 import { useScrollReveal } from "@/lib/useScrollReveal";
 
-const ACHIEVEMENTS = [
+interface Achievement {
+  id: string;
+  emoji: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  accent: string;
+  accentBg: string;
+  image: string;
+}
+
+const ACHIEVEMENTS: Achievement[] = [
+  {
+    id: "spectrum",
+    emoji: "🏆",
+    title: "1st Place — Spectrum '25",
+    subtitle: "VIT Chennai | $500 Prize",
+    description: "Won first place at the Spectrum '25 National Hackathon for our innovative AI solution, competing against top university teams.",
+    accent: "var(--warning)",
+    accentBg: "rgba(255,176,32,0.12)",
+    image: "/photos/WhatsApp Image 2026-06-24 at 10.55.18 AM (11).jpeg"
+  },
+  {
+    id: "solvex",
+    emoji: "🤖",
+    title: "1st Place — SolveX AI Challenge",
+    subtitle: "SolveX AI | Rs. 5,000 Prize",
+    description: "Awarded first place for building outstanding AI prototypes addressing real-world operational challenges.",
+    accent: "var(--teal)",
+    accentBg: "rgba(45,207,160,0.12)",
+    image: "/photos/WhatsApp Image 2026-06-24 at 10.55.18 AM (20).jpeg"
+  },
+  {
+    id: "niftem",
+    emoji: "🎥",
+    title: "2nd Prize — Video Making",
+    subtitle: "NIFTEM Tanjore | Rs. 3,000 Prize",
+    description: "Won second prize in the national video production competition for creative storytelling and execution.",
+    accent: "var(--brand)",
+    accentBg: "rgba(226,45,109,0.15)",
+    image: "/photos/WhatsApp Image 2026-06-24 at 10.55.18 AM (32).jpeg"
+  },
+  {
+    id: "uzhavu",
+    emoji: "🌱",
+    title: "Top 8 National — NAF Uzhavu",
+    subtitle: "IIT Madras | IIM Mentorship",
+    description: "Recognized as a Top 8 national finalist at IIT Madras and selected for the prestigious IIM Product Commercialisation Mentorship.",
+    accent: "var(--indigo)",
+    accentBg: "rgba(77,91,255,0.12)",
+    image: "/photos/WhatsApp Image 2026-06-24 at 10.55.18 AM (24).jpeg"
+  },
+  {
+    id: "goa",
+    emoji: "🛸",
+    title: "IIT Goa National Workshop",
+    subtitle: "5-Day AIML & Drone Training",
+    description: "Completed an intensive hands-on national level workshop at IIT Goa focused on Autonomous Drones and Edge AI/ML applications.",
+    accent: "var(--purple)",
+    accentBg: "rgba(162,61,219,0.12)",
+    image: "/photos/WhatsApp Image 2026-06-24 at 10.55.18 AM (1).jpeg"
+  },
+  {
+    id: "iic",
+    emoji: "💡",
+    title: "IIC Regional Meet 2025",
+    subtitle: "Best Innovation Across South",
+    description: "Awarded the Best Innovation accolade across the Southern region at the Thirunelveli regional meetup.",
+    accent: "var(--teal)",
+    accentBg: "rgba(45,207,160,0.12)",
+    image: "/photos/IMG_3057.jpeg"
+  },
+  {
+    id: "dindugal",
+    emoji: "🔬",
+    title: "Dindugal Science Fest",
+    subtitle: "7-Day Pitching & Networking",
+    description: "Successfully pitched our edge computing product to CEOs, founders, high-ranking government officers, and domain experts.",
+    accent: "var(--warning)",
+    accentBg: "rgba(255,176,32,0.12)",
+    image: "/photos/IMG_3045.jpeg"
+  },
+  {
+    id: "outreach",
+    emoji: "🏫",
+    title: "AI School Outreach Program",
+    subtitle: "Government School Careers in AI",
+    description: "Organized educational sessions for higher secondary students to introduce AI careers and provide hands-on experience with edge hardware.",
+    accent: "var(--brand)",
+    accentBg: "rgba(226,45,109,0.15)",
+    image: "/photos/new2.jpg"
+  },
   {
     id: "patent",
     emoji: "🏛️",
     title: "Government Patent Published",
     subtitle: "App No. 202541116228 A",
     description: "Filed and published a government patent for a novel acoustic-sensing system for early banana weevil detection on edge hardware.",
-    accent: "var(--brand)",
-    accentBg: "rgba(226,45,109,0.15)",
-    isBrand: true,
-  },
-  {
-    id: "spectrum",
-    emoji: "🏆",
-    title: "1st Place — Spectrum '25",
-    subtitle: "National-Level Hackathon",
-    description: "Won first place at the Spectrum '25 National Hackathon competing against teams from across the country.",
-    accent: "var(--warning)",
-    accentBg: "rgba(255,176,32,0.12)",
+    accent: "var(--indigo)",
+    accentBg: "rgba(77,91,255,0.12)",
+    image: "/photos/banana-weevil-setup.jpg"
   },
   {
     id: "tensor",
     emoji: "⚡",
-    title: "Core Organizer & Developer",
-    subtitle: "TENSOR'26 National AI Hackathon",
-    description: "Core organizer and technical developer for TENSOR'26, a nationally recognised AI hackathon — managed infra and participant experience.",
-    accent: "var(--indigo)",
-    accentBg: "rgba(77,91,255,0.12)",
-  },
-  {
-    id: "edge",
-    emoji: "🤖",
-    title: "Edge AI Pioneer",
-    subtitle: "Offline-First AI Systems",
-    description: "Multiple production AI systems running entirely offline — from Raspberry Pi deployments to mobile on-device inference with fine-tuned models.",
-    accent: "var(--teal)",
-    accentBg: "rgba(45,207,160,0.12)",
-  },
-  {
-    id: "healthcare",
-    emoji: "🏥",
-    title: "90% Automation Rate",
-    subtitle: "Enterprise Healthcare",
-    description: "Eliminated 90% of manual data entry for a healthcare enterprise using NL-to-SQL agents and intelligent extraction pipelines.",
+    title: "Organized TENSOR'26 Hackathon",
+    subtitle: "National Level AI Hackathon",
+    description: "Core organizer and developer managing infrastructure, scheduling, and participant experience for a national-scale hackathon.",
     accent: "var(--purple)",
     accentBg: "rgba(162,61,219,0.12)",
+    image: "/photos/new1.jpg"
   },
+  {
+    id: "foss",
+    emoji: "🎨",
+    title: "FOSS Design Head",
+    subtitle: "SRM IST Trichy FOSS Society",
+    description: "Led the design team for the Free and Open Source Software (FOSS) society, creating branding and UI assets for community projects.",
+    accent: "var(--teal)",
+    accentBg: "rgba(45,207,160,0.12)",
+    image: "/photos/WhatsApp Image 2026-06-24 at 10.55.18 AM (30).jpeg"
+  }
 ];
 
 const ALL = [...ACHIEVEMENTS, ...ACHIEVEMENTS];
@@ -66,7 +141,9 @@ export default function AchievementsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   useScrollReveal(sectionRef as React.RefObject<HTMLElement>);
 
-  // Responsive columns for stats grid — bypasses CSS specificity issue with inline styles
+  const [activeImage, setActiveImage] = useState<string | null>(null);
+
+  // Responsive columns for stats grid
   const [statsCols, setStatsCols] = useState("repeat(5, 1fr)");
   useEffect(() => {
     const update = () => {
@@ -88,12 +165,10 @@ export default function AchievementsSection() {
       style={{ 
         paddingLeft: 0, 
         paddingRight: 0, 
-        background: "var(--dark-strong)", // Complete dark background
+        background: "var(--dark-strong)", 
         position: "relative" 
       }}
     >
-      {/* Complete Dark background - No grid background here */}
-
       {/* Header */}
       <div className="section-content" style={{ padding: "0 40px", marginBottom: "64px" }}>
         <div className="container" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px", alignItems: "flex-end" }}>
@@ -126,12 +201,14 @@ export default function AchievementsSection() {
               <div
                 key={`${item.id}-${idx}`}
                 className="stamp-card-wrapper"
+                onClick={() => setActiveImage(item.image)}
                 style={{
                   position: "relative",
                   width: "360px",
                   margin: "18px 14px 24px 14px",
                   flexShrink: 0,
                   filter: "drop-shadow(6px 6px 0px #1C202B)",
+                  cursor: "zoom-in"
                 }}
               >
                 {/* Stamp Card Body */}
@@ -139,7 +216,7 @@ export default function AchievementsSection() {
                   className="stamp-card"
                   style={{
                     padding: "48px 24px 24px 24px",
-                    minHeight: "220px",
+                    minHeight: "380px",
                     position: "relative",
                     display: "flex",
                     flexDirection: "column",
@@ -190,6 +267,22 @@ export default function AchievementsSection() {
 
                   {/* Content */}
                   <div style={{ position: "relative", zIndex: 2 }}>
+                    {item.image && (
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        style={{
+                          width: "100%",
+                          height: "140px",
+                          objectFit: "cover",
+                          borderRadius: "4px",
+                          border: "2.5px solid #1C202B",
+                          boxShadow: "3px 3px 0px #1C202B",
+                          marginBottom: "16px",
+                          display: "block"
+                        }}
+                      />
+                    )}
                     <h4
                       style={{
                         fontFamily: "'Bangers', cursive",
@@ -258,6 +351,7 @@ export default function AchievementsSection() {
               >
                 <div
                   style={{
+                    padding: "4px",
                     fontFamily: "'Bangers', cursive",
                     fontSize: "44px",
                     lineHeight: 1,
@@ -279,11 +373,93 @@ export default function AchievementsSection() {
         </div>
       </div>
 
+      {/* Full screen Lightbox Modal for enlarged stamp images */}
+      {activeImage && (
+        <div
+          onClick={() => setActiveImage(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(28, 32, 43, 0.9)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 999999,
+            padding: "24px",
+            backdropFilter: "blur(6px)",
+            cursor: "zoom-out",
+          }}
+        >
+          <div
+            style={{
+              position: "relative",
+              maxWidth: "90vw",
+              maxHeight: "90vh",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={activeImage}
+              alt="Enlarged Achievement"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "90vh",
+                objectFit: "contain",
+                border: "4px solid #1C202B",
+                boxShadow: "10px 10px 0 0 #1C202B",
+                borderRadius: "6px",
+                backgroundColor: "#FFFFFF",
+              }}
+            />
+            <button
+              onClick={() => setActiveImage(null)}
+              style={{
+                position: "absolute",
+                top: "-18px",
+                right: "-18px",
+                background: "#E22D6D",
+                border: "3px solid #1C202B",
+                boxShadow: "3px 3px 0 0 #1C202B",
+                color: "white",
+                width: "36px",
+                height: "36px",
+                borderRadius: "50%",
+                fontFamily: "'Bangers', cursive",
+                fontSize: "20px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              title="Close Image"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       <style>{`
+        @keyframes marqueeScroll3D {
+          from {
+            transform: translate3d(0, 0, 0);
+          }
+          to {
+            transform: translate3d(-50%, 0, 0);
+          }
+        }
         .marquee-track {
+          display: flex;
+          width: max-content;
+          animation: marqueeScroll3D 45s linear infinite;
           will-change: transform;
-          transform: translate3d(0, 0, 0);
           backface-visibility: hidden;
+        }
+        .marquee-track:hover {
+          animation-play-state: paused;
         }
         .stamp-card {
           background-color: transparent;

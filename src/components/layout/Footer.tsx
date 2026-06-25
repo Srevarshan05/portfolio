@@ -67,70 +67,13 @@ END:VCARD`;
             </div>
           </div>
 
-          {/* Column 3: Portfolio Links */}
-          <div className="links-col">
-            <h5 className="col-header">Portfolio</h5>
-            <div className="links-wrapper">
-              {[
-                { label: "Projects", id: "projects" },
-                { label: "Skills", id: "skills" },
-                { label: "Achievements", id: "achievements" },
-                { label: "Gallery", id: "gallery" }
-              ].map((link) => (
-                <button
-                  key={link.label}
-                  onClick={() => scrollToSection(link.id)}
-                  className="footer-link"
-                >
-                  {link.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Column 4: Connect Links & QR Code */}
-          <div className="connect-col">
-            <div className="connect-links-side">
-              <h5 className="col-header">Connect</h5>
-              <div className="links-wrapper">
-                <a
-                  href="https://github.com/Srevarshan05"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="footer-link"
-                >
-                  GitHub
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/srevarshan05/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="footer-link"
-                >
-                  LinkedIn
-                </a>
-                <a
-                  href="/resume.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="footer-link"
-                >
-                  Resume
-                </a>
-                <a
-                  href="mailto:srevarshan9600622@gmail.com"
-                  className="footer-email-link"
-                >
-                  srevarshan9600622@gmail.com
-                </a>
-              </div>
-            </div>
-
+          {/* Column 3: QR Code Card */}
+          <div className="qr-col">
             <div className="qr-side">
               <div className="qr-wrapper">
                 <QRCode
                   value={vCardData}
-                  size={96}
+                  size={100}
                   style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                   viewBox={`0 0 256 256`}
                 />
@@ -174,8 +117,8 @@ END:VCARD`;
 
         .footer-grid {
           display: grid;
-          grid-template-columns: 1.2fr 1fr 1fr 1.6fr;
-          gap: 32px;
+          grid-template-columns: 2fr 1fr 1fr;
+          gap: 40px;
           align-items: start;
         }
 
@@ -257,7 +200,7 @@ END:VCARD`;
         .col-header {
           font-family: 'Bangers', cursive;
           font-size: 18px;
-          tracking: 1px;
+          letter-spacing: 1px;
           color: #E22D6D;
           margin: 0 0 16px 0;
           text-transform: uppercase;
@@ -290,35 +233,10 @@ END:VCARD`;
           text-decoration: none;
         }
 
-        .footer-email-link {
-          font-family: 'Open Sans', sans-serif;
-          font-size: 13px;
-          font-weight: 600;
-          color: #94A3CC;
-          text-decoration: none;
-          word-break: break-all;
-          margin-top: 4px;
-          transition: color 150ms;
-          display: inline-block;
-        }
-
-        .footer-email-link:hover {
-          color: #E22D6D;
-          text-decoration: none;
-        }
-
-        .connect-col {
+        .qr-col {
           display: flex;
-          flex-direction: row;
-          gap: 24px;
-          justify-content: space-between;
+          justify-content: flex-end;
           width: 100%;
-        }
-
-        .connect-links-side {
-          display: flex;
-          flex-direction: column;
-          flex: 1;
         }
 
         .qr-side {
@@ -376,37 +294,50 @@ END:VCARD`;
         /* Responsive Breakpoints */
         @media (max-width: 1023px) {
           .footer-grid {
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1.5fr 1fr;
             gap: 40px;
           }
-          
-          .connect-col {
+          .qr-col {
             grid-column: span 2;
             justify-content: flex-start;
-            gap: 64px;
+          }
+          .qr-side {
+            align-items: flex-start;
           }
         }
 
         @media (max-width: 767px) {
           .portfolio-footer {
-            padding: 40px 20px;
+            padding: 40px 24px;
           }
-          
           .footer-grid {
             grid-template-columns: 1fr;
             gap: 32px;
           }
-
-          .connect-col {
+          .qr-col {
             grid-column: span 1;
-            flex-direction: column;
-            gap: 32px;
+            justify-content: center;
           }
-
           .qr-side {
-            align-self: flex-start;
+            align-items: center;
           }
-          
+          .brand-col {
+            align-items: center;
+            text-align: center;
+          }
+          .back-to-top-btn {
+            align-self: center;
+          }
+          .links-col {
+            align-items: center;
+            text-align: center;
+          }
+          .links-wrapper {
+            align-items: center;
+          }
+          .footer-link {
+            text-align: center;
+          }
           .footer-bottom {
             flex-direction: column;
             text-align: center;
