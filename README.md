@@ -40,6 +40,11 @@ Welcome to my portfolio! This project is a premium, highly interactive developer
 - Integrated the **ACAS Dhristi** predictive governance project card, featuring Spatio-Temporal Stress Index mapping, priority tables, and an autonomous n8n agentic workflow.
 - Programmed a modal workflow lightbox that dynamically swaps between **Banana Weevil Pest Detection**, **NutriMinds AI**, and **ACAS Dhristi** workflow diagrams depending on the active project card.
 
+### 7. 💼 Enhanced Experience Section & Internship Reports
+- Rebuilt card structures with larger, clearly visible company logos (EmedLogix and Microsoft Edunet) and bold typography.
+- Implemented stateful detailed modals for both internships to showcase comprehensive job descriptions, key contributions (conversational database agents, Azure Entra ID SSO, IoT ESP32 gas sensor calibration), technical skills lists, and outcomes.
+- Configured custom link routing (EmedLogix product page, LinkedIn demo video for AI Nose) and added a dedicated workflow lightbox diagram (`/AI_Nose_Workflow.png`) for Microsoft Edunet.
+
 ---
 
 ## 🛠️ Technology Stack
