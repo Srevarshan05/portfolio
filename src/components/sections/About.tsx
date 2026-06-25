@@ -138,9 +138,7 @@ export default function AboutSection() {
                 marginBottom: "18px",
               }}
             >
-              Pre-final year AI/ML engineer with a published patent, building
-              offline-first intelligent systems and low-latency healthcare
-              automation.
+              Gen AI Engineer.
             </p>
 
             {/* Secondary Paragraph */}
@@ -154,10 +152,7 @@ export default function AboutSection() {
                 marginBottom: "0",
               }}
             >
-              After designing natural language database agents that cut medical data entry by 90%
-              at EmedLogix, and deploying offline IoT ML classifiers with Microsoft, I realized
-              that modern AI belongs at the edge. I build robust, production-grade intelligence
-              that runs locally, securely, and efficiently.
+              I apply AI across multidisciplinary fields to boost efficiency, building practical solutions that real people are actually using at scale.
             </p>
           </div>
 
