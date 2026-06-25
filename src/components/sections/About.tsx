@@ -151,7 +151,7 @@ export default function AboutSection() {
                 fontSize: "14px",
                 lineHeight: "1.65",
                 color: "var(--neutral-quaternary)",
-                marginBottom: "28px",
+                marginBottom: "0",
               }}
             >
               After designing natural language database agents that cut medical data entry by 90%
@@ -159,125 +159,6 @@ export default function AboutSection() {
               that modern AI belongs at the edge. I build robust, production-grade intelligence
               that runs locally, securely, and efficiently.
             </p>
-
-            {/* Blocky inline stats row */}
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "20px",
-                width: "100%",
-                borderTop: "2px dashed rgba(255,255,255,0.12)",
-                paddingTop: "20px",
-                alignItems: "center",
-              }}
-            >
-              {/* Stat 1 */}
-              <div className="reveal reveal-scale stagger-5" style={{ display: "flex", flexDirection: "column" }}>
-                <span
-                  style={{
-                    fontFamily: "'Bangers', cursive",
-                    fontSize: "38px",
-                    color: "white",
-                    lineHeight: "1",
-                    transform: "skewX(-6deg)",
-                  }}
-                >
-                  1
-                </span>
-                <span
-                  style={{
-                    fontFamily: "'Open Sans', sans-serif",
-                    fontSize: "10px",
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    color: "var(--neutral-quaternary)",
-                    marginTop: "4px",
-                  }}
-                >
-                  Patent Filed
-                </span>
-              </div>
-
-              {/* Divider */}
-              <div
-                aria-hidden="true"
-                className="hidden sm:block"
-                style={{
-                  width: "2px",
-                  height: "32px",
-                  backgroundColor: "rgba(255,255,255,0.12)",
-                }}
-              />
-
-              {/* Stat 2 */}
-              <div className="reveal reveal-scale stagger-6" style={{ display: "flex", flexDirection: "column" }}>
-                <span
-                  style={{
-                    fontFamily: "'Bangers', cursive",
-                    fontSize: "38px",
-                    color: "white",
-                    lineHeight: "1",
-                    transform: "skewX(-6deg)",
-                  }}
-                >
-                  98%
-                </span>
-                <span
-                  style={{
-                    fontFamily: "'Open Sans', sans-serif",
-                    fontSize: "10px",
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    color: "var(--neutral-quaternary)",
-                    marginTop: "4px",
-                  }}
-                >
-                  Model Accuracy
-                </span>
-              </div>
-
-              {/* Divider */}
-              <div
-                aria-hidden="true"
-                className="hidden sm:block"
-                style={{
-                  width: "2px",
-                  height: "32px",
-                  backgroundColor: "rgba(255,255,255,0.12)",
-                }}
-              />
-
-              {/* Stat 3 */}
-              <div className="reveal reveal-scale stagger-7" style={{ display: "flex", flexDirection: "column" }}>
-                <span
-                  style={{
-                    fontFamily: "'Bangers', cursive",
-                    fontSize: "38px",
-                    color: "white",
-                    lineHeight: "1",
-                    transform: "skewX(-6deg)",
-                  }}
-                >
-                  3+
-                </span>
-                <span
-                  style={{
-                    fontFamily: "'Open Sans', sans-serif",
-                    fontSize: "10px",
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    color: "var(--neutral-quaternary)",
-                    marginTop: "4px",
-                  }}
-                >
-                  AI Products Shipped
-                </span>
-              </div>
-            </div>
           </div>
 
           {/* ── Column 3: Map widget (Spans 3) ── */}
