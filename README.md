@@ -30,6 +30,15 @@ Welcome to my portfolio! This project is a premium, highly interactive developer
 - **Experience & Projects**: Staggered timeline card blocks showcasing past internships, research, and coding achievements.
 - **Connect**: A custom board illustration (`Connect.png`) containing interactive hotspot overlays for GitHub, LinkedIn, and Gmail with copy-to-clipboard functionality and trailing glowing cursors.
 
+### 5. 📱 Modular Footer & QR Code Card
+- Refactored footer into a clean 3-column responsive grid (Sitemap, Portfolio, Connect).
+- Integrated a dynamic vCard QR Code (using `react-qr-code`) that lets users instantly scan and save contact details (email, phone, GitHub, LinkedIn).
+- Added a "Back to Top" scrolling button and precise location information (`AI Engineer · Tiruchirappalli, India`).
+
+### 6. 🔬 Rich Project Detail Modals & Workflows
+- Enhanced the **NutriMinds AI** project detail page with granular technical specs (VLM OCR, Mistral 7B Unsloth training table, Open Food Facts database, and structured output descriptions).
+- Programmed a modal workflow lightbox that dynamically swaps between **Banana Weevil Pest Detection** and **NutriMinds AI** workflow diagrams depending on the active project card.
+
 ---
 
 ## 🛠️ Technology Stack

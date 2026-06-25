@@ -44,8 +44,9 @@ const PROJECTS = [
   {
     id: "nutriminds",
     accent: "#2DC8E2",
-    badgeText: "MOBILE ON-DEVICE",
+    badgeText: "AI NUTRITION PLATFORM",
     isPinkCard: false,
+    image: "/Nutriminds_Thumbnail.png",
     tetromino: (
       <svg width="40" height="40" viewBox="0 0 40 40" fill="#2DC8E2">
         {/* Z-block */}
@@ -65,13 +66,13 @@ const PROJECTS = [
         <circle cx="100" cy="30" r="3" fill="#FFFFFF" stroke="#1C202B" strokeWidth="1" />
       </svg>
     ),
-    title: "NUTRIMINDS AI",
-    description: "Reads food labels and medical reports using your camera, delivering instant health advice via local LLMs.",
+    title: "NutriMinds AI",
+    description: "An AI-powered nutrition intelligence platform analyzing medical reports and food labels via Vision-Language models and fine-tuned LLMs for personalized dietary analysis.",
     features: [
-      { icon: "📷", text: "Camera Label Scan" },
-      { icon: "🔒", text: "100% On-device Privacy" },
-      { icon: "🤖", text: "Fine-tuned Local LLM" },
-      { icon: "📱", text: "iOS & Android Support" }
+      { icon: "🔍", text: "VLM OCR & Reasoning" },
+      { icon: "🤖", text: "Fine-tuned Mistral 7B" },
+      { icon: "🍎", text: "Open Food Facts Data" },
+      { icon: "🩺", text: "Clinical Nutrition Rules" }
     ],
     btnText: "VIEW ON GITHUB",
     btnLink: "https://github.com/srevarshan/NutriMinds",
@@ -340,8 +341,163 @@ export default function ProjectsSection() {
                     </div>
                   </div>
                 </div>
+              ) : activeProject.id === "nutriminds" ? (
+                /* Nutriminds Details */
+                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  {/* Overview */}
+                  <div className="modal-overview">
+                    <p style={{ borderLeftColor: "#2DC8E2" }}>
+                      NutriMinds AI is an end-to-end AI-powered nutrition analysis platform that helps users determine whether a packaged food product is suitable for their specific medical conditions. The system combines Vision Language Models (VLMs), OCR, a fine-tuned Large Language Model (LLM), and nutrition knowledge to provide personalized dietary recommendations based on both a user&apos;s medical report and the nutritional information printed on food packaging.
+                    </p>
+                  </div>
+
+                  <div className="modal-divider" />
+
+                  {/* 2-Column Grid */}
+                  <div className="modal-details-grid">
+                    {/* Left Column */}
+                    <div className="modal-grid-col" style={{ gap: "16px" }}>
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#2DC8E2" }}>
+                          Objective & Core Features
+                        </h4>
+                        <p className="modal-text">
+                          Bridges the gap between complex nutritional labels and clinical healthcare. Users upload medical/blood reports or prescription documents alongside food labels. The AI automatically analyzes both to check:
+                        </p>
+                        <ul className="modal-list">
+                          <li><strong>Safety Analysis:</strong> Whether the food is safe, recommended or not recommended.</li>
+                          <li><strong>Parameters Evaluated:</strong> Serving size guidelines, health risks, ingredient interactions, additive impact, and disease-specific nutritional compatibility.</li>
+                        </ul>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#FFB020" }}>
+                          OCR & Multi-Modal Pipeline
+                        </h4>
+                        <p className="modal-text">
+                          To extract information accurately, the pipeline implements distinct technologies:
+                        </p>
+                        <ul className="modal-list">
+                          <li>
+                            <strong>Medical Reports:</strong> Processed using a Vision-Language Model (VLM) for semantic layout, table, and terminology understanding instead of traditional OCR.
+                          </li>
+                          <li>
+                            <strong>Food Labels:</strong> PaddleOCR extracts multilingual ingredient lists, serving details, and additive INS numbers, normalizing them before inference.
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#2BB04A" }}>
+                          Dataset Construction
+                        </h4>
+                        <p className="modal-text">
+                          Combined multiple data sources to train a medically reliable reasoning model:
+                        </p>
+                        <ul className="modal-list">
+                          <li><strong>Open Food Facts:</strong> 900,000+ packaged products with ingredients and nutritional values.</li>
+                          <li><strong>Medical Nutrition Therapy:</strong> Dietary rules and targets for Chronic Kidney Disease, Diabetes, Hypertension, etc.</li>
+                          <li><strong>Synthetic Medical Dataset:</strong> Disease-food compatibility scenarios with deep clinical reasoning.</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    {/* Right Column */}
+                    <div className="modal-grid-col" style={{ gap: "16px" }}>
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#8E2DE2" }}>
+                          Fine-Tuning Configuration
+                        </h4>
+                        <p className="modal-text">
+                          Fine-tuned <strong>Mistral 7B Instruct</strong> using QLoRA via Unsloth on a Google Colab T4 GPU (16GB VRAM) for optimized reasoning performance.
+                        </p>
+                        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px", fontFamily: "'Open Sans', sans-serif", fontSize: "13px" }}>
+                          <thead>
+                            <tr style={{ borderBottom: "2px solid #1C202B" }}>
+                              <th style={{ textAlign: "left", padding: "6px 0", fontWeight: "800" }}>Parameter</th>
+                              <th style={{ textAlign: "left", padding: "6px 0", fontWeight: "800" }}>Value</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr style={{ borderBottom: "1px solid rgba(28,32,43,0.1)" }}>
+                              <td style={{ padding: "6px 0" }}>Base Model</td>
+                              <td style={{ padding: "6px 0", fontWeight: "600" }}>Mistral 7B Instruct</td>
+                            </tr>
+                            <tr style={{ borderBottom: "1px solid rgba(28,32,43,0.1)" }}>
+                              <td style={{ padding: "6px 0" }}>Framework / Method</td>
+                              <td style={{ padding: "6px 0", fontWeight: "600" }}>Unsloth / QLoRA 4-bit</td>
+                            </tr>
+                            <tr style={{ borderBottom: "1px solid rgba(28,32,43,0.1)" }}>
+                              <td style={{ padding: "6px 0" }}>Rank (r) / Alpha (α)</td>
+                              <td style={{ padding: "6px 0", fontWeight: "600" }}>16–32 / 32–64</td>
+                            </tr>
+                            <tr style={{ borderBottom: "1px solid rgba(28,32,43,0.1)" }}>
+                              <td style={{ padding: "6px 0" }}>Optimizer / LR</td>
+                              <td style={{ padding: "6px 0", fontWeight: "600" }}>AdamW 8-bit / 2e-4</td>
+                            </tr>
+                            <tr style={{ borderBottom: "1px solid rgba(28,32,43,0.1)" }}>
+                              <td style={{ padding: "6px 0" }}>Sequence Length</td>
+                              <td style={{ padding: "6px 0", fontWeight: "600" }}>2048 tokens</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#E22D6D" }}>
+                          Structured Analysis Output
+                        </h4>
+                        <p className="modal-text">
+                          The final inference pipeline returns structured JSON payload details:
+                        </p>
+                        <ul className="modal-list">
+                          <li><strong>Compatibility Score:</strong> Rating of suitability for patient conditions.</li>
+                          <li><strong>Risk Analysis:</strong> Allergen detection, additive danger, sugar/sodium/potassium impact.</li>
+                          <li><strong>Consumption Guideline:</strong> Safe serving size and recommended consumption frequency.</li>
+                        </ul>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#4D5BFF" }}>
+                          Deployment & Tech Stack
+                        </h4>
+                        <p className="modal-text">
+                          Designed as a modular, low-latency service:
+                        </p>
+                        <ul className="modal-list">
+                          <li><strong>Frontend:</strong> React.js Dashboard</li>
+                          <li><strong>Backend:</strong> FastAPI with cloud-hosted API</li>
+                          <li><strong>Inference:</strong> Mistral 7B (4-bit quantized)</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="modal-divider" />
+
+                  {/* Footer */}
+                  <div className="modal-footer" style={{ justifyContent: "flex-end" }}>
+                    <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                      <button
+                        onClick={() => setIsWorkflowOpen(true)}
+                        className="modal-action-btn secondary-btn"
+                        style={{ cursor: "pointer" }}
+                      >
+                        See Project Workflow →
+                      </button>
+                      <a
+                        href={activeProject.btnLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="modal-action-btn primary-btn"
+                      >
+                        {activeProject.btnText} →
+                      </a>
+                    </div>
+                  </div>
+                </div>
               ) : (
-                /* Nutriminds & Doc Parser Details */
+                /* Doc Parser Details */
                 <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                   <div className="modal-overview">
                     <p style={{ fontStyle: "normal" }}>{activeProject.description}</p>
@@ -428,8 +584,8 @@ export default function ProjectsSection() {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src="/Banana_Weevil_Portfolio.png"
-              alt="Banana Weevil Pest Detection Workflow"
+              src={activeProject?.id === "nutriminds" ? "/Nutriminds.png" : "/Banana_Weevil_Portfolio.png"}
+              alt={activeProject?.id === "nutriminds" ? "NutriMinds AI Workflow Diagram" : "Banana Weevil Pest Detection Workflow"}
               style={{
                 maxWidth: "100%",
                 maxHeight: "90vh",
