@@ -114,6 +114,39 @@ const PROJECTS = [
     btnText: "VIEW ON GITHUB",
     btnLink: "https://github.com/Srevarshan05/UIDAI-Acas",
   },
+  {
+    id: "xenia-crm",
+    accent: "#8E2DE2",
+    badgeText: "AI-POWERED CRM",
+    isPinkCard: false,
+    image: "/Xenia-thumbnai.png",
+    tetromino: (
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="#8E2DE2">
+        <rect x="0" y="0" width="8" height="8" stroke="#1C202B" strokeWidth="1.5" />
+        <rect x="0" y="10" width="8" height="8" stroke="#1C202B" strokeWidth="1.5" />
+        <rect x="10" y="0" width="8" height="8" stroke="#1C202B" strokeWidth="1.5" />
+        <rect x="10" y="10" width="8" height="8" stroke="#1C202B" strokeWidth="1.5" />
+      </svg>
+    ),
+    illustration: (
+      <svg width="100%" height="90" viewBox="0 0 200 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="50" y="20" width="100" height="50" rx="4" fill="#F4E8FD" stroke="#1C202B" strokeWidth="2.5" />
+        <circle cx="75" cy="45" r="12" fill="#8E2DE2" stroke="#1C202B" strokeWidth="2" />
+        <line x1="95" y1="40" x2="135" y2="40" stroke="#1C202B" strokeWidth="2" strokeLinecap="round" />
+        <line x1="95" y1="50" x2="125" y2="50" stroke="#1C202B" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    ),
+    title: "Xenia CRM",
+    description: "An enterprise retail CRM with automated AI voice outreach (ElevenLabs), Llama 3.3 campaign generation, and Gradient Boosting churn prediction.",
+    features: [
+      { icon: "📞", text: "AI Voice Campaigns" },
+      { icon: "🤖", text: "Llama 3.3 Copywriting" },
+      { icon: "🔮", text: "GBM Churn Classifier" },
+      { icon: "📊", text: "Event Loop Simulator" }
+    ],
+    btnText: "LIVE DEMO",
+    btnLink: "https://xenia-crm-frontend.vercel.app/",
+  },
 ];
 
 export default function ProjectsSection() {
@@ -496,6 +529,152 @@ export default function ProjectsSection() {
                     </div>
                   </div>
                 </div>
+              ) : activeProject.id === "xenia-crm" ? (
+                /* Xenia CRM Details */
+                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  {/* Overview */}
+                  <div className="modal-overview">
+                    <p style={{ borderLeftColor: "#8E2DE2" }}>
+                      Xenia CRM is a full-stack enterprise retail customer relationship management platform built to help marketing teams identify customer opportunities, create targeted campaigns, manage promotional offers, automate premium voice outreach, monitor customer engagement, and measure campaign performance through complete lifecycle tracking.
+                    </p>
+                  </div>
+
+                  <div className="modal-divider" />
+
+                  {/* 2-Column Grid */}
+                  <div className="modal-details-grid">
+                    {/* Left Column */}
+                    <div className="modal-grid-col" style={{ gap: "16px" }}>
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#8E2DE2" }}>
+                          Shopper Intelligence & Churn GBM
+                        </h4>
+                        <p className="modal-text">
+                          Treats every customer as an individual profile rather than a simple database record. Shoppers maintain detailed behavioral history:
+                        </p>
+                        <ul className="modal-list">
+                          <li><strong>Data Features:</strong> Complete purchase history, categories, lifetime spending (CLV), campaign engagement, and journey timeline.</li>
+                          <li><strong>Churn Prediction:</strong> A <strong>Gradient Boosting Machine (GBM)</strong> model trained on behavioral signals (inactivity, frequency, spending habits) predicts the probability of customer churn to identify high-risk shoppers.</li>
+                        </ul>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#E22D6D" }}>
+                          Campaign Lifecycle & Preview
+                        </h4>
+                        <p className="modal-text">
+                          Marketers can plan, configure promotions, select target audiences, and launch multi-channel campaigns. Before dispatching, the platform renders interactive previews:
+                        </p>
+                        <ul className="modal-list">
+                          <li><strong>Channels Supported:</strong> WhatsApp, Email, SMS, and AI Voice Calls.</li>
+                          <li><strong>Full Funnel Tracking:</strong> Logs every step of the user engagement flow: <em>Queued → Sent → Delivered → Opened → Clicked → Promotion Redeemed → Purchase Completed</em>.</li>
+                        </ul>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#2BB04A" }}>
+                          Cloud Infrastructure & DB
+                        </h4>
+                        <p className="modal-text">
+                          Engineered for scalable, high-performance database transactions:
+                        </p>
+                        <ul className="modal-list">
+                          <li><strong>AWS Elastic Beanstalk:</strong> Deployed as two separate scalable microservice environments (Core CRM and Channel Simulator) running FastAPI on Python 3.12.</li>
+                          <li><strong>Neon Serverless PostgreSQL:</strong> Leverages connection pooling and auto-scaling to manage customer records, attributions, and campaign timelines.</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    {/* Right Column */}
+                    <div className="modal-grid-col" style={{ gap: "16px" }}>
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#2DC8E2" }}>
+                          ElevenLabs Voice Campaigns
+                        </h4>
+                        <p className="modal-text">
+                          Outbound voice campaign manager targeting premium customer segments:
+                        </p>
+                        <ul className="modal-list">
+                          <li><strong>API Synthesis:</strong> Integrates <strong>ElevenLabs Text-to-Speech API</strong> for high-fidelity natural voice synthesis.</li>
+                          <li><strong>Customization:</strong> Supports preferred voice profiles, multi-language translation, speaking styles, voice script planning, and call performance reporting.</li>
+                        </ul>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#FFB020" }}>
+                          Channel Event Simulator
+                        </h4>
+                        <p className="modal-text">
+                          A dedicated FastAPI microservice that emulates external telcos and email clients to avoid integration costs during testing:
+                        </p>
+                        <ul className="modal-list">
+                          <li><strong>Automated Interaction Loop:</strong> Simulates customer behaviors (e.g. opening emails, clicking SMS links, applying discount codes) and sends real-time webhooks back to the core API.</li>
+                          <li><strong>Attribution Pipeline:</strong> Converts simulated events into hard ROI analytics (conversion rate, revenue attributed, and promo usage).</li>
+                        </ul>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#4D5BFF" }}>
+                          Technology Stack Summary
+                        </h4>
+                        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px", fontFamily: "'Open Sans', sans-serif", fontSize: "12.5px" }}>
+                          <tbody>
+                            <tr style={{ borderBottom: "1px solid rgba(28,32,43,0.1)" }}>
+                              <td style={{ padding: "5px 0", fontWeight: "bold" }}>Frontend</td>
+                              <td style={{ padding: "5px 0" }}>React, TypeScript, Vite, Lucide</td>
+                            </tr>
+                            <tr style={{ borderBottom: "1px solid rgba(28,32,43,0.1)" }}>
+                              <td style={{ padding: "5px 0", fontWeight: "bold" }}>Backend</td>
+                              <td style={{ padding: "5px 0" }}>FastAPI, SQLAlchemy, Alembic, ReportLab</td>
+                            </tr>
+                            <tr style={{ borderBottom: "1px solid rgba(28,32,43,0.1)" }}>
+                              <td style={{ padding: "5px 0", fontWeight: "bold" }}>Database</td>
+                              <td style={{ padding: "5px 0" }}>PostgreSQL on Neon Serverless</td>
+                            </tr>
+                            <tr style={{ borderBottom: "1px solid rgba(28,32,43,0.1)" }}>
+                              <td style={{ padding: "5px 0", fontWeight: "bold" }}>ML & APIs</td>
+                              <td style={{ padding: "5px 0" }}>GBM Churn, Groq Llama 3.3, ElevenLabs</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="modal-divider" />
+
+                  {/* Footer */}
+                  <div className="modal-footer" style={{ justifyContent: "space-between" }}>
+                    <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                      <a
+                        href="https://www.youtube.com/watch?v=8VAZWC9b_Do&t=25s"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="modal-action-btn secondary-btn"
+                        style={{ background: "#FF0000", color: "#FFFFFF", borderColor: "#1C202B", boxShadow: "4px 4px 0 0 #1C202B" }}
+                      >
+                        🎥 Watch Walkthrough
+                      </a>
+                    </div>
+                    <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                      <button
+                        onClick={() => setIsWorkflowOpen(true)}
+                        className="modal-action-btn secondary-btn"
+                        style={{ cursor: "pointer" }}
+                      >
+                        See Project Workflow →
+                      </button>
+                      <a
+                        href={activeProject.btnLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="modal-action-btn primary-btn"
+                      >
+                        {activeProject.btnText} →
+                      </a>
+                    </div>
+                  </div>
+                </div>
               ) : (
                 /* ACAS Dhristi Details */
                 <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -718,6 +897,8 @@ export default function ProjectsSection() {
                   ? "/Acas_Workflow.png"
                   : activeProject?.id === "nutriminds"
                   ? "/Nutriminds.png"
+                  : activeProject?.id === "xenia-crm"
+                  ? "/Xenia-worflow.png"
                   : "/Banana_Weevil_Portfolio.png"
               }
               alt={
@@ -725,6 +906,8 @@ export default function ProjectsSection() {
                   ? "ACAS Dhristi Workflow Diagram"
                   : activeProject?.id === "nutriminds"
                   ? "NutriMinds AI Workflow Diagram"
+                  : activeProject?.id === "xenia-crm"
+                  ? "Xenia CRM Workflow Diagram"
                   : "Banana Weevil Pest Detection Workflow"
               }
               style={{
@@ -768,7 +951,7 @@ export default function ProjectsSection() {
       <style>{`
         .projects-grid {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: repeat(2, 1fr);
           gap: 32px;
         }
         
