@@ -129,33 +129,11 @@ const ACHIEVEMENTS: Achievement[] = [
 
 const ALL = [...ACHIEVEMENTS, ...ACHIEVEMENTS];
 
-const STATS = [
-  { value: "1",    label: "Patent Filed" },
-  { value: "98%",  label: "Best Model Accuracy" },
-  { value: "90%",  label: "Data Entry Automated" },
-  { value: "3+",   label: "AI Products Shipped" },
-  { value: "#1",   label: "Hackathon Place" },
-];
-
 export default function AchievementsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   useScrollReveal(sectionRef as React.RefObject<HTMLElement>);
 
   const [activeImage, setActiveImage] = useState<string | null>(null);
-
-  // Responsive columns for stats grid
-  const [statsCols, setStatsCols] = useState("repeat(5, 1fr)");
-  useEffect(() => {
-    const update = () => {
-      const w = window.innerWidth;
-      if (w < 640) setStatsCols("repeat(2, 1fr)");
-      else if (w < 1024) setStatsCols("repeat(3, 1fr)");
-      else setStatsCols("repeat(5, 1fr)");
-    };
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
 
   return (
     <section 
@@ -327,51 +305,7 @@ export default function AchievementsSection() {
         </div>
       </div>
 
-      {/* Stats bar */}
-      <div className="section-content" style={{ padding: "0 40px" }}>
-        <div className="container reveal">
-          <div
-            className="achievements-stats-grid"
-            style={{
-              display: "grid",
-              gridTemplateColumns: statsCols,
-              borderTop: "1px solid rgba(255,255,255,0.1)",
-              borderLeft: "1px solid rgba(255,255,255,0.1)"
-            }}
-          >
-            {STATS.map((s) => (
-              <div
-                key={s.label}
-                style={{
-                  padding: "32px 16px",
-                  textAlign: "center",
-                  borderRight: "1px solid rgba(255,255,255,0.1)",
-                  borderBottom: "1px solid rgba(255,255,255,0.1)",
-                }}
-              >
-                <div
-                  style={{
-                    padding: "4px",
-                    fontFamily: "'Bangers', cursive",
-                    fontSize: "44px",
-                    lineHeight: 1,
-                    background: "linear-gradient(135deg, var(--gradient-from), var(--gradient-to))",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                    marginBottom: "8px",
-                  }}
-                >
-                  {s.value}
-                </div>
-                <div style={{ fontFamily: "'Open Sans', sans-serif", fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", color: "rgba(255,255,255,0.5)" }}>
-                  {s.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+
 
       {/* Full screen Lightbox Modal for enlarged stamp images */}
       {activeImage && (
