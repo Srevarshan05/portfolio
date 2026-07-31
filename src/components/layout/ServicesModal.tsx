@@ -113,14 +113,14 @@ export default function ServicesModal() {
   const days = getNext7Days();
 
   useEffect(() => {
-    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v8")) return;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v9")) return;
     const t = setTimeout(() => setVisible(true), 3000);
     return () => clearTimeout(t);
   }, []);
 
   const close = () => {
     setVisible(false);
-    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v8", "1");
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v9", "1");
   };
 
   const handleBook = () => {
@@ -172,33 +172,26 @@ export default function ServicesModal() {
         }
         .sv-modal-close-btn:hover { background: #FF007F; border-color: #FF007F; transform: rotate(90deg); }
 
-        /* ── Top Banner Image with Smudge Fade Effect ── */
+        /* ── Top Banner Container ── */
         .sv-top-banner-full {
           width: 100%;
           background: #ffffff;
-          position: relative;
           display: flex; align-items: center; justify-content: center;
           overflow: hidden; flex-shrink: 0;
+          position: relative;
         }
         .sv-top-banner-full img {
           width: 100%;
           height: auto;
-          max-height: 240px;
           object-fit: contain;
           display: block;
-        }
-        /* Smudge gradient shadow transition at bottom of top card */
-        .sv-top-banner-smudge {
-          position: absolute; bottom: 0; left: 0; right: 0; height: 36px;
-          background: linear-gradient(to bottom, rgba(17,19,27,0) 0%, rgba(17,19,27,0.7) 60%, #11131b 100%);
-          pointer-events: none;
         }
 
         /* ── Main Body Container ── */
         .sv-modal-body {
           background: #11131b;
           flex: 1; overflow-y: auto; overflow-x: hidden;
-          padding: 14px 24px 20px;
+          padding: 16px 24px 20px;
           display: flex; flex-direction: column; gap: 14px;
           scrollbar-width: thin;
           scrollbar-color: rgba(255,255,255,0.2) transparent;
@@ -272,7 +265,7 @@ export default function ServicesModal() {
           width: 6px; height: 6px; border-radius: 50%; background: #FF007F; flex-shrink: 0; margin-top: 5px;
         }
 
-        /* ── Bottom CTA Banner Card with Smudge Glow ── */
+        /* ── Bottom CTA Banner Card Perfectly Aligned ── */
         .sv-cta-banner-card {
           background: #171a24;
           border: 1.5px solid rgba(255,255,255,0.1);
@@ -280,17 +273,11 @@ export default function ServicesModal() {
           padding: 18px 24px;
           display: flex; align-items: center; justify-content: space-between;
           gap: 20px; flex-wrap: wrap; margin-top: 6px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 0 20px rgba(255,0,127,0.05);
-          position: relative; overflow: hidden;
-        }
-        .sv-cta-banner-card::before {
-          content: ""; position: absolute; top: -20px; left: -20px; width: 120px; height: 120px;
-          background: radial-gradient(circle, rgba(255,0,127,0.15) 0%, transparent 70%);
-          pointer-events: none;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
 
         .sv-cta-quote-left {
-          display: flex; align-items: center; gap: 16px; position: relative; z-index: 1;
+          display: flex; align-items: center; gap: 16px;
         }
         .sv-quote-icon-badge {
           font-family: 'Bangers', cursive; font-size: 36px;
@@ -318,7 +305,7 @@ export default function ServicesModal() {
           cursor: pointer; display: flex; align-items: center; gap: 12px;
           transition: background 150ms, transform 100ms, box-shadow 150ms;
           box-shadow: 0 0 24px rgba(255,0,127,0.45);
-          white-space: nowrap; position: relative; z-index: 1;
+          white-space: nowrap;
         }
         .sv-big-pink-btn:hover {
           transform: translateY(-2px);
@@ -350,10 +337,9 @@ export default function ServicesModal() {
           overflow: hidden;
           box-shadow: 0 8px 24px rgba(0,0,0,0.3);
           border: 3px solid #1C202B;
-          position: relative;
         }
         .sv-booking-lottie-wrap-center {
-          width: 240px; height: 150px;
+          width: 250px; height: 160px;
           display: flex; align-items: center; justify-content: center;
         }
         .sv-booking-lottie-title {
@@ -546,10 +532,9 @@ export default function ServicesModal() {
           {/* ── PAGE 1 SERVICES VIEW ── */}
           {screen === "services" && (
             <>
-              {/* Full Width Top Banner Image with Smudge Transition */}
+              {/* Full Width 100% Uncropped Top Banner Image */}
               <div className="sv-top-banner-full">
                 <img src="/icons/Model-top-card.png" alt="Sre Varshan - Let's build something Extraordinary" />
-                <div className="sv-top-banner-smudge" />
               </div>
 
               {/* Main Body Section */}
@@ -581,23 +566,21 @@ export default function ServicesModal() {
                   ))}
                 </div>
 
-                {/* Bottom CTA Banner Card with Smudge Glow */}
+                {/* Bottom CTA Banner Card */}
                 <div className="sv-cta-banner-card">
-                  <div className="sv-cta-main-row">
-                    <div className="sv-cta-quote-left">
-                      <div className="sv-quote-icon-badge">“</div>
-                      <div>
-                        <h4 className="sv-quote-title">CRAFTED WITH PRECISION. <span>BUILT FOR IMPACT.</span></h4>
-                        <p className="sv-quote-sub">Great ideas deserve exceptional execution. Let&apos;s build yours.</p>
-                      </div>
+                  <div className="sv-cta-quote-left">
+                    <div className="sv-quote-icon-badge">“</div>
+                    <div>
+                      <h4 className="sv-quote-title">CRAFTED WITH PRECISION. <span>BUILT FOR IMPACT.</span></h4>
+                      <p className="sv-quote-sub">Great ideas deserve exceptional execution. Let&apos;s build yours.</p>
                     </div>
-                    <button className="sv-big-pink-btn" onClick={() => setScreen("booking")}>
-                      <div className="sv-mobile-icon-circle">
-                        <img src="/icons/mobile.png" alt="Call" />
-                      </div>
-                      <span>BOOK A FREE DISCOVERY CALL</span>
-                    </button>
                   </div>
+                  <button className="sv-big-pink-btn" onClick={() => setScreen("booking")}>
+                    <div className="sv-mobile-icon-circle">
+                      <img src="/icons/mobile.png" alt="Call" />
+                    </div>
+                    <span>BOOK A FREE DISCOVERY CALL</span>
+                  </button>
                 </div>
               </div>
             </>
