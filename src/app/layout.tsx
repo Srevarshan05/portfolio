@@ -1,27 +1,134 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Sre Varshan — AI/ML Engineer | Edge AI & Healthcare Tech",
-  description:
-    "Pre-final year AI/ML engineer building fast, local, and useful AI systems. Specializing in edge AI, healthcare automation, and agricultural tech. Government-patented banana weevil detection, Microsoft intern, EmedLogix AI product developer.",
-  keywords: [
-    "AI Engineer",
-    "ML Engineer",
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Sre Varshan",
+  "jobTitle": "Applied AI & Generative AI Engineer",
+  "url": "https://www.srevarshan.in",
+  "sameAs": [
+    "https://github.com/Srevarshan05",
+    "https://www.linkedin.com/in/srevarshan",
+    "https://www.youtube.com/@SreVarshanAI"
+  ],
+  "knowsAbout": [
+    "Large Language Models (LLMs)",
+    "Vision Language Models (VLMs)",
+    "Optical Character Recognition (OCR)",
     "Edge AI",
-    "Raspberry Pi AI",
-    "Healthcare AI",
-    "NLP",
+    "AI Agents",
+    "Retrieval-Augmented Generation (RAG)",
+    "Intelligent Systems",
+    "Full-Stack AI Engineering",
+    "NVIDIA Jetson Edge Computing"
+  ],
+  "creator": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "TextLens",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Cross-platform",
+      "description": "An open-source OCR framework focused on simplifying document intelligence and reusable OCR workflows for Python developers."
+    }
+  ],
+  "hasPatent": [
+    {
+      "@type": "Patent",
+      "name": "Banana Weevil Detection through Dual-Mode Acoustic Sensing and Edge AI"
+    }
+  ]
+};
+
+export const metadata: Metadata = {
+  title: "Sre Varshan — Applied AI & GenAI Engineer | LLMs, Edge AI, OCR, AI Systems",
+  description:
+    "Official portfolio of Sre Varshan, an Applied AI & Generative AI Engineer, Software Developer, and AI Researcher specializing in Large Language Models (LLMs), Vision Language Models (VLMs), Edge AI, Optical Character Recognition (OCR), AI Agents, Retrieval-Augmented Generation (RAG), Intelligent Document Processing, Full-Stack AI Engineering, NVIDIA Jetson Edge Computing, and production-ready AI systems. Creator of TextLens, an open-source OCR framework focused on simplifying document intelligence and reusable OCR workflows for Python developers. Author of technical AI content and complete project demonstrations on YouTube. Published researcher with accepted Springer conference publications, book chapter author, patent holder for an innovative banana weevil early detection system using dual-mode acoustic sensing and Edge AI, multiple national hackathon winner, open-source contributor, and builder of scalable AI products that transform cutting-edge research into real-world applications.",
+  keywords: [
     "Sre Varshan",
-    "Portfolio",
-    "Python",
+    "SreVarshan",
+    "Sre Varshan AI",
+    "Applied AI Engineer",
+    "Generative AI Engineer",
+    "GenAI Engineer",
+    "Artificial Intelligence Engineer",
+    "Software Developer",
+    "Machine Learning Engineer",
+    "LLM Engineer",
+    "Vision Language Models",
+    "VLM",
+    "Large Language Models",
     "LLM",
+    "Edge AI",
+    "OCR",
+    "Optical Character Recognition",
+    "TextLens",
+    "OCR Framework",
+    "Python OCR",
+    "Document AI",
+    "Document Intelligence",
+    "AI Agents",
+    "Retrieval Augmented Generation",
+    "RAG",
+    "Prompt Engineering",
+    "LangChain",
+    "Hugging Face",
+    "PyTorch",
+    "FastAPI",
+    "Docker",
+    "AWS",
+    "NVIDIA Jetson",
+    "Embedded AI",
+    "Intelligent Systems",
+    "Full Stack AI",
+    "Production AI",
+    "Open Source AI",
+    "AI Research",
+    "Research Publications",
+    "Springer Publication",
+    "Patent Holder",
+    "Banana Weevil Detection",
+    "Acoustic AI",
+    "Technical YouTuber",
+    "AI Projects",
+    "Python",
+    "Developer Portfolio",
+    "AI Portfolio",
+    "AI Engineer India",
+    "Sre Varshan Portfolio"
   ],
   authors: [{ name: "Sre Varshan" }],
+  icons: {
+    icon: [
+      { url: "/Portfolio-favi.png" },
+      { url: "/favicon.ico" }
+    ],
+    shortcut: "/Portfolio-favi.png",
+    apple: "/Portfolio-favi.png",
+  },
   openGraph: {
-    title: "Sre Varshan — AI/ML Engineer",
-    description: "Building fast, local, and useful AI systems for real-world problems.",
+    title: "Sre Varshan — Applied AI & GenAI Engineer",
+    description:
+      "Applied AI Engineer building production-ready AI systems using LLMs, VLMs, OCR, Edge AI, AI Agents, and scalable AI infrastructure. Creator of TextLens, researcher, patent holder, open-source contributor, and technical educator.",
     type: "website",
+    url: "https://www.srevarshan.in",
+    images: [
+      {
+        url: "https://www.srevarshan.in/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Sre Varshan — Applied AI & GenAI Engineer",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sre Varshan — Applied AI & GenAI Engineer",
+    description:
+      "Building production-ready AI systems with LLMs, OCR, Edge AI, AI Agents, and Intelligent Systems. Creator of TextLens.",
+  },
+  other: {
+    youtube: "https://www.youtube.com/@SreVarshanAI",
   },
 };
 
@@ -40,28 +147,18 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;600;700&display=swap"
           rel="stylesheet"
         />
+        <link rel="icon" type="image/png" href="/Portfolio-favi.png" />
+        <meta name="youtube" content="https://www.youtube.com/@SreVarshanAI" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </head>
       <body>
         {children}
 
         {/* ============================================================
             CHATBASE.IO CHATBOT INJECTION POINT
-            ──────────────────────────────────────────────────────────
-            Label: "Ask me about Sre's work"
-            Position: Fixed, bottom-right, z-index 9999
-            Above the floating dock (bottom: 96px, right: 24px)
-            
-            HOW TO USE:
-            1. Go to chatbase.io and create your chatbot
-            2. Copy the embed <script> tag they provide
-            3. Paste it inside the #chatbase-container div below
-            4. Optionally customize position in globals.css → #chatbase-container
-            
-            EXAMPLE (replace with your actual bot ID):
-            <script>
-              window.chatbaseConfig = { chatbotId: "YOUR_BOT_ID" };
-            </script>
-            <script src="https://www.chatbase.co/embed.min.js" defer></script>
             ============================================================ */}
         <div id="chatbase-container" aria-label="Ask me about Sre's work" role="complementary">
           {/* ← Paste your Chatbase embed script here */}
@@ -70,3 +167,4 @@ export default function RootLayout({
     </html>
   );
 }
+

@@ -141,7 +141,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
                 Sre Varshan
               </span>
               <span style={{ fontFamily: "'Open Sans', sans-serif", fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", color: "var(--brand)" }}>
-                AI / ML Engineer
+                Applied AI & GenAI Engineer
               </span>
             </div>
           )}

@@ -272,6 +272,54 @@ const IMAGES = [
   {
     "src": "/photos/WhatsApp Image 2026-06-24 at 10.55.18 AM.jpeg",
     "alt": "Engineering Log #39"
+  },
+  {
+    "src": "/photos/IMG_4415.JPG.jpeg",
+    "alt": "Engineering Log #40"
+  },
+  {
+    "src": "/photos/IMG_4412.JPG.jpeg",
+    "alt": "Engineering Log #41"
+  },
+  {
+    "src": "/photos/WhatsApp Image 2026-05-05 at 6.17.12 PM.jpeg",
+    "alt": "Engineering Log #42"
+  },
+  {
+    "src": "/photos/WhatsApp Image 2026-05-05 at 8.23.11 PM.jpeg",
+    "alt": "Engineering Log #43"
+  },
+  {
+    "src": "/photos/WhatsApp Image 2026-01-21 at 8.33.25 PM (1).jpeg",
+    "alt": "Engineering Log #44"
+  },
+  {
+    "src": "/photos/WhatsApp Image 2026-01-21 at 8.33.25 PM.jpeg",
+    "alt": "Engineering Log #45"
+  },
+  {
+    "src": "/photos/WhatsApp Image 2025-12-31 at 3.26.48 PM (2).jpeg",
+    "alt": "Engineering Log #46"
+  },
+  {
+    "src": "/photos/WhatsApp Image 2025-12-31 at 1.49.48 PM.jpeg",
+    "alt": "Engineering Log #47"
+  },
+  {
+    "src": "/photos/WhatsApp Image 2025-12-31 at 3.26.48 PM (1).jpeg",
+    "alt": "Engineering Log #48"
+  },
+  {
+    "src": "/photos/WhatsApp Image 2025-12-03 at 1.01.26 PM (1).jpeg",
+    "alt": "Engineering Log #49"
+  },
+  {
+    "src": "/photos/WhatsApp Image 2025-12-03 at 1.01.25 PM.jpeg",
+    "alt": "Engineering Log #50"
+  },
+  {
+    "src": "/photos/WhatsApp Image 2025-12-03 at 1.01.26 PM.jpeg",
+    "alt": "Engineering Log #51"
   }
 ];
 

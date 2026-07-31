@@ -29,7 +29,7 @@ END:VCARD`;
           {/* Column 1: Brand details & Back to Top */}
           <div className="brand-col">
             <div className="brand-title">SRE VARSHAN</div>
-            <p className="brand-subtitle">AI Engineer · Tiruchirappalli, India</p>
+            <p className="brand-subtitle">Applied AI & GenAI Engineer · Tiruchirappalli, India</p>
             
             {/* Command Palette Search Hint */}
             <div className="search-hint">
