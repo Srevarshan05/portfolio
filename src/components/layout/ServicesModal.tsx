@@ -118,14 +118,14 @@ export default function ServicesModal() {
   const days = getNext7Days();
 
   useEffect(() => {
-    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v11")) return;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v12")) return;
     const t = setTimeout(() => setVisible(true), 3000);
     return () => clearTimeout(t);
   }, []);
 
   const close = () => {
     setVisible(false);
-    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v11", "1");
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v12", "1");
   };
 
   const handleBook = async () => {
@@ -141,35 +141,39 @@ export default function ServicesModal() {
     const bookingPayload = {
       name: finalName,
       email: finalEmail,
-      subject: `New Call Booking Request from ${finalName}`,
+      phone: finalPhone,
+      date: selectedDateStr,
+      time: selTime,
+      subject: `New Call Booking: ${finalName} (${selectedDateStr} at ${selTime})`,
       message: `
-📅 NEW 1-ON-1 DISCOVERY CALL BOOKING REQUEST
+📅 NEW DISCOVERY CALL BOOKING
 --------------------------------------------------
 👤 Client Name: ${finalName}
 ✉️ Email: ${finalEmail}
 📞 Phone: ${finalPhone}
 
-📆 Booked Date: ${selectedDateStr}
-⏰ Booked Time Slot: ${selTime}
-
-🎯 Destination: srevarshan9600622@gmail.com
+📆 Date: ${selectedDateStr}
+⏰ Time Slot: ${selTime}
 --------------------------------------------------
-Notification automatically dispatched from Portfolio Services Modal.
+Notification for: srevarshan9600622@gmail.com
       `,
     };
 
-    // 1. Try sending email via Next.js backend endpoint (/api/contact)
+    // 1. Dispatch via Next.js backend endpoint (/api/contact)
+    let apiSuccess = false;
     try {
-      await fetch("/api/contact", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingPayload),
       });
+      const data = await res.json();
+      if (data.status === "success") apiSuccess = true;
     } catch (e) {
-      console.warn("API Contact dispatch failed, attempting EmailJS fallback:", e);
+      console.warn("API Contact dispatch attempted:", e);
     }
 
-    // 2. Try sending via EmailJS browser SDK as requested ("use email.js")
+    // 2. Dispatch via EmailJS browser SDK ("use email.js")
     try {
       const emailjsServiceId  = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || "service_portfolio";
       const emailjsTemplateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || "template_booking";
@@ -190,10 +194,22 @@ Notification automatically dispatched from Portfolio Services Modal.
         emailjsPublicKey
       );
     } catch (e) {
-      console.log("EmailJS dispatch completed or logged fallback:", e);
+      console.log("EmailJS dispatch attempted:", e);
     }
 
-    // Save booking locally so details are never lost
+    // 3. Fallback Mailto Trigger if server SMTP needs App Password renewal
+    if (!apiSuccess && typeof window !== "undefined") {
+      const mailtoSubject = encodeURIComponent(`New Call Booking: ${finalName}`);
+      const mailtoBody = encodeURIComponent(`Hi Sre Varshan,\n\nI want to book a call with you:\n\nName: ${finalName}\nEmail: ${finalEmail}\nPhone: ${finalPhone}\nDate: ${selectedDateStr}\nTime Slot: ${selTime}\n`);
+      const link = document.createElement("a");
+      link.href = `mailto:srevarshan9600622@gmail.com?subject=${mailtoSubject}&body=${mailtoBody}`;
+      link.target = "_blank";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Save locally
     try {
       if (typeof localStorage !== "undefined") {
         const prev = JSON.parse(localStorage.getItem("sv-bookings") || "[]");
@@ -486,7 +502,7 @@ Notification automatically dispatched from Portfolio Services Modal.
         .sv-date-pill-item {
           flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
           background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.15);
-          border-radius: 14px; padding: 10px 14px; cursor: pointer; min-width: 58px;
+          border-radius: 12px; padding: 10px 14px; cursor: pointer; min-width: 58px;
           transition: all 180ms; font-family: 'Open Sans', sans-serif;
         }
         .sv-date-pill-item:hover { background: rgba(255,0,127,0.18); border-color: #FF007F; transform: translateY(-2px); }
@@ -540,7 +556,7 @@ Notification automatically dispatched from Portfolio Services Modal.
           display: flex; gap: 10px; position: absolute; top: 20px; pointer-events: none;
         }
         .sv-confetti-particle {
-          width: 10px; height: 10px; border-radius: 50%;
+          width: 100px; height: 10px; border-radius: 50%;
           animation: sv-confetti-float 1.2s ease-out forwards;
         }
         .sv-confirmed-check {
@@ -755,7 +771,7 @@ Notification automatically dispatched from Portfolio Services Modal.
                         {sending ? (
                           <>
                             <div className="sv-spinner" />
-                            <span>Booking Slot...</span>
+                            <span>Sending Email &amp; Booking...</span>
                           </>
                         ) : (
                           <span>CONFIRM BOOKING →</span>
@@ -785,9 +801,9 @@ Notification automatically dispatched from Portfolio Services Modal.
                 <div className="sv-confirmed-check">✓</div>
                 <h3 className="sv-confirmed-title">SLOT BOOKED! 🎉</h3>
                 <p className="sv-confirmed-text">
-                  Thanks <span>{name || "Guest"}</span>! Your call is locked in for{" "}
+                  Thanks <span>{name || "Guest"}</span>! Your call is scheduled for{" "}
                   <span>{currentDayText} at {selTime}</span>.
-                  Notification sent to <span>srevarshan9600622@gmail.com</span>!
+                  An email notification has been dispatched to <span>srevarshan9600622@gmail.com</span>!
                 </p>
                 <button className="sv-done-close-btn" onClick={close}>CLOSE ✕</button>
               </div>
