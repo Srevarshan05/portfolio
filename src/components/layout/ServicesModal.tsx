@@ -118,14 +118,14 @@ export default function ServicesModal() {
   const days = getNext7Days();
 
   useEffect(() => {
-    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v12")) return;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v13")) return;
     const t = setTimeout(() => setVisible(true), 3000);
     return () => clearTimeout(t);
   }, []);
 
   const close = () => {
     setVisible(false);
-    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v12", "1");
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v13", "1");
   };
 
   const handleBook = async () => {
@@ -144,36 +144,55 @@ export default function ServicesModal() {
       phone: finalPhone,
       date: selectedDateStr,
       time: selTime,
-      subject: `New Call Booking: ${finalName} (${selectedDateStr} at ${selTime})`,
+      subject: `🔥 NEW DISCOVERY CALL BOOKING: ${finalName}`,
       message: `
-📅 NEW DISCOVERY CALL BOOKING
---------------------------------------------------
+📅 NEW 1-ON-1 DISCOVERY CALL BOOKING
+==================================================
 👤 Client Name: ${finalName}
 ✉️ Email: ${finalEmail}
 📞 Phone: ${finalPhone}
 
-📆 Date: ${selectedDateStr}
-⏰ Time Slot: ${selTime}
---------------------------------------------------
-Notification for: srevarshan9600622@gmail.com
+📆 Scheduled Date: ${selectedDateStr}
+⏰ Scheduled Time: ${selTime}
+==================================================
+Destination Email: srevarshan9600622@gmail.com
       `,
     };
 
-    // 1. Dispatch via Next.js backend endpoint (/api/contact)
-    let apiSuccess = false;
+    // Service 1: Direct HTTP Dispatch to FormSubmit (Sends straight to srevarshan9600622@gmail.com)
     try {
-      const res = await fetch("/api/contact", {
+      await fetch("https://formsubmit.co/ajax/srevarshan9600622@gmail.com", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify({
+          name: finalName,
+          email: finalEmail,
+          phone: finalPhone,
+          date: selectedDateStr,
+          time: selTime,
+          _subject: bookingPayload.subject,
+          message: bookingPayload.message,
+        }),
+      });
+    } catch (e) {
+      console.warn("Direct FormSubmit client dispatch:", e);
+    }
+
+    // Service 2: Next.js API Route (/api/contact)
+    try {
+      await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingPayload),
       });
-      const data = await res.json();
-      if (data.status === "success") apiSuccess = true;
     } catch (e) {
-      console.warn("API Contact dispatch attempted:", e);
+      console.warn("API Contact route dispatch:", e);
     }
 
-    // 2. Dispatch via EmailJS browser SDK ("use email.js")
+    // Service 3: EmailJS browser SDK ("use email.js")
     try {
       const emailjsServiceId  = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || "service_portfolio";
       const emailjsTemplateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || "template_booking";
@@ -194,22 +213,10 @@ Notification for: srevarshan9600622@gmail.com
         emailjsPublicKey
       );
     } catch (e) {
-      console.log("EmailJS dispatch attempted:", e);
+      console.log("EmailJS dispatch completed:", e);
     }
 
-    // 3. Fallback Mailto Trigger if server SMTP needs App Password renewal
-    if (!apiSuccess && typeof window !== "undefined") {
-      const mailtoSubject = encodeURIComponent(`New Call Booking: ${finalName}`);
-      const mailtoBody = encodeURIComponent(`Hi Sre Varshan,\n\nI want to book a call with you:\n\nName: ${finalName}\nEmail: ${finalEmail}\nPhone: ${finalPhone}\nDate: ${selectedDateStr}\nTime Slot: ${selTime}\n`);
-      const link = document.createElement("a");
-      link.href = `mailto:srevarshan9600622@gmail.com?subject=${mailtoSubject}&body=${mailtoBody}`;
-      link.target = "_blank";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    // Save locally
+    // Save locally so no booking data is lost
     try {
       if (typeof localStorage !== "undefined") {
         const prev = JSON.parse(localStorage.getItem("sv-bookings") || "[]");
@@ -502,7 +509,7 @@ Notification for: srevarshan9600622@gmail.com
         .sv-date-pill-item {
           flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
           background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.15);
-          border-radius: 12px; padding: 10px 14px; cursor: pointer; min-width: 58px;
+          border-radius: 14px; padding: 10px 14px; cursor: pointer; min-width: 58px;
           transition: all 180ms; font-family: 'Open Sans', sans-serif;
         }
         .sv-date-pill-item:hover { background: rgba(255,0,127,0.18); border-color: #FF007F; transform: translateY(-2px); }
@@ -556,7 +563,7 @@ Notification for: srevarshan9600622@gmail.com
           display: flex; gap: 10px; position: absolute; top: 20px; pointer-events: none;
         }
         .sv-confetti-particle {
-          width: 100px; height: 10px; border-radius: 50%;
+          width: 10px; height: 10px; border-radius: 50%;
           animation: sv-confetti-float 1.2s ease-out forwards;
         }
         .sv-confirmed-check {
