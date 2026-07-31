@@ -331,25 +331,15 @@ export default function ServicesModal() {
           width: 100%;
           background: #ffffff;
           border-radius: 20px;
-          padding: 18px 24px;
-          display: flex; flex-direction: column; align-items: center; justify-content: center;
-          text-align: center; gap: 6px;
+          padding: 12px 24px;
+          display: flex; align-items: center; justify-content: center;
           overflow: hidden;
           box-shadow: 0 8px 24px rgba(0,0,0,0.3);
           border: 3px solid #1C202B;
         }
         .sv-booking-lottie-wrap-center {
-          width: 250px; height: 160px;
+          width: 320px; height: 180px;
           display: flex; align-items: center; justify-content: center;
-        }
-        .sv-booking-lottie-title {
-          font-family: 'Bangers', cursive;
-          font-size: 28px; letter-spacing: 1.5px; color: #11131b; margin: 0;
-          text-transform: uppercase;
-        }
-        .sv-booking-lottie-sub {
-          font-family: 'Open Sans', sans-serif;
-          font-size: 13px; font-weight: 600; color: rgba(17,19,27,0.7); margin: 0;
         }
 
         /* Booking Header Bar */
@@ -600,8 +590,6 @@ export default function ServicesModal() {
                       autoplay
                     />
                   </div>
-                  <h3 className="sv-booking-lottie-title">BOOK A 1-ON-1 DISCOVERY CALL</h3>
-                  <p className="sv-booking-lottie-sub">Select your date &amp; time below to schedule our project call.</p>
                 </div>
 
                 {/* Navigation Bar */}

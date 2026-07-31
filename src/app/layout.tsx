@@ -138,7 +138,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* Google Fonts — Bangers (display) + Open Sans (body/UI) as per Tetris DS */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
