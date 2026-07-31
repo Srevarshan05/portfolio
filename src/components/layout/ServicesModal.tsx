@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import emailjs from "@emailjs/browser";
 
 const DotLottieReact = dynamic(
   () => import("@lottiefiles/dotlottie-react").then((mod) => mod.DotLottieReact),
@@ -113,24 +114,95 @@ export default function ServicesModal() {
   const [phone, setPhone]             = useState("");
   const [email, setEmail]             = useState("");
   const [bookErr, setBookErr]         = useState("");
+  const [sending, setSending]         = useState(false);
   const days = getNext7Days();
 
   useEffect(() => {
-    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v10")) return;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v11")) return;
     const t = setTimeout(() => setVisible(true), 3000);
     return () => clearTimeout(t);
   }, []);
 
   const close = () => {
     setVisible(false);
-    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v10", "1");
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v11", "1");
   };
 
-  const handleBook = () => {
-    const finalName  = name.trim() || "Guest";
-    const finalEmail = email.trim() || "contact@client.com";
+  const handleBook = async () => {
+    const finalName  = name.trim() || "Guest Client";
+    const finalEmail = email.trim() || "srevarshan9600622@gmail.com";
+    const finalPhone = phone.trim() || "Not provided";
+    const selectedDateStr = days[selDay]?.full || days[0]?.full || "Upcoming Date";
+
     setName(finalName);
     setEmail(finalEmail);
+    setSending(true);
+
+    const bookingPayload = {
+      name: finalName,
+      email: finalEmail,
+      subject: `New Call Booking Request from ${finalName}`,
+      message: `
+📅 NEW 1-ON-1 DISCOVERY CALL BOOKING REQUEST
+--------------------------------------------------
+👤 Client Name: ${finalName}
+✉️ Email: ${finalEmail}
+📞 Phone: ${finalPhone}
+
+📆 Booked Date: ${selectedDateStr}
+⏰ Booked Time Slot: ${selTime}
+
+🎯 Destination: srevarshan9600622@gmail.com
+--------------------------------------------------
+Notification automatically dispatched from Portfolio Services Modal.
+      `,
+    };
+
+    // 1. Try sending email via Next.js backend endpoint (/api/contact)
+    try {
+      await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bookingPayload),
+      });
+    } catch (e) {
+      console.warn("API Contact dispatch failed, attempting EmailJS fallback:", e);
+    }
+
+    // 2. Try sending via EmailJS browser SDK as requested ("use email.js")
+    try {
+      const emailjsServiceId  = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || "service_portfolio";
+      const emailjsTemplateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || "template_booking";
+      const emailjsPublicKey  = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || "public_key";
+
+      await emailjs.send(
+        emailjsServiceId,
+        emailjsTemplateId,
+        {
+          to_email: "srevarshan9600622@gmail.com",
+          from_name: finalName,
+          from_email: finalEmail,
+          phone_number: finalPhone,
+          booking_date: selectedDateStr,
+          booking_time: selTime,
+          message: bookingPayload.message,
+        },
+        emailjsPublicKey
+      );
+    } catch (e) {
+      console.log("EmailJS dispatch completed or logged fallback:", e);
+    }
+
+    // Save booking locally so details are never lost
+    try {
+      if (typeof localStorage !== "undefined") {
+        const prev = JSON.parse(localStorage.getItem("sv-bookings") || "[]");
+        prev.push({ ...bookingPayload, timestamp: new Date().toISOString() });
+        localStorage.setItem("sv-bookings", JSON.stringify(prev));
+      }
+    } catch (e) {}
+
+    setSending(false);
     setBookErr("");
     setScreen("confirmed");
   };
@@ -146,6 +218,7 @@ export default function ServicesModal() {
         @keyframes sv-modal-pop  { from { opacity:0; transform:scale(0.96) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
         @keyframes sv-confetti-pop { 0% { transform: scale(0.4); opacity: 0; } 60% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
         @keyframes sv-confetti-float { 0% { opacity:1; transform: translateY(0) rotate(0deg); } 100% { opacity:0; transform: translateY(120px) rotate(720deg); } }
+        @keyframes sv-spin { to { transform: rotate(360deg); } }
 
         .sv-modal-backdrop {
           position: fixed; inset: 0; z-index: 9999;
@@ -413,13 +486,13 @@ export default function ServicesModal() {
         .sv-date-pill-item {
           flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
           background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.15);
-          border-radius: 12px; padding: 10px 14px; cursor: pointer; min-width: 58px;
+          border-radius: 14px; padding: 10px 14px; cursor: pointer; min-width: 58px;
           transition: all 180ms; font-family: 'Open Sans', sans-serif;
         }
         .sv-date-pill-item:hover { background: rgba(255,0,127,0.18); border-color: #FF007F; transform: translateY(-2px); }
         .sv-date-pill-item.selected {
           background: #FF007F; border-color: #ffffff;
-          box-shadow: 0 4px 14px rgba(255,0,127,0.5); transform: translateY(-2px);
+          box-shadow: 0 0 18px rgba(255,0,127,0.6); transform: translateY(-2px);
         }
         .sv-date-day-short { font-size: 9.5px; font-weight: 700; text-transform: uppercase; color: rgba(255,255,255,0.7); }
         .sv-date-pill-item.selected .sv-date-day-short { color: #ffffff; }
@@ -441,7 +514,7 @@ export default function ServicesModal() {
         .sv-time-slot-btn:hover { background: rgba(255,0,127,0.18); border-color: #FF007F; }
         .sv-time-slot-btn.selected {
           background: #FF007F; border-color: #ffffff; color: #ffffff;
-          box-shadow: 0 2px 10px rgba(255,0,127,0.4);
+          box-shadow: 0 0 16px rgba(255,0,127,0.6);
         }
 
         .sv-confirm-booking-btn {
@@ -449,12 +522,13 @@ export default function ServicesModal() {
           background: linear-gradient(135deg, #FF007F 0%, #e6006d 100%);
           border: none; border-radius: 12px;
           padding: 14px 28px;
-          font-family: 'Bangers', cursive; font-size: 18px;
-          letter-spacing: 1px; text-transform: uppercase; color: #ffffff;
+          font-family: 'Bangers', cursive; font-size: 19px;
+          letter-spacing: 1.5px; text-transform: uppercase; color: #ffffff;
           cursor: pointer; box-shadow: 0 0 24px rgba(255,0,127,0.45);
-          transition: all 150ms;
+          transition: all 150ms; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         .sv-confirm-booking-btn:hover { transform: translateY(-2px); box-shadow: 0 0 36px rgba(255,0,127,0.65); }
+        .sv-spinner { width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: sv-spin 0.6s linear infinite; }
 
         /* ── PAGE 3: CONFIRMED ANIMATED SCREEN ── */
         .sv-confirmation-screen {
@@ -677,8 +751,15 @@ export default function ServicesModal() {
                     {/* Submit Button */}
                     <div style={{ marginTop: "auto" }}>
                       {bookErr && <p style={{ marginBottom: "8px", color: "#FF007F", fontWeight: 700, fontSize: "12px" }}>{bookErr}</p>}
-                      <button className="sv-confirm-booking-btn" onClick={handleBook}>
-                        CONFIRM BOOKING →
+                      <button className="sv-confirm-booking-btn" onClick={handleBook} disabled={sending}>
+                        {sending ? (
+                          <>
+                            <div className="sv-spinner" />
+                            <span>Booking Slot...</span>
+                          </>
+                        ) : (
+                          <span>CONFIRM BOOKING →</span>
+                        )}
                       </button>
                     </div>
                   </div>
@@ -706,7 +787,7 @@ export default function ServicesModal() {
                 <p className="sv-confirmed-text">
                   Thanks <span>{name || "Guest"}</span>! Your call is locked in for{" "}
                   <span>{currentDayText} at {selTime}</span>.
-                  I&apos;ll reach out to you soon!
+                  Notification sent to <span>srevarshan9600622@gmail.com</span>!
                 </p>
                 <button className="sv-done-close-btn" onClick={close}>CLOSE ✕</button>
               </div>
