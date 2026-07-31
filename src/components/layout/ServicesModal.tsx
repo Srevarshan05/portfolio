@@ -74,18 +74,17 @@ export default function ServicesModal() {
   const [phone, setPhone]             = useState("");
   const [email, setEmail]             = useState("");
   const [bookErr, setBookErr]         = useState("");
-  const [cardHover, setCardHover]     = useState<number | null>(null);
   const days = getNext7Days();
 
   useEffect(() => {
-    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v4")) return;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v5")) return;
     const t = setTimeout(() => setVisible(true), 3000);
     return () => clearTimeout(t);
   }, []);
 
   const close = () => {
     setVisible(false);
-    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v4", "1");
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v5", "1");
   };
 
   const handleBook = () => {
@@ -103,7 +102,6 @@ export default function ServicesModal() {
       <style>{`
         @keyframes sv-modal-fade { from { opacity:0; } to { opacity:1; } }
         @keyframes sv-modal-pop  { from { opacity:0; transform:scale(0.96) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
-        @keyframes sv-pulse-pink { 0%, 100% { box-shadow: 4px 4px 0 #1C202B, 0 0 0 0 rgba(226,45,109,0.5); } 50% { box-shadow: 4px 4px 0 #1C202B, 0 0 0 10px rgba(226,45,109,0); } }
         @keyframes sv-confetti-pop { 0% { transform: scale(0.6); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
 
         .sv-modal-backdrop {
@@ -139,77 +137,21 @@ export default function ServicesModal() {
         }
         .sv-modal-close-btn:hover { background: #E22D6D; transform: rotate(90deg); }
 
-        /* ── Header with Lottie & Left Logo ── */
-        .sv-modal-header {
+        /* ── Top Header Image (Model-top-card.png) ── */
+        .sv-top-card-banner {
+          width: 100%;
           background: #ffffff;
           border-bottom: 3px solid #1C202B;
-          padding: 14px 24px 18px;
-          position: relative;
-          display: flex; flex-direction: column; align-items: center;
-          flex-shrink: 0;
-        }
-
-        /* Top Lottie Animation */
-        .sv-lottie-top {
-          width: 110px; height: 75px;
-          margin-bottom: 2px;
           display: flex; align-items: center; justify-content: center;
-        }
-
-        .sv-header-row {
-          width: 100%;
-          display: flex; align-items: center; justify-content: space-between;
-          gap: 16px;
-        }
-
-        .sv-header-left {
-          display: flex; align-items: center; gap: 14px;
-        }
-
-        /* Left-aligned SV Logo */
-        .sv-logo-badge {
-          width: 48px; height: 48px; border-radius: 12px;
-          background: #1C202B; border: 2.5px solid #1C202B;
           overflow: hidden; flex-shrink: 0;
-          box-shadow: 3px 3px 0 0 #E22D6D;
-          transform: rotate(-3deg);
-          transition: transform 200ms;
+          padding: 10px 16px;
         }
-        .sv-logo-badge:hover { transform: rotate(0deg) scale(1.05); }
-        .sv-logo-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-        .sv-header-info { text-align: left; }
-        .sv-tagline-text {
-          font-family: 'Open Sans', sans-serif;
-          font-size: 11px; font-weight: 700; text-transform: uppercase;
-          letter-spacing: 1.5px; color: #E22D6D; margin: 0 0 1px;
+        .sv-top-card-img {
+          width: 100%;
+          max-height: 210px;
+          object-fit: contain;
+          display: block;
         }
-        .sv-headline-title {
-          font-family: 'Bangers', cursive;
-          font-size: clamp(26px, 3.5vw, 38px);
-          letter-spacing: 1.5px; line-height: 1;
-          color: #1C202B; margin: 0 0 2px;
-          text-transform: uppercase;
-        }
-        .sv-subtext-desc {
-          font-family: 'Open Sans', sans-serif;
-          font-size: 11.5px; color: rgba(28,32,43,0.75); margin: 0;
-          max-width: 480px;
-        }
-        .sv-subtext-desc strong { color: #E22D6D; font-weight: 700; }
-
-        .sv-header-badges {
-          display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
-        }
-        .sv-badge-pill {
-          font-family: 'Open Sans', sans-serif;
-          font-size: 10px; font-weight: 700; text-transform: uppercase;
-          letter-spacing: 0.8px; color: #1C202B;
-          background: #f3f1e5; border: 1.5px solid #1C202B;
-          padding: 3px 10px; border-radius: 9999px;
-          display: flex; align-items: center; gap: 4px;
-        }
-        .sv-badge-dot { width: 5px; height: 5px; background: #E22D6D; border-radius: 50%; }
 
         /* ── Main Body Section ── */
         .sv-modal-body {
@@ -315,31 +257,40 @@ export default function ServicesModal() {
           font-size: 11px; color: rgba(255,255,255,0.6); margin: 0;
         }
 
-        /* "Book a Call Now" Button with Mobile Icon */
-        .sv-book-call-btn {
-          background: #E22D6D;
-          border: 2px solid #1C202B;
-          border-radius: 12px;
-          padding: 10px 22px;
-          font-family: 'Bangers', cursive;
-          font-size: 17px; letter-spacing: 1.5px; color: #ffffff;
-          cursor: pointer; display: flex; align-items: center; gap: 9px;
-          transition: background 150ms, transform 100ms, box-shadow 150ms;
-          box-shadow: 4px 4px 0 0 #1C202B;
-          animation: sv-pulse-pink 2.5s ease-out infinite;
+        /* "Let's Talk" Button Style */
+        .sv-lets-talk-btn {
+          background: #11131b;
+          border: 1.5px solid rgba(255,255,255,0.25);
+          border-radius: 10px;
+          padding: 10px 24px;
+          font-family: 'Open Sans', sans-serif;
+          font-size: 14px; font-weight: 700;
+          color: #ffffff; cursor: pointer;
+          display: flex; align-items: center; gap: 10px;
+          transition: all 150ms ease;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.3);
           white-space: nowrap;
         }
-        .sv-book-call-btn:hover {
-          background: #c0224f; transform: translateY(-2px);
-          box-shadow: 6px 6px 0 0 #1C202B;
+        .sv-lets-talk-btn:hover {
+          background: #E22D6D;
+          border-color: #E22D6D;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 18px rgba(226,45,109,0.4);
         }
-        .sv-book-call-btn:active { transform: translateY(0); }
-        .sv-call-icon-img { width: 20px; height: 20px; object-fit: contain; display: block; filter: brightness(0) invert(1); }
+        .sv-lets-talk-btn:active { transform: translateY(0); }
 
         /* ── Booking View ── */
         .sv-booking-view {
           display: flex; flex-direction: column; gap: 12px;
         }
+        
+        /* Top Lottie Animation in Booking Page */
+        .sv-lottie-booking-top {
+          width: 100%; height: 90px;
+          display: flex; align-items: center; justify-content: center;
+          margin-bottom: 2px;
+        }
+
         .sv-booking-header-row {
           display: flex; align-items: center; gap: 14px;
         }
@@ -437,7 +388,8 @@ export default function ServicesModal() {
         @media (max-width: 820px) {
           .sv-cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
           .sv-form-fields-grid { grid-template-columns: 1fr 1fr; }
-          .sv-modal-header { padding: 12px 18px 14px; }
+          .sv-top-card-banner { padding: 8px 12px; }
+          .sv-top-card-img { max-height: 160px; }
           .sv-modal-body { padding: 12px 16px 14px; }
         }
 
@@ -445,14 +397,9 @@ export default function ServicesModal() {
           .sv-modal-backdrop { padding: 8px; }
           .sv-modal-container { border-radius: 18px; max-height: 96vh; }
           
-          /* Compact Header Layout for Mobile */
-          .sv-modal-header { padding: 10px 14px 12px; }
-          .sv-lottie-top { width: 70px; height: 50px; margin-bottom: 0; }
-          .sv-logo-badge { width: 38px; height: 38px; }
-          .sv-headline-title { font-size: 22px; letter-spacing: 1px; }
-          .sv-tagline-text { font-size: 9.5px; }
-          .sv-subtext-desc { display: none; } /* Hide heavy subtext on small screens */
-          .sv-header-badges { display: none; }
+          /* Mobile Banner */
+          .sv-top-card-banner { padding: 6px 8px; }
+          .sv-top-card-img { max-height: 130px; }
 
           /* Mobile Grid */
           .sv-cards-grid { grid-template-columns: 1fr; gap: 8px; }
@@ -473,7 +420,7 @@ export default function ServicesModal() {
           .sv-cta-icon-box img { width: 18px; height: 18px; }
           .sv-cta-heading { font-size: 17px; }
           .sv-cta-subheading { font-size: 10px; }
-          .sv-book-call-btn { width: 100%; justify-content: center; padding: 10px 16px; font-size: 15px; }
+          .sv-lets-talk-btn { width: 100%; justify-content: center; padding: 10px 16px; font-size: 14px; }
 
           /* Mobile Form */
           .sv-form-fields-grid { grid-template-columns: 1fr; }
@@ -489,41 +436,9 @@ export default function ServicesModal() {
             ✕
           </button>
 
-          {/* ── HEADER ── */}
-          <div className="sv-modal-header">
-            {/* Lottie Animation at Top */}
-            <div className="sv-lottie-top">
-              <DotLottieReact
-                src="https://lottie.host/fdbd57ab-593d-4207-97d3-c0f0c80eea07/yj7ppgUSY8.lottie"
-                loop
-                autoplay
-              />
-            </div>
-
-            <div className="sv-header-row">
-              {/* Left-aligned SV Logo & Header Text */}
-              <div className="sv-header-left">
-                <div className="sv-logo-badge">
-                  <img src="/Portfolio-favi.png" alt="Sre Varshan" />
-                </div>
-                <div className="sv-header-info">
-                  <p className="sv-tagline-text">Let&apos;s build something</p>
-                  <h2 className="sv-headline-title">Extraordinary</h2>
-                  <p className="sv-subtext-desc">
-                    I help startups &amp; teams turn ideas into <strong>AI-powered solutions</strong> at affordable prices.
-                  </p>
-                </div>
-              </div>
-
-              {/* Badges on right side */}
-              <div className="sv-header-badges">
-                {["Clean Code", "Scalable Solutions", "Modern AI", "Real Results"].map((b) => (
-                  <span className="sv-badge-pill" key={b}>
-                    <span className="sv-badge-dot" /> {b}
-                  </span>
-                ))}
-              </div>
-            </div>
+          {/* ── TOP BANNER IMAGE (Model-top-card.png) ── */}
+          <div className="sv-top-card-banner">
+            <img src="/icons/Model-top-card.png" alt="Sre Varshan - Let's build something Extraordinary" className="sv-top-card-img" />
           </div>
 
           {/* ── BODY ── */}
@@ -538,13 +453,8 @@ export default function ServicesModal() {
 
                 {/* 3×2 Services Grid */}
                 <div className="sv-cards-grid">
-                  {SERVICES.map((s, i) => (
-                    <div
-                      className="sv-service-card"
-                      key={s.title}
-                      onMouseEnter={() => setCardHover(i)}
-                      onMouseLeave={() => setCardHover(null)}
-                    >
+                  {SERVICES.map((s) => (
+                    <div className="sv-service-card" key={s.title}>
                       <img className="sv-card-icon-img" src={s.icon} alt={s.title} />
                       <h3 className="sv-card-title-text">{s.title}</h3>
                       <div className="sv-card-accent-bar" style={{ background: s.accent }} />
@@ -571,9 +481,11 @@ export default function ServicesModal() {
                       <p className="sv-cta-subheading">30-Min Free Discovery Call</p>
                     </div>
                   </div>
-                  <button className="sv-book-call-btn" onClick={() => setScreen("booking")}>
-                    <img className="sv-call-icon-img" src="/icons/mobile.png" alt="Call" />
-                    BOOK A CALL NOW
+                  <button className="sv-lets-talk-btn" onClick={() => setScreen("booking")}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                    <span>Let&apos;s Talk</span>
                   </button>
                 </div>
               </>
@@ -582,6 +494,15 @@ export default function ServicesModal() {
             {/* Booking View */}
             {screen === "booking" && (
               <div className="sv-booking-view">
+                {/* Lottie Animation Moved to Booking Page Top */}
+                <div className="sv-lottie-booking-top">
+                  <DotLottieReact
+                    src="https://lottie.host/fdbd57ab-593d-4207-97d3-c0f0c80eea07/yj7ppgUSY8.lottie"
+                    loop
+                    autoplay
+                  />
+                </div>
+
                 <div className="sv-booking-header-row">
                   <button className="sv-back-nav-btn" onClick={() => { setScreen("services"); setSelDay(null); }}>← Back</button>
                   <h3 className="sv-booking-title-text">Pick Your Date</h3>
