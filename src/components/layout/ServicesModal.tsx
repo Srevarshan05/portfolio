@@ -11,8 +11,12 @@ function getNext7Days() {
   for (let i = 1; i <= 7; i++) {
     const d = new Date();
     d.setDate(d.getDate() + i);
-    result.push({ short: DAY[d.getDay()], num: d.getDate(), mon: MON[d.getMonth()],
-      full: d.toLocaleDateString("en-IN", { weekday:"long", year:"numeric", month:"long", day:"numeric" }) });
+    result.push({ 
+      short: DAY[d.getDay()], 
+      num: d.getDate(), 
+      mon: MON[d.getMonth()],
+      full: d.toLocaleDateString("en-IN", { weekday:"long", year:"numeric", month:"long", day:"numeric" }) 
+    });
   }
   return result;
 }
@@ -37,20 +41,20 @@ export default function ServicesModal() {
   const days = getNext7Days();
 
   useEffect(() => {
-    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v2")) return;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v3")) return;
     const t = setTimeout(() => setVisible(true), 3000);
     return () => clearTimeout(t);
   }, []);
 
   const close = () => {
     setVisible(false);
-    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v2", "1");
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v3", "1");
   };
 
   const handleBook = () => {
-    if (selDay === null)   { setBookErr("Please pick a date."); return; }
-    if (!name.trim())      { setBookErr("Enter your name."); return; }
-    if (!email.trim())     { setBookErr("Enter your email."); return; }
+    if (selDay === null)   { setBookErr("Please pick a date above."); return; }
+    if (!name.trim())      { setBookErr("Please enter your name."); return; }
+    if (!email.trim())     { setBookErr("Please enter your email address."); return; }
     setBookErr("");
     setScreen("confirmed");
   };
@@ -59,423 +63,396 @@ export default function ServicesModal() {
 
   return (
     <>
-      {/* ── Fonts ── */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
       <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 
       <style>{`
-        /* ── Animations ── */
-        @keyframes sv2-fade    { from{opacity:0}          to{opacity:1} }
-        @keyframes sv2-up      { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes sv2-pop     { 0%{transform:scale(.5);opacity:0} 65%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
-        @keyframes sv2-float   { 0%,100%{transform:rotate(-4deg) translateY(0)} 50%{transform:rotate(-4deg) translateY(-8px)} }
-        @keyframes sv2-confetti{ 0%{opacity:1;transform:translateY(0) rotate(0)} 100%{opacity:0;transform:translateY(100px) rotate(720deg)} }
-        @keyframes sv2-pulse   { 0%,100%{box-shadow:0 0 0 0 rgba(255,0,127,.5)} 60%{box-shadow:0 0 0 10px rgba(255,0,127,0)} }
-        @keyframes sv2-stagger { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes sv3-fade    { from{opacity:0} to{opacity:1} }
+        @keyframes sv3-up      { from{opacity:0;transform:translateY(24px) scale(0.98)} to{opacity:1;transform:translateY(0) scale(1)} }
+        @keyframes sv3-pop     { 0%{transform:scale(.5);opacity:0} 65%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+        @keyframes sv3-pulse   { 0%,100%{box-shadow:0 0 0 0 rgba(255,0,127,.5)} 60%{box-shadow:0 0 0 10px rgba(255,0,127,0)} }
 
-        /* ── Backdrop ── */
-        .sv2-backdrop {
-          position:fixed; inset:0; z-index:9999;
-          background:rgba(0,0,0,.82);
-          backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
-          display:flex; align-items:center; justify-content:center;
-          padding:12px;
-          animation:sv2-fade .35s ease;
+        .sv3-backdrop {
+          position: fixed; inset: 0; z-index: 9999;
+          background: rgba(0, 0, 0, 0.82);
+          backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+          display: flex; align-items: center; justify-content: center;
+          padding: 12px;
+          animation: sv3-fade 0.3s ease;
         }
 
-        /* ── Modal shell ── */
-        .sv2-modal {
-          position:relative; width:100%; max-width:1100px;
-          max-height:94vh;
-          background:#0f1115;
-          border-radius:2rem;
-          overflow:hidden;
-          box-shadow:0 40px 100px rgba(0,0,0,.7);
-          display:flex; flex-direction:column;
-          animation:sv2-up .42s cubic-bezier(.22,1,.36,1);
+        .sv3-modal {
+          position: relative; width: 100%; max-width: 1020px;
+          max-height: 92vh;
+          background: #0f1115;
+          border-radius: 24px;
+          overflow: hidden;
+          box-shadow: 0 32px 80px rgba(0,0,0,0.8), 0 0 0 1.5px rgba(255,0,127,0.2);
+          display: flex; flex-direction: column;
+          animation: sv3-up 0.35s cubic-bezier(.22,1,.36,1);
         }
 
-        /* ── Close btn ── */
-        .sv2-close {
-          position:absolute; top:18px; right:18px; z-index:50;
-          width:38px; height:38px; border-radius:50%;
-          background:#fff; border:none;
-          display:flex; align-items:center; justify-content:center;
-          cursor:pointer;
-          box-shadow:0 2px 12px rgba(0,0,0,.25);
-          transition:background 150ms, transform 150ms;
+        .sv3-close {
+          position: absolute; top: 12px; right: 12px; z-index: 50;
+          width: 34px; height: 34px; border-radius: 50%;
+          background: #ffffff; border: none;
+          display: flex; align-items: center; justify-content: center;
+          cursor: pointer;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+          transition: background 150ms, transform 150ms;
         }
-        .sv2-close .ms { font-family:"Material Symbols Outlined"; font-size:20px; color:#111; }
-        .sv2-close:hover { background:#f0f0f0; transform:rotate(90deg); }
+        .sv3-close .ms { font-family: "Material Symbols Outlined"; font-size: 18px; color: #111; }
+        .sv3-close:hover { background: #FF007F; transform: rotate(90deg); }
+        .sv3-close:hover .ms { color: #ffffff; }
 
-        /* ══════════════════════════════════════════
-           HEADER  (light pink gradient)
-        ══════════════════════════════════════════ */
-        .sv2-header {
-          background:linear-gradient(135deg,#fff 0%,#fff5f8 60%,#ffe6ef 100%);
-          padding:36px 48px 80px;
-          text-align:center;
-          position:relative; overflow:hidden;
-          clip-path:polygon(0 0,100% 0,100% calc(100% - 44px),0 100%);
-          flex-shrink:0;
+        /* ── Compact Header ── */
+        .sv3-header {
+          background: linear-gradient(135deg, #ffffff 0%, #fff2f6 55%, #ffe5ee 100%);
+          padding: 18px 32px 34px;
+          text-align: center;
+          position: relative; overflow: hidden;
+          clip-path: polygon(0 0, 100% 0, 100% calc(100% - 22px), 0 100%);
+          flex-shrink: 0;
         }
-        /* subtle blobs */
-        .sv2-header::before {
-          content:""; position:absolute; inset:0; pointer-events:none;
-          background:radial-gradient(circle at 90% 10%,rgba(255,0,127,.12) 0%,transparent 55%),
-                     radial-gradient(circle at 10% 90%,rgba(255,0,127,.06) 0%,transparent 50%);
+        .sv3-header-inner {
+          position: relative; z-index: 1;
+          display: flex; flex-direction: column; align-items: center;
         }
-        .sv2-header-inner { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:0; }
-        .sv2-logo-box {
-          width:108px; height:108px; border-radius:20px;
-          background:#111; overflow:hidden;
-          transform:rotate(-4deg);
-          box-shadow:0 16px 40px rgba(0,0,0,.35);
-          margin-bottom:20px;
-          animation:sv2-float 3.5s ease-in-out infinite;
+        .sv3-logo-box {
+          width: 48px; height: 48px; border-radius: 12px;
+          background: #111; overflow: hidden;
+          transform: rotate(-3deg);
+          box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+          margin-bottom: 6px;
         }
-        .sv2-logo-box img { width:100%; height:100%; object-fit:cover; display:block; }
-        .sv2-tagline-wrap { position:relative; margin-bottom:12px; display:inline-block; }
-        .sv2-tagline {
-          font-family:"Inter",sans-serif;
-          font-size:15px; font-weight:600; font-style:italic;
-          color:#FF007F; letter-spacing:.5px;
+        .sv3-logo-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .sv3-tagline {
+          font-family: "Inter", sans-serif;
+          font-size: 12px; font-weight: 600; font-style: italic;
+          color: #FF007F; margin-bottom: 2px;
+          text-decoration: underline text-decoration-color #FF007F;
+          text-underline-offset: 3px;
         }
-        .sv2-tagline-line {
-          position:absolute; bottom:-4px; left:0; width:100%; height:2px;
-          background:linear-gradient(90deg,transparent,#FF007F,transparent);
+        .sv3-headline {
+          font-family: "Inter", sans-serif;
+          font-size: clamp(24px, 3.8vw, 38px);
+          font-weight: 900; letter-spacing: -1.5px;
+          line-height: 1; color: #11131b; margin: 0 0 4px;
+          text-transform: uppercase;
         }
-        .sv2-headline {
-          font-family:"Inter",sans-serif;
-          font-size:clamp(52px,7vw,82px);
-          font-weight:900; letter-spacing:-3px;
-          line-height:1; color:#1a1c20; margin:0 0 16px;
-          text-transform:uppercase;
+        .sv3-subtext {
+          font-family: "Inter", sans-serif;
+          font-size: 13px; line-height: 1.4;
+          color: rgba(17,19,27,0.72);
+          max-width: 520px; margin: 0 auto 8px;
         }
-        .sv2-subtext {
-          font-family:"Inter",sans-serif;
-          font-size:16px; line-height:1.55;
-          color:rgba(26,28,32,.72);
-          max-width:560px; margin:0 auto 20px;
+        .sv3-subtext strong { color: #FF007F; font-weight: 700; }
+        .sv3-badges {
+          display: flex; flex-wrap: wrap; justify-content: center; gap: 14px;
         }
-        .sv2-subtext strong { color:#FF007F; font-weight:700; }
-        .sv2-badges {
-          display:flex; flex-wrap:wrap; justify-content:center; gap:24px;
+        .sv3-badge {
+          display: flex; align-items: center; gap: 5px;
+          font-family: "Inter", sans-serif; font-size: 11px; font-weight: 600;
+          color: rgba(17,19,27,0.7);
         }
-        .sv2-badge {
-          display:flex; align-items:center; gap:7px;
-          font-family:"Inter",sans-serif; font-size:13px; font-weight:600;
-          color:rgba(26,28,32,.65);
-        }
-        .sv2-badge .ms { font-family:"Material Symbols Outlined"; font-size:17px; color:#FF007F; font-variation-settings:"FILL" 1; }
+        .sv3-badge .ms { font-family: "Material Symbols Outlined"; font-size: 15px; color: #FF007F; font-variation-settings: "FILL" 1; }
 
-        /* ══════════════════════════════════════════
-           BODY  (dark)
-        ══════════════════════════════════════════ */
-        .sv2-body {
-          background:#0f1115;
-          flex:1; overflow-y:auto; overflow-x:hidden;
-          display:flex; flex-direction:column;
-          padding:0 40px 28px;
-          gap:0;
-          scrollbar-width:thin;
-          scrollbar-color:rgba(255,255,255,.1) transparent;
+        /* ── Dark Content Container ── */
+        .sv3-body {
+          background: #0f1115;
+          flex: 1; overflow-y: auto; overflow-x: hidden;
+          display: flex; flex-direction: column;
+          padding: 0 28px 20px;
+          gap: 0;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255,255,255,0.15) transparent;
         }
-        .sv2-body::-webkit-scrollbar { width:4px; }
-        .sv2-body::-webkit-scrollbar-thumb { background:rgba(255,255,255,.1); border-radius:4px; }
+        .sv3-body::-webkit-scrollbar { width: 4px; }
+        .sv3-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
 
-        /* pill */
-        .sv2-pill-row { display:flex; justify-content:center; padding:20px 0 18px; }
-        .sv2-pill {
-          background:transparent; border:1.5px solid rgba(255,255,255,.15);
-          border-radius:9999px; padding:8px 26px;
-          font-family:"Inter",sans-serif; font-size:11px; font-weight:700;
-          letter-spacing:2.5px; text-transform:uppercase;
-          color:rgba(255,255,255,.55);
+        .sv3-pill-row { display: flex; justify-content: center; padding: 12px 0 10px; }
+        .sv3-pill {
+          background: transparent; border: 1.5px solid rgba(255,255,255,0.15);
+          border-radius: 9999px; padding: 4px 18px;
+          font-family: "Inter", sans-serif; font-size: 10px; font-weight: 700;
+          letter-spacing: 2px; text-transform: uppercase;
+          color: rgba(255,255,255,0.6);
         }
 
-        /* ── Cards grid ── */
-        .sv2-grid {
-          display:grid; grid-template-columns:repeat(3,1fr);
-          gap:20px;
-          margin-bottom:28px;
+        /* Cards Grid */
+        .sv3-grid {
+          display: grid; grid-template-columns: repeat(3, 1fr);
+          gap: 12px;
+          margin-bottom: 14px;
         }
-        .sv2-card {
-          background:#fff; border-radius:22px;
-          padding:28px 24px 22px;
-          position:relative; overflow:hidden;
-          transition:transform 240ms cubic-bezier(.22,1,.36,1), box-shadow 240ms;
-          cursor:default;
-          animation:sv2-stagger .5s ease both;
+        .sv3-card {
+          background: #ffffff; border-radius: 18px;
+          padding: 16px 18px 14px;
+          position: relative; overflow: hidden;
+          transition: transform 200ms cubic-bezier(.22,1,.36,1), box-shadow 200ms;
+          box-shadow: 0 4px 14px rgba(0,0,0,0.15);
         }
-        .sv2-card:hover {
-          transform:translateY(-6px);
-          box-shadow:0 20px 48px rgba(255,0,127,.15), 0 2px 0 rgba(255,0,127,.3);
+        .sv3-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 28px rgba(255,0,127,0.18);
         }
-        /* pink glow circle bottom-right */
-        .sv2-card-glow {
-          position:absolute; right:-20px; bottom:-20px;
-          width:80px; height:80px; border-radius:50%;
-          background:rgba(255,0,127,.12);
-          transition:transform .5s ease;
+        .sv3-card-glow {
+          position: absolute; right: -16px; bottom: -16px;
+          width: 54px; height: 54px; border-radius: 50%;
+          background: rgba(255,0,127,0.12);
         }
-        .sv2-card:hover .sv2-card-glow { transform:scale(2.8); }
-        /* dark icon square */
-        .sv2-icon-sq {
-          width:52px; height:52px; border-radius:14px;
-          background:#11131b;
-          display:flex; align-items:center; justify-content:center;
-          margin-bottom:18px;
-          box-shadow:0 4px 12px rgba(0,0,0,.25);
+        .sv3-icon-sq {
+          width: 38px; height: 38px; border-radius: 10px;
+          background: #11131b;
+          display: flex; align-items: center; justify-content: center;
+          margin-bottom: 10px;
         }
-        .sv2-icon-sq .ms {
-          font-family:"Material Symbols Outlined"; font-size:26px; color:#e1e2ed;
+        .sv3-icon-sq .ms {
+          font-family: "Material Symbols Outlined"; font-size: 20px; color: #ffffff;
         }
-        .sv2-card-title {
-          font-family:"Inter",sans-serif;
-          font-size:17px; font-weight:800;
-          color:#11131b; margin-bottom:10px;
+        .sv3-card-title {
+          font-family: "Inter", sans-serif;
+          font-size: 14px; font-weight: 800;
+          color: #11131b; margin-bottom: 6px;
+          line-height: 1.25;
         }
-        .sv2-card-bar {
-          width:36px; height:3px;
-          background:#FF007F; border-radius:9999px;
-          margin-bottom:14px;
-          transition:width 250ms;
+        .sv3-card-bar {
+          width: 28px; height: 3px;
+          background: #FF007F; border-radius: 9999px;
+          margin-bottom: 8px;
         }
-        .sv2-card:hover .sv2-card-bar { width:60px; }
-        .sv2-card-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
-        .sv2-card-item {
-          display:flex; align-items:flex-start; gap:8px;
-          font-family:"Inter",sans-serif; font-size:13px;
-          color:rgba(26,28,32,.7);
+        .sv3-card-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+        .sv3-card-item {
+          display: flex; align-items: flex-start; gap: 6px;
+          font-family: "Inter", sans-serif; font-size: 11px;
+          color: rgba(17,19,27,0.72); line-height: 1.3;
         }
-        .sv2-card-dot { width:6px; height:6px; border-radius:50%; background:#FF007F; flex-shrink:0; margin-top:5px; }
+        .sv3-card-dot { width: 5px; height: 5px; border-radius: 50%; background: #FF007F; flex-shrink: 0; margin-top: 4px; }
 
-        /* ── CTA Banner ── */
-        .sv2-cta {
-          background:#111520; border:1.5px solid rgba(255,255,255,.07);
-          border-radius:18px; padding:20px 28px;
-          display:flex; align-items:center; justify-content:space-between;
-          gap:20px; flex-wrap:wrap;
+        /* CTA Row */
+        .sv3-cta {
+          background: #151822; border: 1.5px solid rgba(255,255,255,0.08);
+          border-radius: 16px; padding: 10px 18px;
+          display: flex; align-items: center; justify-content: space-between;
+          gap: 12px; flex-wrap: wrap; margin-top: auto;
         }
-        .sv2-cta-left { display:flex; align-items:center; gap:18px; }
-        .sv2-cal-icon {
-          width:50px; height:50px; border-radius:50%;
-          background:#1a1c24; border:1.5px solid rgba(255,255,255,.1);
-          display:flex; align-items:center; justify-content:center; flex-shrink:0;
+        .sv3-cta-left { display: flex; align-items: center; gap: 12px; }
+        .sv3-cal-icon {
+          width: 38px; height: 38px; border-radius: 50%;
+          background: #202432; border: 1px solid rgba(255,255,255,0.1);
+          display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
-        .sv2-cal-icon .ms { font-family:"Material Symbols Outlined"; font-size:24px; color:#FF007F; }
-        .sv2-cta-title { font-family:"Inter",sans-serif; font-size:19px; font-weight:800; color:#e1e2ed; }
-        .sv2-cta-sub   { font-family:"Inter",sans-serif; font-size:12px; color:rgba(255,255,255,.4); margin-top:2px; }
-        .sv2-book-btn {
-          display:flex; align-items:center; gap:10px;
-          background:#FF007F; border:none; border-radius:14px;
-          padding:14px 28px; cursor:pointer;
-          font-family:"Inter",sans-serif; font-size:13px; font-weight:700;
-          letter-spacing:1.5px; text-transform:uppercase; color:#fff;
-          white-space:nowrap;
-          transition:background 150ms, transform 120ms, box-shadow 150ms;
-          box-shadow:0 0 22px rgba(255,0,127,.4);
-          animation:sv2-pulse 2.5s ease-out infinite;
+        .sv3-cal-icon .ms { font-family: "Material Symbols Outlined"; font-size: 20px; color: #FF007F; }
+        .sv3-cta-title { font-family: "Inter", sans-serif; font-size: 15px; font-weight: 800; color: #ffffff; }
+        .sv3-cta-sub   { font-family: "Inter", sans-serif; font-size: 11px; color: rgba(255,255,255,0.45); }
+        .sv3-book-btn {
+          display: flex; align-items: center; gap: 8px;
+          background: #FF007F; border: none; border-radius: 12px;
+          padding: 10px 22px; cursor: pointer;
+          font-family: "Inter", sans-serif; font-size: 12px; font-weight: 700;
+          letter-spacing: 1px; text-transform: uppercase; color: #ffffff;
+          white-space: nowrap;
+          transition: background 150ms, transform 120ms, box-shadow 150ms;
+          box-shadow: 0 0 16px rgba(255,0,127,0.4);
+          animation: sv3-pulse 2.5s ease-out infinite;
         }
-        .sv2-book-btn .ms { font-family:"Material Symbols Outlined"; font-size:20px; }
-        .sv2-book-btn:hover { background:#e6006d; transform:translateY(-2px); box-shadow:0 0 36px rgba(255,0,127,.6); }
-        .sv2-book-btn:active { transform:translateY(0); }
+        .sv3-book-btn .ms { font-family: "Material Symbols Outlined"; font-size: 18px; }
+        .sv3-book-btn:hover { background: #e6006d; transform: translateY(-2px); box-shadow: 0 0 28px rgba(255,0,127,0.6); }
 
-        /* ══════════════════════════════════════════
-           BOOKING VIEW
-        ══════════════════════════════════════════ */
-        .sv2-booking {
-          display:flex; flex-direction:column; gap:16px;
-          animation:sv2-up .35s cubic-bezier(.22,1,.36,1);
-          padding-top:4px;
+        /* ── Booking View ── */
+        .sv3-booking {
+          display: flex; flex-direction: column; gap: 12px;
+          padding-top: 4px;
         }
-        .sv2-bk-head {
-          display:flex; align-items:center; gap:14px;
-          font-family:"Inter",sans-serif; font-size:22px; font-weight:800; color:#e1e2ed;
+        .sv3-bk-head {
+          display: flex; align-items: center; gap: 12px;
+          font-family: "Inter", sans-serif; font-size: 18px; font-weight: 800; color: #ffffff;
         }
-        .sv2-back {
-          background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.1);
-          border-radius:8px; padding:6px 14px;
-          font-family:"Inter",sans-serif; font-size:11px; font-weight:700; letter-spacing:1px;
-          color:rgba(255,255,255,.5); cursor:pointer; text-transform:uppercase;
-          transition:all 150ms;
+        .sv3-back {
+          background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 8px; padding: 4px 12px;
+          font-family: "Inter", sans-serif; font-size: 11px; font-weight: 700;
+          color: rgba(255,255,255,0.7); cursor: pointer; text-transform: uppercase;
         }
-        .sv2-back:hover { background:rgba(255,255,255,.12); color:#e1e2ed; }
+        .sv3-back:hover { background: rgba(255,255,255,0.16); color: #ffffff; }
 
-        /* Day pills */
-        .sv2-days { display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
-        .sv2-days::-webkit-scrollbar { display:none; }
-        .sv2-day {
-          flex-shrink:0; display:flex; flex-direction:column; align-items:center;
-          background:rgba(255,255,255,.04); border:1.5px solid rgba(255,255,255,.08);
-          border-radius:16px; padding:12px 18px; cursor:pointer; min-width:70px;
-          transition:all 200ms cubic-bezier(.22,1,.36,1);
-          font-family:"Inter",sans-serif;
+        .sv3-days { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+        .sv3-days::-webkit-scrollbar { display: none; }
+        .sv3-day {
+          flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
+          background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1);
+          border-radius: 14px; padding: 8px 14px; cursor: pointer; min-width: 60px;
+          transition: all 180ms ease;
+          font-family: "Inter", sans-serif;
         }
-        .sv2-day:hover { background:rgba(255,0,127,.1); border-color:rgba(255,0,127,.3); transform:translateY(-3px); }
-        .sv2-day.on { background:#FF007F; border-color:#FF007F; transform:translateY(-4px) scale(1.06); box-shadow:0 6px 20px rgba(255,0,127,.4); }
-        .sv2-day-short { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,.45); margin-bottom:3px; }
-        .sv2-day.on .sv2-day-short { color:rgba(255,255,255,.85); }
-        .sv2-day-num { font-size:28px; font-weight:900; color:#e1e2ed; line-height:1; }
-        .sv2-day-mon { font-size:9px; font-weight:600; color:rgba(255,255,255,.35); margin-top:2px; }
-        .sv2-day.on .sv2-day-mon { color:rgba(255,255,255,.75); }
+        .sv3-day:hover { background: rgba(255,0,127,0.12); border-color: rgba(255,0,127,0.4); }
+        .sv3-day.on { background: #FF007F; border-color: #FF007F; box-shadow: 0 4px 16px rgba(255,0,127,0.4); }
+        .sv3-day-short { font-size: 9px; font-weight: 700; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+        .sv3-day.on .sv3-day-short { color: rgba(255,255,255,0.9); }
+        .sv3-day-num { font-size: 22px; font-weight: 900; color: #ffffff; line-height: 1; margin: 2px 0; }
+        .sv3-day-mon { font-size: 9px; font-weight: 600; color: rgba(255,255,255,0.4); }
+        .sv3-day.on .sv3-day-mon { color: rgba(255,255,255,0.8); }
 
-        .sv2-sel-label {
-          font-family:"Inter",sans-serif; font-size:12px; font-weight:700;
-          color:#FF007F; min-height:18px;
+        .sv3-sel-label {
+          font-family: "Inter", sans-serif; font-size: 11px; font-weight: 700;
+          color: #FF007F; min-height: 16px;
         }
 
-        /* Fields */
-        .sv2-fields { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
-        .sv2-field  { display:flex; flex-direction:column; gap:6px; }
-        .sv2-flabel {
-          font-family:"Inter",sans-serif; font-size:10px; font-weight:700;
-          text-transform:uppercase; letter-spacing:1.5px; color:rgba(255,255,255,.35);
+        .sv3-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .sv3-field { display: flex; flex-direction: column; gap: 4px; }
+        .sv3-flabel {
+          font-family: "Inter", sans-serif; font-size: 9px; font-weight: 700;
+          text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4);
         }
-        .sv2-finput {
-          background:rgba(255,255,255,.05); border:1.5px solid rgba(255,255,255,.1);
-          border-radius:12px; padding:11px 14px;
-          font-family:"Inter",sans-serif; font-size:14px; color:#e1e2ed;
-          outline:none; width:100%; box-sizing:border-box; transition:all 150ms;
+        .sv3-finput {
+          background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
+          border-radius: 10px; padding: 9px 12px;
+          font-family: "Inter", sans-serif; font-size: 13px; color: #ffffff;
+          outline: none; width: 100%; box-sizing: border-box;
         }
-        .sv2-finput::placeholder { color:rgba(255,255,255,.2); }
-        .sv2-finput:focus { border-color:#FF007F; background:rgba(255,0,127,.06); }
-        .sv2-err { font-family:"Inter",sans-serif; font-size:12px; font-weight:700; color:#FF007F; min-height:18px; }
-        .sv2-confirm {
-          align-self:flex-end; display:flex; align-items:center; gap:10px;
-          background:#FF007F; border:none; border-radius:12px;
-          padding:13px 30px; cursor:pointer;
-          font-family:"Inter",sans-serif; font-size:14px; font-weight:700;
-          letter-spacing:1px; color:#fff;
-          transition:all 150ms; box-shadow:0 0 22px rgba(255,0,127,.35);
+        .sv3-finput:focus { border-color: #FF007F; background: rgba(255,0,127,0.08); }
+        .sv3-err { font-family: "Inter", sans-serif; font-size: 11px; font-weight: 700; color: #FF007F; min-height: 16px; }
+        .sv3-confirm {
+          align-self: flex-end; display: flex; align-items: center; gap: 8px;
+          background: #FF007F; border: none; border-radius: 10px;
+          padding: 10px 24px; cursor: pointer;
+          font-family: "Inter", sans-serif; font-size: 13px; font-weight: 700;
+          letter-spacing: 1px; color: #ffffff;
+          box-shadow: 0 0 16px rgba(255,0,127,0.4);
         }
-        .sv2-confirm:hover { background:#e6006d; transform:translateY(-2px); }
-        .sv2-confirm .ms { font-family:"Material Symbols Outlined"; font-size:18px; }
+        .sv3-confirm:hover { background: #e6006d; }
+        .sv3-confirm .ms { font-family: "Material Symbols Outlined"; font-size: 16px; }
 
-        /* ══════════════════════════════════════════
-           CONFIRMED VIEW
-        ══════════════════════════════════════════ */
-        .sv2-conf-wrap {
-          display:flex; flex-direction:column; align-items:center; justify-content:center;
-          flex:1; gap:18px; padding:20px; text-align:center;
-          animation:sv2-fade .5s ease;
+        /* Confirmed View */
+        .sv3-conf-wrap {
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          padding: 24px 12px; text-align: center; gap: 14px;
         }
-        .sv2-check {
-          width:90px; height:90px; border-radius:50%;
-          background:linear-gradient(135deg,#FF007F,#8E2DE2);
-          display:flex; align-items:center; justify-content:center;
-          box-shadow:0 0 50px rgba(255,0,127,.55);
-          animation:sv2-pop .6s cubic-bezier(.22,1,.36,1);
+        .sv3-check {
+          width: 70px; height: 70px; border-radius: 50%;
+          background: linear-gradient(135deg, #FF007F, #8E2DE2);
+          display: flex; align-items: center; justify-content: center;
+          box-shadow: 0 0 36px rgba(255,0,127,0.5);
+          animation: sv3-pop 0.5s ease;
         }
-        .sv2-check .ms { font-family:"Material Symbols Outlined"; font-size:44px; color:#fff; font-variation-settings:"FILL" 1; }
-        .sv2-conf-title { font-family:"Inter",sans-serif; font-size:clamp(28px,5vw,48px); font-weight:900; color:#e1e2ed; line-height:1.1; }
-        .sv2-conf-sub { font-family:"Inter",sans-serif; font-size:15px; color:rgba(255,255,255,.55); max-width:340px; line-height:1.6; }
-        .sv2-conf-sub span { color:#FF007F; font-weight:700; }
-        .sv2-conf-close {
-          background:#FF007F; border:none; border-radius:12px; padding:12px 32px; cursor:pointer;
-          font-family:"Inter",sans-serif; font-size:14px; font-weight:700; color:#fff;
-          transition:all 150ms; margin-top:6px;
-        }
-        .sv2-conf-close:hover { background:#e6006d; transform:translateY(-2px); }
-        /* confetti */
-        .sv2-cfetti-ring { display:flex; gap:8px; }
-        .sv2-cfetti {
-          width:10px; height:10px; border-radius:50%;
-          animation:sv2-confetti 1.4s ease-out forwards;
+        .sv3-check .ms { font-family: "Material Symbols Outlined"; font-size: 36px; color: #ffffff; font-variation-settings: "FILL" 1; }
+        .sv3-conf-title { font-family: "Inter", sans-serif; font-size: clamp(24px, 4vw, 36px); font-weight: 900; color: #ffffff; }
+        .sv3-conf-sub { font-family: "Inter", sans-serif; font-size: 13px; color: rgba(255,255,255,0.6); max-width: 320px; line-height: 1.5; }
+        .sv3-conf-sub span { color: #FF007F; font-weight: 700; }
+        .sv3-conf-close {
+          background: #FF007F; border: none; border-radius: 10px; padding: 10px 24px; cursor: pointer;
+          font-family: "Inter", sans-serif; font-size: 13px; font-weight: 700; color: #ffffff;
         }
 
         /* ══════════════════════════════════════════
-           RESPONSIVE
+           MOBILE RESPONSIVENESS OVERHAUL (Mobile Phones & Tablets)
         ══════════════════════════════════════════ */
-        @media (max-width:860px) {
-          .sv2-grid   { grid-template-columns:repeat(2,1fr); gap:14px; }
-          .sv2-fields { grid-template-columns:1fr 1fr; }
-          .sv2-header { padding:28px 28px 64px; }
-          .sv2-body   { padding:0 24px 24px; }
-          .sv2-headline { font-size:52px; }
+        @media (max-width: 820px) {
+          .sv3-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+          .sv3-fields { grid-template-columns: 1fr 1fr; }
+          .sv3-header { padding: 16px 20px 28px; }
+          .sv3-body { padding: 0 18px 18px; }
         }
-        @media (max-width:600px) {
-          .sv2-modal  { border-radius:20px; }
-          .sv2-header { padding:24px 20px 56px; }
-          .sv2-logo-box { width:80px; height:80px; }
-          .sv2-headline { font-size:40px; letter-spacing:-2px; }
-          .sv2-subtext  { font-size:14px; }
-          .sv2-grid   { grid-template-columns:1fr 1fr; gap:10px; }
-          .sv2-card   { padding:18px 16px 14px; }
-          .sv2-card-title { font-size:14px; }
-          .sv2-body   { padding:0 16px 20px; }
-          .sv2-cta    { flex-direction:column; align-items:flex-start; }
-          .sv2-book-btn { width:100%; justify-content:center; }
-          .sv2-fields { grid-template-columns:1fr; }
-          .sv2-confirm { align-self:stretch; justify-content:center; }
-          .sv2-badges { gap:12px; }
-        }
-        @media (max-width:420px) {
-          .sv2-grid { grid-template-columns:1fr; }
-          .sv2-headline { font-size:34px; }
+
+        @media (max-width: 600px) {
+          .sv3-backdrop { padding: 8px; }
+          .sv3-modal { border-radius: 18px; max-height: 95vh; }
+          
+          /* Compact Header Layout for Mobile */
+          .sv3-header { padding: 14px 16px 24px; text-align: left; }
+          .sv3-header-inner { flex-direction: row; align-items: center; gap: 12px; text-align: left; }
+          .sv3-logo-box { width: 42px; height: 42px; margin-bottom: 0; flex-shrink: 0; }
+          .sv3-headline { font-size: 22px; letter-spacing: -0.5px; margin: 0; }
+          .sv3-tagline { font-size: 10px; margin-bottom: 1px; }
+          .sv3-subtext { display: none; } /* Hide heavy subtext on small phones to save height */
+          .sv3-badges { display: none; }  /* Hide extra badges on small mobile screens */
+
+          /* Mobile Grid */
+          .sv3-grid { grid-template-columns: 1fr; gap: 8px; }
+          .sv3-card { padding: 12px 14px; border-radius: 14px; }
+          .sv3-icon-sq { width: 32px; height: 32px; margin-bottom: 6px; border-radius: 8px; }
+          .sv3-icon-sq .ms { font-size: 17px; }
+          .sv3-card-title { font-size: 13px; margin-bottom: 4px; }
+          .sv3-card-bar { display: none; }
+          .sv3-card-list { gap: 2px; }
+          .sv3-card-item { font-size: 10px; }
+
+          .sv3-body { padding: 0 12px 14px; }
+          .sv3-pill-row { padding: 8px 0 6px; }
+
+          /* Mobile CTA Banner */
+          .sv3-cta { padding: 10px 12px; flex-direction: column; align-items: stretch; gap: 8px; }
+          .sv3-cta-left { gap: 10px; }
+          .sv3-cal-icon { width: 32px; height: 32px; }
+          .sv3-cal-icon .ms { font-size: 16px; }
+          .sv3-cta-title { font-size: 13px; }
+          .sv3-cta-sub { font-size: 10px; }
+          .sv3-book-btn { width: 100%; justify-content: center; padding: 10px 16px; font-size: 11px; }
+
+          /* Mobile Booking */
+          .sv3-fields { grid-template-columns: 1fr; }
+          .sv3-confirm { width: 100%; justify-content: center; }
         }
       `}</style>
 
-      <div className="sv2-backdrop" onClick={(e) => { if (e.target === e.currentTarget) close(); }}>
-        <div className="sv2-modal">
+      <div className="sv3-backdrop" onClick={(e) => { if (e.target === e.currentTarget) close(); }}>
+        <div className="sv3-modal">
 
-          {/* ── Close ── */}
-          <button className="sv2-close" onClick={close} aria-label="Close modal">
+          {/* Close button */}
+          <button className="sv3-close" onClick={close} aria-label="Close">
             <span className="ms">close</span>
           </button>
 
-          {/* ══════════ HEADER ══════════ */}
-          <div className="sv2-header">
-            <div className="sv2-header-inner">
-              <div className="sv2-logo-box">
+          {/* ── HEADER ── */}
+          <div className="sv3-header">
+            <div className="sv3-header-inner">
+              <div className="sv3-logo-box">
                 <img src="/Portfolio-favi.png" alt="Sre Varshan" />
               </div>
-              <div className="sv2-tagline-wrap">
-                <span className="sv2-tagline">Let&apos;s build something</span>
-                <span className="sv2-tagline-line" />
-              </div>
-              <h2 className="sv2-headline">Extraordinary</h2>
-              <p className="sv2-subtext">
-                I help startups, businesses &amp; innovators turn ideas into{" "}
-                <strong>AI-powered solutions</strong> and custom softwares at affordable prices.
-              </p>
-              <div className="sv2-badges">
-                {["Clean Code","Scalable Solutions","Modern AI","Real Results"].map((b) => (
-                  <span className="sv2-badge" key={b}>
-                    <span className="ms" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                    {b}
-                  </span>
-                ))}
+              <div>
+                <p className="sv3-tagline">Let&apos;s build something</p>
+                <h2 className="sv3-headline">Extraordinary</h2>
+                <p className="sv3-subtext">
+                  I help startups &amp; teams turn ideas into <strong>AI-powered solutions</strong> at affordable prices.
+                </p>
+                <div className="sv3-badges">
+                  {["Clean Code", "Scalable Solutions", "Modern AI", "Real Results"].map((b) => (
+                    <span className="sv3-badge" key={b}>
+                      <span className="ms">check_circle</span>
+                      {b}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* ══════════ BODY ══════════ */}
-          <div className="sv2-body">
+          {/* ── BODY ── */}
+          <div className="sv3-body">
 
-            {/* ─── SERVICES VIEW ─── */}
+            {/* Services View */}
             {screen === "services" && (
               <>
-                <div className="sv2-pill-row">
-                  <span className="sv2-pill">How I can help you</span>
+                <div className="sv3-pill-row">
+                  <span className="sv3-pill">How I can help you</span>
                 </div>
 
-                <div className="sv2-grid">
-                  {SERVICES.map((s, i) => (
-                    <div className="sv2-card" key={s.title} style={{ animationDelay: `${i*70}ms` }}>
-                      <div className="sv2-card-glow" />
-                      <div className="sv2-icon-sq">
+                {/* 3×2 Grid */}
+                <div className="sv3-grid">
+                  {SERVICES.map((s) => (
+                    <div className="sv3-card" key={s.title}>
+                      <div className="sv3-card-glow" />
+                      <div className="sv3-icon-sq">
                         <span className="ms">{s.icon}</span>
                       </div>
-                      <div className="sv2-card-title">{s.title}</div>
-                      <div className="sv2-card-bar" />
-                      <ul className="sv2-card-list">
+                      <div className="sv3-card-title">{s.title}</div>
+                      <div className="sv3-card-bar" />
+                      <ul className="sv3-card-list">
                         {s.items.map((item) => (
-                          <li className="sv2-card-item" key={item}>
-                            <span className="sv2-card-dot" />{item}
+                          <li className="sv3-card-item" key={item}>
+                            <span className="sv3-card-dot" />{item}
                           </li>
                         ))}
                       </ul>
@@ -483,71 +460,70 @@ export default function ServicesModal() {
                   ))}
                 </div>
 
-                {/* CTA */}
-                <div className="sv2-cta">
-                  <div className="sv2-cta-left">
-                    <div className="sv2-cal-icon">
+                {/* CTA Row */}
+                <div className="sv3-cta">
+                  <div className="sv3-cta-left">
+                    <div className="sv3-cal-icon">
                       <span className="ms">calendar_month</span>
                     </div>
                     <div>
-                      <div className="sv2-cta-title">Let&apos;s discuss your project</div>
-                      <div className="sv2-cta-sub">30-Min Free Discovery Call</div>
+                      <div className="sv3-cta-title">Let&apos;s discuss your project</div>
+                      <div className="sv3-cta-sub">30-Min Free Discovery Call</div>
                     </div>
                   </div>
-                  <button className="sv2-book-btn" onClick={() => setScreen("booking")}>
+                  <button className="sv3-book-btn" onClick={() => setScreen("booking")}>
                     <span className="ms">calendar_month</span>
                     BOOK A FREE CALL
-                    <span className="ms">arrow_forward</span>
                   </button>
                 </div>
               </>
             )}
 
-            {/* ─── BOOKING VIEW ─── */}
+            {/* Booking View */}
             {screen === "booking" && (
-              <div className="sv2-booking">
-                <div className="sv2-bk-head">
-                  <button className="sv2-back" onClick={() => { setScreen("services"); setSelDay(null); }}>← Back</button>
+              <div className="sv3-booking">
+                <div className="sv3-bk-head">
+                  <button className="sv3-back" onClick={() => { setScreen("services"); setSelDay(null); }}>← Back</button>
                   Pick Your Date
                 </div>
 
-                <div className="sv2-days">
+                <div className="sv3-days">
                   {days.map((d, i) => (
                     <div
                       key={i}
-                      className={`sv2-day${selDay === i ? " on" : ""}`}
+                      className={`sv3-day${selDay === i ? " on" : ""}`}
                       onClick={() => setSelDay(i)}
                       title={d.full}
                     >
-                      <span className="sv2-day-short">{d.short}</span>
-                      <span className="sv2-day-num">{d.num}</span>
-                      <span className="sv2-day-mon">{d.mon}</span>
+                      <span className="sv3-day-short">{d.short}</span>
+                      <span className="sv3-day-num">{d.num}</span>
+                      <span className="sv3-day-mon">{d.mon}</span>
                     </div>
                   ))}
                 </div>
 
-                <p className="sv2-sel-label">
-                  {selDay !== null ? `✓ ${days[selDay].full}` : "Select a date above"}
+                <p className="sv3-sel-label">
+                  {selDay !== null ? `✓ Selected: ${days[selDay].full}` : "Select a date above"}
                 </p>
 
-                <div className="sv2-fields">
-                  <div className="sv2-field">
-                    <label className="sv2-flabel">Your Name *</label>
-                    <input className="sv2-finput" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} />
+                <div className="sv3-fields">
+                  <div className="sv3-field">
+                    <label className="sv3-flabel">Your Name *</label>
+                    <input className="sv3-finput" placeholder="Sre Varshan" value={name} onChange={(e) => setName(e.target.value)} />
                   </div>
-                  <div className="sv2-field">
-                    <label className="sv2-flabel">Phone Number</label>
-                    <input className="sv2-finput" placeholder="+91 99999 99999" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                  <div className="sv3-field">
+                    <label className="sv3-flabel">Phone Number</label>
+                    <input className="sv3-finput" placeholder="+91 96006 22497" value={phone} onChange={(e) => setPhone(e.target.value)} />
                   </div>
-                  <div className="sv2-field">
-                    <label className="sv2-flabel">Email Address *</label>
-                    <input className="sv2-finput" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <div className="sv3-field">
+                    <label className="sv3-flabel">Email Address *</label>
+                    <input className="sv3-finput" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                   </div>
                 </div>
 
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:12 }}>
-                  <p className="sv2-err">{bookErr}</p>
-                  <button className="sv2-confirm" onClick={handleBook}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                  <p className="sv3-err">{bookErr}</p>
+                  <button className="sv3-confirm" onClick={handleBook}>
                     Confirm Booking
                     <span className="ms">arrow_forward</span>
                   </button>
@@ -555,24 +531,19 @@ export default function ServicesModal() {
               </div>
             )}
 
-            {/* ─── CONFIRMED VIEW ─── */}
+            {/* Confirmed View */}
             {screen === "confirmed" && (
-              <div className="sv2-conf-wrap">
-                <div className="sv2-cfetti-ring">
-                  {["#FF007F","#FFB020","#2DC8E2","#2BB04A","#8E2DE2","#FF7043","#FF007F","#FFB020"].map((c, i) => (
-                    <span key={i} className="sv2-cfetti" style={{ background: c, animationDelay: `${i*90}ms` }} />
-                  ))}
-                </div>
-                <div className="sv2-check">
+              <div className="sv3-conf-wrap">
+                <div className="sv3-check">
                   <span className="ms">check_circle</span>
                 </div>
-                <div className="sv2-conf-title">Slot Booked! 🎉</div>
-                <p className="sv2-conf-sub">
+                <div className="sv3-conf-title">Slot Booked! 🎉</div>
+                <p className="sv3-conf-sub">
                   Thanks <span>{name}</span>! Your call is locked in for{" "}
                   <span>{selDay !== null ? days[selDay].full : "your chosen date"}</span>.{" "}
-                  I&apos;ll reach out to you soon — can&apos;t wait!
+                  I&apos;ll reach out to you soon!
                 </p>
-                <button className="sv2-conf-close" onClick={close}>Close ✕</button>
+                <button className="sv3-conf-close" onClick={close}>Close ✕</button>
               </div>
             )}
 
