@@ -1,60 +1,97 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+
+const DotLottieReact = dynamic(
+  () => import("@lottiefiles/dotlottie-react").then((mod) => mod.DotLottieReact),
+  { ssr: false }
+);
 
 type Screen = "services" | "booking" | "confirmed";
 
 function getNext7Days() {
   const result = [];
-  const DAY  = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  const MON  = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   for (let i = 1; i <= 7; i++) {
     const d = new Date();
     d.setDate(d.getDate() + i);
-    result.push({ 
-      short: DAY[d.getDay()], 
-      num: d.getDate(), 
+    result.push({
+      short: DAY[d.getDay()],
+      num: d.getDate(),
       mon: MON[d.getMonth()],
-      full: d.toLocaleDateString("en-IN", { weekday:"long", year:"numeric", month:"long", day:"numeric" }) 
+      full: d.toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
     });
   }
   return result;
 }
 
 const SERVICES = [
-  { icon: "language",     title: "Website Development",           items: ["Static & Dynamic Websites","Custom Web Applications","Modern & Responsive Design"] },
-  { icon: "forum",        title: "AI Chatbot Solutions",          items: ["Smart AI Chatbots","Custom Trained Models","24/7 Automated Support"] },
-  { icon: "account_tree", title: "AI Workflow Automation",        items: ["Process Automation","Business Workflow Design","API Integrations"] },
-  { icon: "memory",       title: "Generative AI Integration",     items: ["LLM Integration (OpenAI, etc.)","RAG Applications","Prompt Engineering"] },
-  { icon: "receipt_long", title: "Online E-Receipt Applications", items: ["Payment Gateway","Income Tracker","Advanced Analytics"] },
-  { icon: "lightbulb",    title: "AI Consulting & Strategy",      items: ["Technical Consultation","Use Case Discovery","Architecture Design"] },
+  {
+    icon: "/icons/website.png",
+    title: "Website Development",
+    accent: "#E22D6D",
+    items: ["Static & Dynamic Websites", "Custom Web Applications", "Modern & Responsive Design"],
+  },
+  {
+    icon: "/icons/Chatbot.png",
+    title: "AI Chatbot Solutions",
+    accent: "#2DC8E2",
+    items: ["Smart AI Chatbots", "Custom Trained Models", "24/7 Automated Support"],
+  },
+  {
+    icon: "/icons/automation.png",
+    title: "AI Workflow Automation",
+    accent: "#FFB020",
+    items: ["Process Automation", "Business Workflow Design", "API Integrations"],
+  },
+  {
+    icon: "/icons/Gen-Ai.png",
+    title: "Generative AI Integration",
+    accent: "#8E2DE2",
+    items: ["LLM Integration (OpenAI, etc.)", "RAG Applications", "Prompt Engineering"],
+  },
+  {
+    icon: "/icons/receipt.png",
+    title: "Online E-Receipt Apps",
+    accent: "#2BB04A",
+    items: ["Payment Gateway", "Income Tracker", "Advanced Analytics"],
+  },
+  {
+    icon: "/icons/Consult.png",
+    title: "AI Consulting & Strategy",
+    accent: "#FF7043",
+    items: ["Technical Consultation", "Use Case Discovery", "Architecture Design"],
+  },
 ];
 
 export default function ServicesModal() {
-  const [visible,  setVisible]  = useState(false);
-  const [screen,   setScreen]   = useState<Screen>("services");
-  const [selDay,   setSelDay]   = useState<number | null>(null);
-  const [name,     setName]     = useState("");
-  const [phone,    setPhone]    = useState("");
-  const [email,    setEmail]    = useState("");
-  const [bookErr,  setBookErr]  = useState("");
+  const [visible, setVisible]         = useState(false);
+  const [screen, setScreen]           = useState<Screen>("services");
+  const [selDay, setSelDay]           = useState<number | null>(null);
+  const [name, setName]               = useState("");
+  const [phone, setPhone]             = useState("");
+  const [email, setEmail]             = useState("");
+  const [bookErr, setBookErr]         = useState("");
+  const [cardHover, setCardHover]     = useState<number | null>(null);
   const days = getNext7Days();
 
   useEffect(() => {
-    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v3")) return;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v4")) return;
     const t = setTimeout(() => setVisible(true), 3000);
     return () => clearTimeout(t);
   }, []);
 
   const close = () => {
     setVisible(false);
-    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v3", "1");
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v4", "1");
   };
 
   const handleBook = () => {
-    if (selDay === null)   { setBookErr("Please pick a date above."); return; }
-    if (!name.trim())      { setBookErr("Please enter your name."); return; }
-    if (!email.trim())     { setBookErr("Please enter your email address."); return; }
+    if (selDay === null) { setBookErr("Please pick a date above."); return; }
+    if (!name.trim())    { setBookErr("Please enter your name."); return; }
+    if (!email.trim())   { setBookErr("Please enter your email address."); return; }
     setBookErr("");
     setScreen("confirmed");
   };
@@ -63,396 +100,459 @@ export default function ServicesModal() {
 
   return (
     <>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
-      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-
       <style>{`
-        @keyframes sv3-fade    { from{opacity:0} to{opacity:1} }
-        @keyframes sv3-up      { from{opacity:0;transform:translateY(24px) scale(0.98)} to{opacity:1;transform:translateY(0) scale(1)} }
-        @keyframes sv3-pop     { 0%{transform:scale(.5);opacity:0} 65%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
-        @keyframes sv3-pulse   { 0%,100%{box-shadow:0 0 0 0 rgba(255,0,127,.5)} 60%{box-shadow:0 0 0 10px rgba(255,0,127,0)} }
+        @keyframes sv-modal-fade { from { opacity:0; } to { opacity:1; } }
+        @keyframes sv-modal-pop  { from { opacity:0; transform:scale(0.96) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
+        @keyframes sv-pulse-pink { 0%, 100% { box-shadow: 4px 4px 0 #1C202B, 0 0 0 0 rgba(226,45,109,0.5); } 50% { box-shadow: 4px 4px 0 #1C202B, 0 0 0 10px rgba(226,45,109,0); } }
+        @keyframes sv-confetti-pop { 0% { transform: scale(0.6); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
 
-        .sv3-backdrop {
+        .sv-modal-backdrop {
           position: fixed; inset: 0; z-index: 9999;
-          background: rgba(0, 0, 0, 0.82);
+          background: rgba(15, 18, 24, 0.86);
           backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
           display: flex; align-items: center; justify-content: center;
-          padding: 12px;
-          animation: sv3-fade 0.3s ease;
+          padding: 14px;
+          animation: sv-modal-fade 0.3s ease;
         }
 
-        .sv3-modal {
-          position: relative; width: 100%; max-width: 1020px;
-          max-height: 92vh;
-          background: #0f1115;
+        .sv-modal-container {
+          position: relative; width: 100%; max-width: 1040px;
+          max-height: 94vh;
+          background: #f3f1e5;
+          border: 3px solid #1C202B;
           border-radius: 24px;
+          box-shadow: 8px 8px 0 0 #1C202B;
           overflow: hidden;
-          box-shadow: 0 32px 80px rgba(0,0,0,0.8), 0 0 0 1.5px rgba(255,0,127,0.2);
           display: flex; flex-direction: column;
-          animation: sv3-up 0.35s cubic-bezier(.22,1,.36,1);
+          animation: sv-modal-pop 0.35s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        .sv3-close {
-          position: absolute; top: 12px; right: 12px; z-index: 50;
-          width: 34px; height: 34px; border-radius: 50%;
-          background: #ffffff; border: none;
+        .sv-modal-close-btn {
+          position: absolute; top: 14px; right: 14px; z-index: 50;
+          width: 36px; height: 36px; border-radius: 50%;
+          background: #1C202B; border: 2px solid #1C202B;
+          color: #ffffff; font-family: 'Open Sans', sans-serif;
+          font-size: 16px; font-weight: 900; cursor: pointer;
           display: flex; align-items: center; justify-content: center;
-          cursor: pointer;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.3);
           transition: background 150ms, transform 150ms;
+          box-shadow: 2px 2px 0 0 #E22D6D;
         }
-        .sv3-close .ms { font-family: "Material Symbols Outlined"; font-size: 18px; color: #111; }
-        .sv3-close:hover { background: #FF007F; transform: rotate(90deg); }
-        .sv3-close:hover .ms { color: #ffffff; }
+        .sv-modal-close-btn:hover { background: #E22D6D; transform: rotate(90deg); }
 
-        /* ── Compact Header ── */
-        .sv3-header {
-          background: linear-gradient(135deg, #ffffff 0%, #fff2f6 55%, #ffe5ee 100%);
-          padding: 18px 32px 34px;
-          text-align: center;
-          position: relative; overflow: hidden;
-          clip-path: polygon(0 0, 100% 0, 100% calc(100% - 22px), 0 100%);
+        /* ── Header with Lottie & Left Logo ── */
+        .sv-modal-header {
+          background: #ffffff;
+          border-bottom: 3px solid #1C202B;
+          padding: 14px 24px 18px;
+          position: relative;
+          display: flex; flex-direction: column; align-items: center;
           flex-shrink: 0;
         }
-        .sv3-header-inner {
-          position: relative; z-index: 1;
-          display: flex; flex-direction: column; align-items: center;
+
+        /* Top Lottie Animation */
+        .sv-lottie-top {
+          width: 110px; height: 75px;
+          margin-bottom: 2px;
+          display: flex; align-items: center; justify-content: center;
         }
-        .sv3-logo-box {
+
+        .sv-header-row {
+          width: 100%;
+          display: flex; align-items: center; justify-content: space-between;
+          gap: 16px;
+        }
+
+        .sv-header-left {
+          display: flex; align-items: center; gap: 14px;
+        }
+
+        /* Left-aligned SV Logo */
+        .sv-logo-badge {
           width: 48px; height: 48px; border-radius: 12px;
-          background: #111; overflow: hidden;
+          background: #1C202B; border: 2.5px solid #1C202B;
+          overflow: hidden; flex-shrink: 0;
+          box-shadow: 3px 3px 0 0 #E22D6D;
           transform: rotate(-3deg);
-          box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-          margin-bottom: 6px;
+          transition: transform 200ms;
         }
-        .sv3-logo-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .sv3-tagline {
-          font-family: "Inter", sans-serif;
-          font-size: 12px; font-weight: 600; font-style: italic;
-          color: #FF007F; margin-bottom: 2px;
-          text-decoration: underline text-decoration-color #FF007F;
-          text-underline-offset: 3px;
+        .sv-logo-badge:hover { transform: rotate(0deg) scale(1.05); }
+        .sv-logo-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        .sv-header-info { text-align: left; }
+        .sv-tagline-text {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 11px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: 1.5px; color: #E22D6D; margin: 0 0 1px;
         }
-        .sv3-headline {
-          font-family: "Inter", sans-serif;
-          font-size: clamp(24px, 3.8vw, 38px);
-          font-weight: 900; letter-spacing: -1.5px;
-          line-height: 1; color: #11131b; margin: 0 0 4px;
+        .sv-headline-title {
+          font-family: 'Bangers', cursive;
+          font-size: clamp(26px, 3.5vw, 38px);
+          letter-spacing: 1.5px; line-height: 1;
+          color: #1C202B; margin: 0 0 2px;
           text-transform: uppercase;
         }
-        .sv3-subtext {
-          font-family: "Inter", sans-serif;
-          font-size: 13px; line-height: 1.4;
-          color: rgba(17,19,27,0.72);
-          max-width: 520px; margin: 0 auto 8px;
+        .sv-subtext-desc {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 11.5px; color: rgba(28,32,43,0.75); margin: 0;
+          max-width: 480px;
         }
-        .sv3-subtext strong { color: #FF007F; font-weight: 700; }
-        .sv3-badges {
-          display: flex; flex-wrap: wrap; justify-content: center; gap: 14px;
-        }
-        .sv3-badge {
-          display: flex; align-items: center; gap: 5px;
-          font-family: "Inter", sans-serif; font-size: 11px; font-weight: 600;
-          color: rgba(17,19,27,0.7);
-        }
-        .sv3-badge .ms { font-family: "Material Symbols Outlined"; font-size: 15px; color: #FF007F; font-variation-settings: "FILL" 1; }
+        .sv-subtext-desc strong { color: #E22D6D; font-weight: 700; }
 
-        /* ── Dark Content Container ── */
-        .sv3-body {
-          background: #0f1115;
+        .sv-header-badges {
+          display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+        }
+        .sv-badge-pill {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 10px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: 0.8px; color: #1C202B;
+          background: #f3f1e5; border: 1.5px solid #1C202B;
+          padding: 3px 10px; border-radius: 9999px;
+          display: flex; align-items: center; gap: 4px;
+        }
+        .sv-badge-dot { width: 5px; height: 5px; background: #E22D6D; border-radius: 50%; }
+
+        /* ── Main Body Section ── */
+        .sv-modal-body {
+          background: #1C202B;
           flex: 1; overflow-y: auto; overflow-x: hidden;
-          display: flex; flex-direction: column;
-          padding: 0 28px 20px;
-          gap: 0;
+          padding: 16px 24px 18px;
+          display: flex; flex-direction: column; gap: 12px;
           scrollbar-width: thin;
-          scrollbar-color: rgba(255,255,255,0.15) transparent;
+          scrollbar-color: rgba(255,255,255,0.2) transparent;
         }
-        .sv3-body::-webkit-scrollbar { width: 4px; }
-        .sv3-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+        .sv-modal-body::-webkit-scrollbar { width: 5px; }
+        .sv-modal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 
-        .sv3-pill-row { display: flex; justify-content: center; padding: 12px 0 10px; }
-        .sv3-pill {
-          background: transparent; border: 1.5px solid rgba(255,255,255,0.15);
-          border-radius: 9999px; padding: 4px 18px;
-          font-family: "Inter", sans-serif; font-size: 10px; font-weight: 700;
-          letter-spacing: 2px; text-transform: uppercase;
-          color: rgba(255,255,255,0.6);
+        .sv-pill-header {
+          display: flex; justify-content: center; margin-bottom: 2px;
+        }
+        .sv-section-tag {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: 2px; color: #F3F1E5;
+          background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
+          padding: 4px 18px; border-radius: 9999px;
         }
 
-        /* Cards Grid */
-        .sv3-grid {
-          display: grid; grid-template-columns: repeat(3, 1fr);
+        /* ── Services Cards 3×2 Grid ── */
+        .sv-cards-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
           gap: 12px;
-          margin-bottom: 14px;
         }
-        .sv3-card {
-          background: #ffffff; border-radius: 18px;
-          padding: 16px 18px 14px;
-          position: relative; overflow: hidden;
-          transition: transform 200ms cubic-bezier(.22,1,.36,1), box-shadow 200ms;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.15);
-        }
-        .sv3-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 28px rgba(255,0,127,0.18);
-        }
-        .sv3-card-glow {
-          position: absolute; right: -16px; bottom: -16px;
-          width: 54px; height: 54px; border-radius: 50%;
-          background: rgba(255,0,127,0.12);
-        }
-        .sv3-icon-sq {
-          width: 38px; height: 38px; border-radius: 10px;
-          background: #11131b;
-          display: flex; align-items: center; justify-content: center;
-          margin-bottom: 10px;
-        }
-        .sv3-icon-sq .ms {
-          font-family: "Material Symbols Outlined"; font-size: 20px; color: #ffffff;
-        }
-        .sv3-card-title {
-          font-family: "Inter", sans-serif;
-          font-size: 14px; font-weight: 800;
-          color: #11131b; margin-bottom: 6px;
-          line-height: 1.25;
-        }
-        .sv3-card-bar {
-          width: 28px; height: 3px;
-          background: #FF007F; border-radius: 9999px;
-          margin-bottom: 8px;
-        }
-        .sv3-card-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-        .sv3-card-item {
-          display: flex; align-items: flex-start; gap: 6px;
-          font-family: "Inter", sans-serif; font-size: 11px;
-          color: rgba(17,19,27,0.72); line-height: 1.3;
-        }
-        .sv3-card-dot { width: 5px; height: 5px; border-radius: 50%; background: #FF007F; flex-shrink: 0; margin-top: 4px; }
 
-        /* CTA Row */
-        .sv3-cta {
-          background: #151822; border: 1.5px solid rgba(255,255,255,0.08);
-          border-radius: 16px; padding: 10px 18px;
+        .sv-service-card {
+          background: #ffffff;
+          border: 2.5px solid #1C202B;
+          border-radius: 16px;
+          padding: 14px 16px 12px;
+          box-shadow: 4px 4px 0 0 #1C202B;
+          transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms;
+          cursor: default; position: relative; overflow: hidden;
+        }
+        .sv-service-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 6px 6px 0 0 #E22D6D;
+        }
+        .sv-card-icon-img {
+          width: 38px; height: 38px;
+          object-fit: contain; display: block;
+          margin-bottom: 8px;
+          transition: transform 200ms;
+        }
+        .sv-service-card:hover .sv-card-icon-img { transform: scale(1.15) rotate(-4deg); }
+
+        .sv-card-title-text {
+          font-family: 'Bangers', cursive;
+          font-size: 17px; letter-spacing: 1px; color: #1C202B;
+          margin: 0 0 6px; line-height: 1.1;
+        }
+        .sv-card-accent-bar {
+          height: 3px; border-radius: 9999px; margin-bottom: 8px;
+          width: 24px; transition: width 200ms;
+        }
+        .sv-service-card:hover .sv-card-accent-bar { width: 44px; }
+
+        .sv-card-ul {
+          list-style: none; margin: 0; padding: 0;
+          display: flex; flex-direction: column; gap: 4px;
+        }
+        .sv-card-li {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 11px; color: rgba(28,32,43,0.75);
+          display: flex; align-items: flex-start; gap: 6px; line-height: 1.3;
+        }
+        .sv-card-bullet {
+          width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; margin-top: 4px;
+        }
+
+        /* ── CTA Banner Row ── */
+        .sv-cta-banner-row {
+          background: #252a38;
+          border: 2.5px solid #1C202B;
+          border-radius: 16px;
+          padding: 12px 20px;
           display: flex; align-items: center; justify-content: space-between;
-          gap: 12px; flex-wrap: wrap; margin-top: auto;
+          gap: 14px; flex-wrap: wrap; margin-top: auto;
+          box-shadow: 4px 4px 0 0 #1C202B;
         }
-        .sv3-cta-left { display: flex; align-items: center; gap: 12px; }
-        .sv3-cal-icon {
-          width: 38px; height: 38px; border-radius: 50%;
-          background: #202432; border: 1px solid rgba(255,255,255,0.1);
-          display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+
+        .sv-cta-left-content { display: flex; align-items: center; gap: 12px; }
+        .sv-cta-icon-box {
+          width: 40px; height: 40px; border-radius: 50%;
+          background: #1C202B; border: 2px solid #E22D6D;
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0; box-shadow: 2px 2px 0 0 #E22D6D;
         }
-        .sv3-cal-icon .ms { font-family: "Material Symbols Outlined"; font-size: 20px; color: #FF007F; }
-        .sv3-cta-title { font-family: "Inter", sans-serif; font-size: 15px; font-weight: 800; color: #ffffff; }
-        .sv3-cta-sub   { font-family: "Inter", sans-serif; font-size: 11px; color: rgba(255,255,255,0.45); }
-        .sv3-book-btn {
-          display: flex; align-items: center; gap: 8px;
-          background: #FF007F; border: none; border-radius: 12px;
-          padding: 10px 22px; cursor: pointer;
-          font-family: "Inter", sans-serif; font-size: 12px; font-weight: 700;
-          letter-spacing: 1px; text-transform: uppercase; color: #ffffff;
+        .sv-cta-icon-box img { width: 22px; height: 22px; object-fit: contain; }
+
+        .sv-cta-heading {
+          font-family: 'Bangers', cursive;
+          font-size: 20px; letter-spacing: 1px; color: #ffffff; margin: 0 0 1px;
+        }
+        .sv-cta-subheading {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 11px; color: rgba(255,255,255,0.6); margin: 0;
+        }
+
+        /* "Book a Call Now" Button with Mobile Icon */
+        .sv-book-call-btn {
+          background: #E22D6D;
+          border: 2px solid #1C202B;
+          border-radius: 12px;
+          padding: 10px 22px;
+          font-family: 'Bangers', cursive;
+          font-size: 17px; letter-spacing: 1.5px; color: #ffffff;
+          cursor: pointer; display: flex; align-items: center; gap: 9px;
+          transition: background 150ms, transform 100ms, box-shadow 150ms;
+          box-shadow: 4px 4px 0 0 #1C202B;
+          animation: sv-pulse-pink 2.5s ease-out infinite;
           white-space: nowrap;
-          transition: background 150ms, transform 120ms, box-shadow 150ms;
-          box-shadow: 0 0 16px rgba(255,0,127,0.4);
-          animation: sv3-pulse 2.5s ease-out infinite;
         }
-        .sv3-book-btn .ms { font-family: "Material Symbols Outlined"; font-size: 18px; }
-        .sv3-book-btn:hover { background: #e6006d; transform: translateY(-2px); box-shadow: 0 0 28px rgba(255,0,127,0.6); }
+        .sv-book-call-btn:hover {
+          background: #c0224f; transform: translateY(-2px);
+          box-shadow: 6px 6px 0 0 #1C202B;
+        }
+        .sv-book-call-btn:active { transform: translateY(0); }
+        .sv-call-icon-img { width: 20px; height: 20px; object-fit: contain; display: block; filter: brightness(0) invert(1); }
 
         /* ── Booking View ── */
-        .sv3-booking {
+        .sv-booking-view {
           display: flex; flex-direction: column; gap: 12px;
-          padding-top: 4px;
         }
-        .sv3-bk-head {
-          display: flex; align-items: center; gap: 12px;
-          font-family: "Inter", sans-serif; font-size: 18px; font-weight: 800; color: #ffffff;
+        .sv-booking-header-row {
+          display: flex; align-items: center; gap: 14px;
         }
-        .sv3-back {
-          background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
-          border-radius: 8px; padding: 4px 12px;
-          font-family: "Inter", sans-serif; font-size: 11px; font-weight: 700;
-          color: rgba(255,255,255,0.7); cursor: pointer; text-transform: uppercase;
+        .sv-booking-title-text {
+          font-family: 'Bangers', cursive;
+          font-size: 24px; letter-spacing: 1.5px; color: #ffffff; margin: 0;
         }
-        .sv3-back:hover { background: rgba(255,255,255,0.16); color: #ffffff; }
+        .sv-back-nav-btn {
+          background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15);
+          border-radius: 8px; padding: 4px 14px;
+          font-family: 'Open Sans', sans-serif; font-size: 11px; font-weight: 700;
+          color: #f3f1e5; cursor: pointer; text-transform: uppercase; transition: all 150ms;
+        }
+        .sv-back-nav-btn:hover { background: #E22D6D; border-color: #E22D6D; }
 
-        .sv3-days { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-        .sv3-days::-webkit-scrollbar { display: none; }
-        .sv3-day {
+        .sv-calendar-strip {
+          display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none;
+        }
+        .sv-calendar-strip::-webkit-scrollbar { display: none; }
+        .sv-day-card-pill {
           flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
-          background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1);
           border-radius: 14px; padding: 8px 14px; cursor: pointer; min-width: 60px;
-          transition: all 180ms ease;
-          font-family: "Inter", sans-serif;
+          transition: all 180ms; font-family: 'Open Sans', sans-serif;
         }
-        .sv3-day:hover { background: rgba(255,0,127,0.12); border-color: rgba(255,0,127,0.4); }
-        .sv3-day.on { background: #FF007F; border-color: #FF007F; box-shadow: 0 4px 16px rgba(255,0,127,0.4); }
-        .sv3-day-short { font-size: 9px; font-weight: 700; text-transform: uppercase; color: rgba(255,255,255,0.5); }
-        .sv3-day.on .sv3-day-short { color: rgba(255,255,255,0.9); }
-        .sv3-day-num { font-size: 22px; font-weight: 900; color: #ffffff; line-height: 1; margin: 2px 0; }
-        .sv3-day-mon { font-size: 9px; font-weight: 600; color: rgba(255,255,255,0.4); }
-        .sv3-day.on .sv3-day-mon { color: rgba(255,255,255,0.8); }
+        .sv-day-card-pill:hover { background: rgba(226,45,109,0.15); border-color: #E22D6D; transform: translateY(-2px); }
+        .sv-day-card-pill.selected {
+          background: #E22D6D; border-color: #1C202B;
+          box-shadow: 3px 3px 0 0 #1C202B; transform: translateY(-2px);
+        }
+        .sv-day-short-name { font-size: 9px; font-weight: 700; text-transform: uppercase; color: rgba(255,255,255,0.6); }
+        .sv-day-card-pill.selected .sv-day-short-name { color: #ffffff; }
+        .sv-day-number { font-family: 'Bangers', cursive; font-size: 22px; color: #ffffff; line-height: 1; margin: 2px 0; }
+        .sv-day-month-name { font-size: 9px; font-weight: 600; color: rgba(255,255,255,0.45); }
+        .sv-day-card-pill.selected .sv-day-month-name { color: rgba(255,255,255,0.85); }
 
-        .sv3-sel-label {
-          font-family: "Inter", sans-serif; font-size: 11px; font-weight: 700;
-          color: #FF007F; min-height: 16px;
+        .sv-selected-date-indicator {
+          font-family: 'Open Sans', sans-serif; font-size: 11.5px; font-weight: 700;
+          color: #E22D6D; min-height: 16px; margin: 0;
         }
 
-        .sv3-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .sv3-field { display: flex; flex-direction: column; gap: 4px; }
-        .sv3-flabel {
-          font-family: "Inter", sans-serif; font-size: 9px; font-weight: 700;
-          text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4);
+        .sv-form-fields-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .sv-input-field-group { display: flex; flex-direction: column; gap: 4px; }
+        .sv-input-label {
+          font-family: 'Open Sans', sans-serif; font-size: 9.5px; font-weight: 700;
+          text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.5);
         }
-        .sv3-finput {
-          background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
+        .sv-form-input-element {
+          background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.12);
           border-radius: 10px; padding: 9px 12px;
-          font-family: "Inter", sans-serif; font-size: 13px; color: #ffffff;
-          outline: none; width: 100%; box-sizing: border-box;
+          font-family: 'Open Sans', sans-serif; font-size: 13px; color: #ffffff;
+          outline: none; width: 100%; box-sizing: border-box; transition: border-color 150ms;
         }
-        .sv3-finput:focus { border-color: #FF007F; background: rgba(255,0,127,0.08); }
-        .sv3-err { font-family: "Inter", sans-serif; font-size: 11px; font-weight: 700; color: #FF007F; min-height: 16px; }
-        .sv3-confirm {
-          align-self: flex-end; display: flex; align-items: center; gap: 8px;
-          background: #FF007F; border: none; border-radius: 10px;
-          padding: 10px 24px; cursor: pointer;
-          font-family: "Inter", sans-serif; font-size: 13px; font-weight: 700;
-          letter-spacing: 1px; color: #ffffff;
-          box-shadow: 0 0 16px rgba(255,0,127,0.4);
+        .sv-form-input-element:focus { border-color: #E22D6D; background: rgba(226,45,109,0.08); }
+
+        .sv-form-error-msg { font-family: 'Open Sans', sans-serif; font-size: 11px; font-weight: 700; color: #E22D6D; margin: 0; }
+        .sv-confirm-submit-btn {
+          background: #E22D6D; border: 2px solid #1C202B; border-radius: 10px;
+          padding: 10px 24px; font-family: 'Bangers', cursive; font-size: 17px;
+          letter-spacing: 1px; color: #ffffff; cursor: pointer;
+          box-shadow: 3px 3px 0 0 #1C202B; transition: all 150ms;
         }
-        .sv3-confirm:hover { background: #e6006d; }
-        .sv3-confirm .ms { font-family: "Material Symbols Outlined"; font-size: 16px; }
+        .sv-confirm-submit-btn:hover { background: #c0224f; transform: translateY(-2px); box-shadow: 5px 5px 0 0 #1C202B; }
 
         /* Confirmed View */
-        .sv3-conf-wrap {
+        .sv-confirmation-wrap {
           display: flex; flex-direction: column; align-items: center; justify-content: center;
-          padding: 24px 12px; text-align: center; gap: 14px;
+          padding: 20px 12px; text-align: center; gap: 12px;
         }
-        .sv3-check {
-          width: 70px; height: 70px; border-radius: 50%;
-          background: linear-gradient(135deg, #FF007F, #8E2DE2);
+        .sv-confirmed-check-circle {
+          width: 64px; height: 64px; border-radius: 50%;
+          background: #2BB04A; border: 3px solid #1C202B;
+          box-shadow: 4px 4px 0 0 #1C202B;
           display: flex; align-items: center; justify-content: center;
-          box-shadow: 0 0 36px rgba(255,0,127,0.5);
-          animation: sv3-pop 0.5s ease;
+          animation: sv-confetti-pop 0.5s ease;
+          font-size: 32px; color: #ffffff; font-weight: bold;
         }
-        .sv3-check .ms { font-family: "Material Symbols Outlined"; font-size: 36px; color: #ffffff; font-variation-settings: "FILL" 1; }
-        .sv3-conf-title { font-family: "Inter", sans-serif; font-size: clamp(24px, 4vw, 36px); font-weight: 900; color: #ffffff; }
-        .sv3-conf-sub { font-family: "Inter", sans-serif; font-size: 13px; color: rgba(255,255,255,0.6); max-width: 320px; line-height: 1.5; }
-        .sv3-conf-sub span { color: #FF007F; font-weight: 700; }
-        .sv3-conf-close {
-          background: #FF007F; border: none; border-radius: 10px; padding: 10px 24px; cursor: pointer;
-          font-family: "Inter", sans-serif; font-size: 13px; font-weight: 700; color: #ffffff;
+        .sv-confirmed-heading {
+          font-family: 'Bangers', cursive; font-size: 32px; letter-spacing: 1.5px; color: #ffffff; margin: 0;
+        }
+        .sv-confirmed-desc {
+          font-family: 'Open Sans', sans-serif; font-size: 13px; color: rgba(255,255,255,0.7);
+          max-width: 340px; line-height: 1.5; margin: 0;
+        }
+        .sv-confirmed-desc span { color: #E22D6D; font-weight: 700; }
+        .sv-close-done-btn {
+          background: #E22D6D; border: 2px solid #1C202B; border-radius: 10px;
+          padding: 8px 24px; font-family: 'Bangers', cursive; font-size: 16px;
+          color: #ffffff; cursor: pointer; box-shadow: 3px 3px 0 0 #1C202B;
         }
 
         /* ══════════════════════════════════════════
-           MOBILE RESPONSIVENESS OVERHAUL (Mobile Phones & Tablets)
+           MOBILE RESPONSIVENESS OVERHAUL
         ══════════════════════════════════════════ */
         @media (max-width: 820px) {
-          .sv3-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-          .sv3-fields { grid-template-columns: 1fr 1fr; }
-          .sv3-header { padding: 16px 20px 28px; }
-          .sv3-body { padding: 0 18px 18px; }
+          .sv-cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+          .sv-form-fields-grid { grid-template-columns: 1fr 1fr; }
+          .sv-modal-header { padding: 12px 18px 14px; }
+          .sv-modal-body { padding: 12px 16px 14px; }
         }
 
         @media (max-width: 600px) {
-          .sv3-backdrop { padding: 8px; }
-          .sv3-modal { border-radius: 18px; max-height: 95vh; }
+          .sv-modal-backdrop { padding: 8px; }
+          .sv-modal-container { border-radius: 18px; max-height: 96vh; }
           
           /* Compact Header Layout for Mobile */
-          .sv3-header { padding: 14px 16px 24px; text-align: left; }
-          .sv3-header-inner { flex-direction: row; align-items: center; gap: 12px; text-align: left; }
-          .sv3-logo-box { width: 42px; height: 42px; margin-bottom: 0; flex-shrink: 0; }
-          .sv3-headline { font-size: 22px; letter-spacing: -0.5px; margin: 0; }
-          .sv3-tagline { font-size: 10px; margin-bottom: 1px; }
-          .sv3-subtext { display: none; } /* Hide heavy subtext on small phones to save height */
-          .sv3-badges { display: none; }  /* Hide extra badges on small mobile screens */
+          .sv-modal-header { padding: 10px 14px 12px; }
+          .sv-lottie-top { width: 70px; height: 50px; margin-bottom: 0; }
+          .sv-logo-badge { width: 38px; height: 38px; }
+          .sv-headline-title { font-size: 22px; letter-spacing: 1px; }
+          .sv-tagline-text { font-size: 9.5px; }
+          .sv-subtext-desc { display: none; } /* Hide heavy subtext on small screens */
+          .sv-header-badges { display: none; }
 
           /* Mobile Grid */
-          .sv3-grid { grid-template-columns: 1fr; gap: 8px; }
-          .sv3-card { padding: 12px 14px; border-radius: 14px; }
-          .sv3-icon-sq { width: 32px; height: 32px; margin-bottom: 6px; border-radius: 8px; }
-          .sv3-icon-sq .ms { font-size: 17px; }
-          .sv3-card-title { font-size: 13px; margin-bottom: 4px; }
-          .sv3-card-bar { display: none; }
-          .sv3-card-list { gap: 2px; }
-          .sv3-card-item { font-size: 10px; }
+          .sv-cards-grid { grid-template-columns: 1fr; gap: 8px; }
+          .sv-service-card { padding: 12px 14px; }
+          .sv-card-icon-img { width: 30px; height: 30px; margin-bottom: 6px; }
+          .sv-card-title-text { font-size: 15px; margin-bottom: 4px; }
+          .sv-card-accent-bar { display: none; }
+          .sv-card-ul { gap: 2px; }
+          .sv-card-li { font-size: 10.5px; }
 
-          .sv3-body { padding: 0 12px 14px; }
-          .sv3-pill-row { padding: 8px 0 6px; }
+          .sv-modal-body { padding: 10px 12px 12px; }
+          .sv-pill-header { padding-bottom: 4px; }
 
           /* Mobile CTA Banner */
-          .sv3-cta { padding: 10px 12px; flex-direction: column; align-items: stretch; gap: 8px; }
-          .sv3-cta-left { gap: 10px; }
-          .sv3-cal-icon { width: 32px; height: 32px; }
-          .sv3-cal-icon .ms { font-size: 16px; }
-          .sv3-cta-title { font-size: 13px; }
-          .sv3-cta-sub { font-size: 10px; }
-          .sv3-book-btn { width: 100%; justify-content: center; padding: 10px 16px; font-size: 11px; }
+          .sv-cta-banner-row { padding: 10px 12px; flex-direction: column; align-items: stretch; gap: 8px; }
+          .sv-cta-left-content { gap: 10px; }
+          .sv-cta-icon-box { width: 34px; height: 34px; }
+          .sv-cta-icon-box img { width: 18px; height: 18px; }
+          .sv-cta-heading { font-size: 17px; }
+          .sv-cta-subheading { font-size: 10px; }
+          .sv-book-call-btn { width: 100%; justify-content: center; padding: 10px 16px; font-size: 15px; }
 
-          /* Mobile Booking */
-          .sv3-fields { grid-template-columns: 1fr; }
-          .sv3-confirm { width: 100%; justify-content: center; }
+          /* Mobile Form */
+          .sv-form-fields-grid { grid-template-columns: 1fr; }
+          .sv-confirm-submit-btn { width: 100%; justify-content: center; }
         }
       `}</style>
 
-      <div className="sv3-backdrop" onClick={(e) => { if (e.target === e.currentTarget) close(); }}>
-        <div className="sv3-modal">
+      <div className="sv-modal-backdrop" onClick={(e) => { if (e.target === e.currentTarget) close(); }}>
+        <div className="sv-modal-container">
 
           {/* Close button */}
-          <button className="sv3-close" onClick={close} aria-label="Close">
-            <span className="ms">close</span>
+          <button className="sv-modal-close-btn" onClick={close} aria-label="Close modal">
+            ✕
           </button>
 
           {/* ── HEADER ── */}
-          <div className="sv3-header">
-            <div className="sv3-header-inner">
-              <div className="sv3-logo-box">
-                <img src="/Portfolio-favi.png" alt="Sre Varshan" />
-              </div>
-              <div>
-                <p className="sv3-tagline">Let&apos;s build something</p>
-                <h2 className="sv3-headline">Extraordinary</h2>
-                <p className="sv3-subtext">
-                  I help startups &amp; teams turn ideas into <strong>AI-powered solutions</strong> at affordable prices.
-                </p>
-                <div className="sv3-badges">
-                  {["Clean Code", "Scalable Solutions", "Modern AI", "Real Results"].map((b) => (
-                    <span className="sv3-badge" key={b}>
-                      <span className="ms">check_circle</span>
-                      {b}
-                    </span>
-                  ))}
+          <div className="sv-modal-header">
+            {/* Lottie Animation at Top */}
+            <div className="sv-lottie-top">
+              <DotLottieReact
+                src="https://lottie.host/fdbd57ab-593d-4207-97d3-c0f0c80eea07/yj7ppgUSY8.lottie"
+                loop
+                autoplay
+              />
+            </div>
+
+            <div className="sv-header-row">
+              {/* Left-aligned SV Logo & Header Text */}
+              <div className="sv-header-left">
+                <div className="sv-logo-badge">
+                  <img src="/Portfolio-favi.png" alt="Sre Varshan" />
                 </div>
+                <div className="sv-header-info">
+                  <p className="sv-tagline-text">Let&apos;s build something</p>
+                  <h2 className="sv-headline-title">Extraordinary</h2>
+                  <p className="sv-subtext-desc">
+                    I help startups &amp; teams turn ideas into <strong>AI-powered solutions</strong> at affordable prices.
+                  </p>
+                </div>
+              </div>
+
+              {/* Badges on right side */}
+              <div className="sv-header-badges">
+                {["Clean Code", "Scalable Solutions", "Modern AI", "Real Results"].map((b) => (
+                  <span className="sv-badge-pill" key={b}>
+                    <span className="sv-badge-dot" /> {b}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
 
           {/* ── BODY ── */}
-          <div className="sv3-body">
+          <div className="sv-modal-body">
 
             {/* Services View */}
             {screen === "services" && (
               <>
-                <div className="sv3-pill-row">
-                  <span className="sv3-pill">How I can help you</span>
+                <div className="sv-pill-header">
+                  <span className="sv-section-tag">How I can help you</span>
                 </div>
 
-                {/* 3×2 Grid */}
-                <div className="sv3-grid">
-                  {SERVICES.map((s) => (
-                    <div className="sv3-card" key={s.title}>
-                      <div className="sv3-card-glow" />
-                      <div className="sv3-icon-sq">
-                        <span className="ms">{s.icon}</span>
-                      </div>
-                      <div className="sv3-card-title">{s.title}</div>
-                      <div className="sv3-card-bar" />
-                      <ul className="sv3-card-list">
+                {/* 3×2 Services Grid */}
+                <div className="sv-cards-grid">
+                  {SERVICES.map((s, i) => (
+                    <div
+                      className="sv-service-card"
+                      key={s.title}
+                      onMouseEnter={() => setCardHover(i)}
+                      onMouseLeave={() => setCardHover(null)}
+                    >
+                      <img className="sv-card-icon-img" src={s.icon} alt={s.title} />
+                      <h3 className="sv-card-title-text">{s.title}</h3>
+                      <div className="sv-card-accent-bar" style={{ background: s.accent }} />
+                      <ul className="sv-card-ul">
                         {s.items.map((item) => (
-                          <li className="sv3-card-item" key={item}>
-                            <span className="sv3-card-dot" />{item}
+                          <li className="sv-card-li" key={item}>
+                            <span className="sv-card-bullet" style={{ background: s.accent }} />
+                            {item}
                           </li>
                         ))}
                       </ul>
@@ -461,19 +561,19 @@ export default function ServicesModal() {
                 </div>
 
                 {/* CTA Row */}
-                <div className="sv3-cta">
-                  <div className="sv3-cta-left">
-                    <div className="sv3-cal-icon">
-                      <span className="ms">calendar_month</span>
+                <div className="sv-cta-banner-row">
+                  <div className="sv-cta-left-content">
+                    <div className="sv-cta-icon-box">
+                      <img src="/icons/mobile.png" alt="Call icon" />
                     </div>
                     <div>
-                      <div className="sv3-cta-title">Let&apos;s discuss your project</div>
-                      <div className="sv3-cta-sub">30-Min Free Discovery Call</div>
+                      <h4 className="sv-cta-heading">Let&apos;s discuss your project</h4>
+                      <p className="sv-cta-subheading">30-Min Free Discovery Call</p>
                     </div>
                   </div>
-                  <button className="sv3-book-btn" onClick={() => setScreen("booking")}>
-                    <span className="ms">calendar_month</span>
-                    BOOK A FREE CALL
+                  <button className="sv-book-call-btn" onClick={() => setScreen("booking")}>
+                    <img className="sv-call-icon-img" src="/icons/mobile.png" alt="Call" />
+                    BOOK A CALL NOW
                   </button>
                 </div>
               </>
@@ -481,51 +581,50 @@ export default function ServicesModal() {
 
             {/* Booking View */}
             {screen === "booking" && (
-              <div className="sv3-booking">
-                <div className="sv3-bk-head">
-                  <button className="sv3-back" onClick={() => { setScreen("services"); setSelDay(null); }}>← Back</button>
-                  Pick Your Date
+              <div className="sv-booking-view">
+                <div className="sv-booking-header-row">
+                  <button className="sv-back-nav-btn" onClick={() => { setScreen("services"); setSelDay(null); }}>← Back</button>
+                  <h3 className="sv-booking-title-text">Pick Your Date</h3>
                 </div>
 
-                <div className="sv3-days">
+                <div className="sv-calendar-strip">
                   {days.map((d, i) => (
                     <div
                       key={i}
-                      className={`sv3-day${selDay === i ? " on" : ""}`}
+                      className={`sv-day-card-pill${selDay === i ? " selected" : ""}`}
                       onClick={() => setSelDay(i)}
                       title={d.full}
                     >
-                      <span className="sv3-day-short">{d.short}</span>
-                      <span className="sv3-day-num">{d.num}</span>
-                      <span className="sv3-day-mon">{d.mon}</span>
+                      <span className="sv-day-short-name">{d.short}</span>
+                      <span className="sv-day-number">{d.num}</span>
+                      <span className="sv-day-month-name">{d.mon}</span>
                     </div>
                   ))}
                 </div>
 
-                <p className="sv3-sel-label">
+                <p className="sv-selected-date-indicator">
                   {selDay !== null ? `✓ Selected: ${days[selDay].full}` : "Select a date above"}
                 </p>
 
-                <div className="sv3-fields">
-                  <div className="sv3-field">
-                    <label className="sv3-flabel">Your Name *</label>
-                    <input className="sv3-finput" placeholder="Sre Varshan" value={name} onChange={(e) => setName(e.target.value)} />
+                <div className="sv-form-fields-grid">
+                  <div className="sv-input-field-group">
+                    <label className="sv-input-label">Your Name *</label>
+                    <input className="sv-form-input-element" placeholder="Sre Varshan" value={name} onChange={(e) => setName(e.target.value)} />
                   </div>
-                  <div className="sv3-field">
-                    <label className="sv3-flabel">Phone Number</label>
-                    <input className="sv3-finput" placeholder="+91 96006 22497" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                  <div className="sv-input-field-group">
+                    <label className="sv-input-label">Phone Number</label>
+                    <input className="sv-form-input-element" placeholder="+91 96006 22497" value={phone} onChange={(e) => setPhone(e.target.value)} />
                   </div>
-                  <div className="sv3-field">
-                    <label className="sv3-flabel">Email Address *</label>
-                    <input className="sv3-finput" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <div className="sv-input-field-group">
+                    <label className="sv-input-label">Email Address *</label>
+                    <input className="sv-form-input-element" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                   </div>
                 </div>
 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-                  <p className="sv3-err">{bookErr}</p>
-                  <button className="sv3-confirm" onClick={handleBook}>
-                    Confirm Booking
-                    <span className="ms">arrow_forward</span>
+                  <p className="sv-form-error-msg">{bookErr}</p>
+                  <button className="sv-confirm-submit-btn" onClick={handleBook}>
+                    Confirm Booking →
                   </button>
                 </div>
               </div>
@@ -533,17 +632,15 @@ export default function ServicesModal() {
 
             {/* Confirmed View */}
             {screen === "confirmed" && (
-              <div className="sv3-conf-wrap">
-                <div className="sv3-check">
-                  <span className="ms">check_circle</span>
-                </div>
-                <div className="sv3-conf-title">Slot Booked! 🎉</div>
-                <p className="sv3-conf-sub">
+              <div className="sv-confirmation-wrap">
+                <div className="sv-confirmed-check-circle">✓</div>
+                <h3 className="sv-confirmed-heading">Slot Booked! 🎉</h3>
+                <p className="sv-confirmed-desc">
                   Thanks <span>{name}</span>! Your call is locked in for{" "}
                   <span>{selDay !== null ? days[selDay].full : "your chosen date"}</span>.{" "}
                   I&apos;ll reach out to you soon!
                 </p>
-                <button className="sv3-conf-close" onClick={close}>Close ✕</button>
+                <button className="sv-close-done-btn" onClick={close}>Close ✕</button>
               </div>
             )}
 
