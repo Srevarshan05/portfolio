@@ -113,14 +113,14 @@ export default function ServicesModal() {
   const days = getNext7Days();
 
   useEffect(() => {
-    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v7")) return;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v8")) return;
     const t = setTimeout(() => setVisible(true), 3000);
     return () => clearTimeout(t);
   }, []);
 
   const close = () => {
     setVisible(false);
-    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v7", "1");
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v8", "1");
   };
 
   const handleBook = () => {
@@ -172,11 +172,11 @@ export default function ServicesModal() {
         }
         .sv-modal-close-btn:hover { background: #FF007F; border-color: #FF007F; transform: rotate(90deg); }
 
-        /* ── Page 1: Full Width 100% Uncropped Top Banner ── */
+        /* ── Top Banner Image with Smudge Fade Effect ── */
         .sv-top-banner-full {
           width: 100%;
           background: #ffffff;
-          border-bottom: 3px solid #1C202B;
+          position: relative;
           display: flex; align-items: center; justify-content: center;
           overflow: hidden; flex-shrink: 0;
         }
@@ -187,12 +187,18 @@ export default function ServicesModal() {
           object-fit: contain;
           display: block;
         }
+        /* Smudge gradient shadow transition at bottom of top card */
+        .sv-top-banner-smudge {
+          position: absolute; bottom: 0; left: 0; right: 0; height: 36px;
+          background: linear-gradient(to bottom, rgba(17,19,27,0) 0%, rgba(17,19,27,0.7) 60%, #11131b 100%);
+          pointer-events: none;
+        }
 
         /* ── Main Body Container ── */
         .sv-modal-body {
           background: #11131b;
           flex: 1; overflow-y: auto; overflow-x: hidden;
-          padding: 16px 24px 20px;
+          padding: 14px 24px 20px;
           display: flex; flex-direction: column; gap: 14px;
           scrollbar-width: thin;
           scrollbar-color: rgba(255,255,255,0.2) transparent;
@@ -266,23 +272,25 @@ export default function ServicesModal() {
           width: 6px; height: 6px; border-radius: 50%; background: #FF007F; flex-shrink: 0; margin-top: 5px;
         }
 
-        /* ── Bottom CTA Banner Card ── */
+        /* ── Bottom CTA Banner Card with Smudge Glow ── */
         .sv-cta-banner-card {
           background: #171a24;
           border: 1.5px solid rgba(255,255,255,0.1);
           border-radius: 20px;
-          padding: 16px 24px;
-          display: flex; flex-direction: column; gap: 12px;
-          margin-top: 4px;
-        }
-
-        .sv-cta-main-row {
+          padding: 18px 24px;
           display: flex; align-items: center; justify-content: space-between;
-          gap: 20px; flex-wrap: wrap;
+          gap: 20px; flex-wrap: wrap; margin-top: 6px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 0 20px rgba(255,0,127,0.05);
+          position: relative; overflow: hidden;
+        }
+        .sv-cta-banner-card::before {
+          content: ""; position: absolute; top: -20px; left: -20px; width: 120px; height: 120px;
+          background: radial-gradient(circle, rgba(255,0,127,0.15) 0%, transparent 70%);
+          pointer-events: none;
         }
 
         .sv-cta-quote-left {
-          display: flex; align-items: center; gap: 16px;
+          display: flex; align-items: center; gap: 16px; position: relative; z-index: 1;
         }
         .sv-quote-icon-badge {
           font-family: 'Bangers', cursive; font-size: 36px;
@@ -310,7 +318,7 @@ export default function ServicesModal() {
           cursor: pointer; display: flex; align-items: center; gap: 12px;
           transition: background 150ms, transform 100ms, box-shadow 150ms;
           box-shadow: 0 0 24px rgba(255,0,127,0.45);
-          white-space: nowrap;
+          white-space: nowrap; position: relative; z-index: 1;
         }
         .sv-big-pink-btn:hover {
           transform: translateY(-2px);
@@ -324,59 +332,38 @@ export default function ServicesModal() {
         }
         .sv-mobile-icon-circle img { width: 18px; height: 18px; object-fit: contain; }
 
-        /* Sub-bar badges */
-        .sv-sub-badges-row {
-          border-top: 1px solid rgba(255,255,255,0.08);
-          padding-top: 10px;
-          display: flex; align-items: center; justify-content: center; gap: 28px; flex-wrap: wrap;
-          font-family: 'Open Sans', sans-serif; font-size: 11.5px; font-weight: 700; color: rgba(255,255,255,0.75);
-        }
-        .sv-sub-badge-item { display: flex; align-items: center; gap: 6px; }
-        .sv-sub-badge-item span.pink { color: #FF007F; }
-
-        /* Bottom note */
-        .sv-bottom-trusted-note {
-          text-align: center; font-family: 'Open Sans', sans-serif;
-          font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 2px;
-          display: flex; align-items: center; justify-content: center; gap: 6px;
-        }
-        .sv-bottom-trusted-note span.pink { color: #FF007F; font-weight: 700; }
-
         /* ══════════════════════════════════════════
-           PAGE 2: BOOKING SCREEN (Vibrant Lottie Top Card + Split Layout)
+           PAGE 2: BOOKING SCREEN (Centered Large Lottie Top Card)
         ══════════════════════════════════════════ */
         .sv-booking-page-container {
           display: flex; flex-direction: column; gap: 14px;
         }
 
-        /* Large & Visible Lottie Top Banner Card for Page 2 */
+        /* Large & Centered Lottie Banner Card for Page 2 */
         .sv-booking-lottie-card {
           width: 100%;
           background: #ffffff;
           border-radius: 20px;
-          padding: 16px 24px;
-          display: flex; align-items: center; justify-content: space-between;
+          padding: 18px 24px;
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          text-align: center; gap: 6px;
           overflow: hidden;
           box-shadow: 0 8px 24px rgba(0,0,0,0.3);
           border: 3px solid #1C202B;
+          position: relative;
         }
-        .sv-booking-lottie-text-col {
-          text-align: left;
+        .sv-booking-lottie-wrap-center {
+          width: 240px; height: 150px;
+          display: flex; align-items: center; justify-content: center;
         }
         .sv-booking-lottie-title {
           font-family: 'Bangers', cursive;
-          font-size: 26px; letter-spacing: 1.5px; color: #11131b; margin: 0 0 4px;
+          font-size: 28px; letter-spacing: 1.5px; color: #11131b; margin: 0;
           text-transform: uppercase;
         }
         .sv-booking-lottie-sub {
           font-family: 'Open Sans', sans-serif;
           font-size: 13px; font-weight: 600; color: rgba(17,19,27,0.7); margin: 0;
-        }
-
-        .sv-booking-lottie-wrap {
-          width: 220px; height: 140px;
-          display: flex; align-items: center; justify-content: center;
-          flex-shrink: 0;
         }
 
         /* Booking Header Bar */
@@ -508,11 +495,12 @@ export default function ServicesModal() {
         }
 
         /* ══════════════════════════════════════════
-           MOBILE RESPONSIVENESS OVERHAUL (Native App Style)
+           MOBILE RESPONSIVENESS OVERHAUL (Dedicated Mobile App Grid Stack)
         ══════════════════════════════════════════ */
         @media (max-width: 840px) {
           .sv-cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
           .sv-booking-grid-split { grid-template-columns: 1fr; }
+          .sv-top-banner-full img { max-height: 170px; }
           .sv-modal-body { padding: 12px 16px 16px; }
         }
 
@@ -522,6 +510,7 @@ export default function ServicesModal() {
 
           .sv-top-banner-full img { max-height: 140px; }
 
+          /* Stacked Grid Layout on Mobile Phones */
           .sv-cards-grid { grid-template-columns: 1fr; gap: 10px; }
           .sv-service-card { padding: 14px 16px; border-radius: 16px; }
           .sv-card-icon-img { width: 34px; height: 34px; margin-bottom: 0; }
@@ -530,16 +519,16 @@ export default function ServicesModal() {
 
           .sv-modal-body { padding: 10px 12px 14px; }
 
-          .sv-cta-banner-card { padding: 12px 14px; }
-          .sv-cta-main-row { flex-direction: column; align-items: stretch; gap: 10px; }
+          .sv-cta-banner-card { padding: 14px; }
+          .sv-cta-main-row { flex-direction: column; align-items: stretch; gap: 12px; text-align: center; }
+          .sv-cta-quote-left { flex-direction: column; text-align: center; gap: 6px; }
           .sv-big-pink-btn { width: 100%; justify-content: center; font-size: 14px; padding: 12px 18px; }
 
           /* Mobile Page 2 Layout */
-          .sv-booking-lottie-card { height: auto; padding: 14px; flex-direction: column; text-align: center; gap: 8px; }
-          .sv-booking-lottie-text-col { text-align: center; }
-          .sv-booking-lottie-title { font-size: 20px; }
-          .sv-booking-lottie-sub { font-size: 11.5px; }
-          .sv-booking-lottie-wrap { width: 180px; height: 110px; }
+          .sv-booking-lottie-card { padding: 14px; }
+          .sv-booking-lottie-title { font-size: 22px; }
+          .sv-booking-lottie-sub { font-size: 12px; }
+          .sv-booking-lottie-wrap-center { width: 200px; height: 120px; }
 
           .sv-booking-col-card { padding: 14px; border-radius: 16px; }
           .sv-confirm-booking-btn { width: 100%; justify-content: center; }
@@ -557,9 +546,10 @@ export default function ServicesModal() {
           {/* ── PAGE 1 SERVICES VIEW ── */}
           {screen === "services" && (
             <>
-              {/* Full Width 100% Uncropped Top Banner Image (Model-top-card.png) */}
+              {/* Full Width Top Banner Image with Smudge Transition */}
               <div className="sv-top-banner-full">
                 <img src="/icons/Model-top-card.png" alt="Sre Varshan - Let's build something Extraordinary" />
+                <div className="sv-top-banner-smudge" />
               </div>
 
               {/* Main Body Section */}
@@ -591,7 +581,7 @@ export default function ServicesModal() {
                   ))}
                 </div>
 
-                {/* Bottom CTA Banner Card */}
+                {/* Bottom CTA Banner Card with Smudge Glow */}
                 <div className="sv-cta-banner-card">
                   <div className="sv-cta-main-row">
                     <div className="sv-cta-quote-left">
@@ -608,17 +598,6 @@ export default function ServicesModal() {
                       <span>BOOK A FREE DISCOVERY CALL</span>
                     </button>
                   </div>
-
-                  <div className="sv-sub-badges-row">
-                    <div className="sv-sub-badge-item"><span className="pink">✓</span> 30-Minute Call</div>
-                    <div className="sv-sub-badge-item"><span className="pink">✓</span> No Obligation</div>
-                    <div className="sv-sub-badge-item"><span className="pink">✈️</span> Let&apos;s Discuss Your Idea</div>
-                  </div>
-                </div>
-
-                {/* Bottom trusted note */}
-                <div className="sv-bottom-trusted-note">
-                  🛡️ Trusted by startups, founders &amp; businesses building <span className="pink">the future.</span>
                 </div>
               </div>
             </>
@@ -629,19 +608,17 @@ export default function ServicesModal() {
             <div className="sv-modal-body">
               <div className="sv-booking-page-container">
 
-                {/* Top Banner Card featuring Large Lottie Animation */}
+                {/* Top Banner Card featuring Centered Large Lottie Animation */}
                 <div className="sv-booking-lottie-card">
-                  <div className="sv-booking-lottie-text-col">
-                    <h3 className="sv-booking-lottie-title">BOOK A 1-ON-1 DISCOVERY CALL</h3>
-                    <p className="sv-booking-lottie-sub">Select your date &amp; time below to schedule our project call.</p>
-                  </div>
-                  <div className="sv-booking-lottie-wrap">
+                  <div className="sv-booking-lottie-wrap-center">
                     <DotLottieReact
                       src="https://lottie.host/fdbd57ab-593d-4207-97d3-c0f0c80eea07/yj7ppgUSY8.lottie"
                       loop
                       autoplay
                     />
                   </div>
+                  <h3 className="sv-booking-lottie-title">BOOK A 1-ON-1 DISCOVERY CALL</h3>
+                  <p className="sv-booking-lottie-sub">Select your date &amp; time below to schedule our project call.</p>
                 </div>
 
                 {/* Navigation Bar */}
