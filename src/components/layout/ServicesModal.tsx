@@ -5,7 +5,10 @@ import dynamic from "next/dynamic";
 
 const DotLottieReact = dynamic(
   () => import("@lottiefiles/dotlottie-react").then((mod) => mod.DotLottieReact),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => <div className="sv-lottie-placeholder">⌛ Loading...</div>,
+  }
 );
 
 type Screen = "services" | "booking" | "confirmed";
@@ -113,31 +116,36 @@ export default function ServicesModal() {
   const days = getNext7Days();
 
   useEffect(() => {
-    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v9")) return;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v10")) return;
     const t = setTimeout(() => setVisible(true), 3000);
     return () => clearTimeout(t);
   }, []);
 
   const close = () => {
     setVisible(false);
-    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v9", "1");
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v10", "1");
   };
 
   const handleBook = () => {
-    if (!name.trim())    { setBookErr("Please enter your name."); return; }
-    if (!email.trim())   { setBookErr("Please enter your email address."); return; }
+    const finalName  = name.trim() || "Guest";
+    const finalEmail = email.trim() || "contact@client.com";
+    setName(finalName);
+    setEmail(finalEmail);
     setBookErr("");
     setScreen("confirmed");
   };
 
   if (!visible) return null;
 
+  const currentDayText = days[selDay]?.full || days[0]?.full || "Selected Date";
+
   return (
     <>
       <style>{`
         @keyframes sv-modal-fade { from { opacity:0; } to { opacity:1; } }
         @keyframes sv-modal-pop  { from { opacity:0; transform:scale(0.96) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
-        @keyframes sv-confetti-pop { 0% { transform: scale(0.6); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes sv-confetti-pop { 0% { transform: scale(0.4); opacity: 0; } 60% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes sv-confetti-float { 0% { opacity:1; transform: translateY(0) rotate(0deg); } 100% { opacity:0; transform: translateY(120px) rotate(720deg); } }
 
         .sv-modal-backdrop {
           position: fixed; inset: 0; z-index: 9999;
@@ -326,6 +334,11 @@ export default function ServicesModal() {
           display: flex; flex-direction: column; gap: 14px;
         }
 
+        .sv-lottie-placeholder {
+          font-family: 'Open Sans', sans-serif; font-size: 12px; color: rgba(17,19,27,0.5);
+          font-weight: 700;
+        }
+
         /* Large & Centered Lottie Banner Card for Page 2 */
         .sv-booking-lottie-card {
           width: 100%;
@@ -338,7 +351,7 @@ export default function ServicesModal() {
           border: 3px solid #1C202B;
         }
         .sv-booking-lottie-wrap-center {
-          width: 320px; height: 180px;
+          width: 340px; height: 180px;
           display: flex; align-items: center; justify-content: center;
         }
 
@@ -443,40 +456,52 @@ export default function ServicesModal() {
         }
         .sv-confirm-booking-btn:hover { transform: translateY(-2px); box-shadow: 0 0 36px rgba(255,0,127,0.65); }
 
-        /* Confirmed Screen */
+        /* ── PAGE 3: CONFIRMED ANIMATED SCREEN ── */
         .sv-confirmation-screen {
           display: flex; flex-direction: column; align-items: center; justify-content: center;
-          padding: 36px 16px; text-align: center; gap: 14px;
-        }
-        .sv-confirmed-check {
-          width: 76px; height: 76px; border-radius: 50%;
-          background: #2BB04A; border: 3px solid #ffffff;
-          box-shadow: 0 0 32px rgba(43,176,74,0.5);
-          display: flex; align-items: center; justify-content: center;
-          font-size: 38px; color: #ffffff; font-weight: bold;
+          padding: 44px 20px; text-align: center; gap: 16px; position: relative;
           animation: sv-confetti-pop 0.5s ease;
         }
+        .sv-confetti-ring {
+          display: flex; gap: 10px; position: absolute; top: 20px; pointer-events: none;
+        }
+        .sv-confetti-particle {
+          width: 10px; height: 10px; border-radius: 50%;
+          animation: sv-confetti-float 1.2s ease-out forwards;
+        }
+        .sv-confirmed-check {
+          width: 80px; height: 80px; border-radius: 50%;
+          background: linear-gradient(135deg, #2BB04A 0%, #1c8835 100%);
+          border: 3px solid #ffffff;
+          box-shadow: 0 0 36px rgba(43,176,74,0.6);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 42px; color: #ffffff; font-weight: bold;
+          animation: sv-confetti-pop 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
         .sv-confirmed-title {
-          font-family: 'Bangers', cursive; font-size: 36px; letter-spacing: 1.5px; color: #ffffff; margin: 0;
+          font-family: 'Bangers', cursive; font-size: 38px; letter-spacing: 1.5px; color: #ffffff; margin: 0;
+          text-shadow: 0 0 20px rgba(255,0,127,0.4);
         }
         .sv-confirmed-text {
-          font-family: 'Open Sans', sans-serif; font-size: 14px; color: rgba(255,255,255,0.75);
-          max-width: 360px; line-height: 1.5; margin: 0;
+          font-family: 'Open Sans', sans-serif; font-size: 14.5px; color: rgba(255,255,255,0.85);
+          max-width: 380px; line-height: 1.6; margin: 0;
         }
         .sv-confirmed-text span { color: #FF007F; font-weight: 700; }
         .sv-done-close-btn {
-          background: #FF007F; border: none; border-radius: 12px;
-          padding: 10px 28px; font-family: 'Bangers', cursive; font-size: 17px;
-          color: #ffffff; cursor: pointer; box-shadow: 0 0 16px rgba(255,0,127,0.4);
+          background: linear-gradient(135deg, #FF007F 0%, #e6006d 100%);
+          border: 2px solid #ffffff; border-radius: 12px;
+          padding: 12px 32px; font-family: 'Bangers', cursive; font-size: 18px;
+          letter-spacing: 1px; color: #ffffff; cursor: pointer;
+          box-shadow: 0 0 20px rgba(255,0,127,0.5); transition: all 150ms;
         }
+        .sv-done-close-btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255,0,127,0.7); }
 
         /* ══════════════════════════════════════════
-           MOBILE RESPONSIVENESS OVERHAUL (Dedicated Mobile App Grid Stack)
+           MOBILE RESPONSIVENESS OVERHAUL
         ══════════════════════════════════════════ */
         @media (max-width: 840px) {
           .sv-cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
           .sv-booking-grid-split { grid-template-columns: 1fr; }
-          .sv-top-banner-full img { max-height: 170px; }
           .sv-modal-body { padding: 12px 16px 16px; }
         }
 
@@ -484,9 +509,6 @@ export default function ServicesModal() {
           .sv-modal-backdrop { padding: 6px; }
           .sv-modal-container { border-radius: 20px; max-height: 96vh; }
 
-          .sv-top-banner-full img { max-height: 140px; }
-
-          /* Stacked Grid Layout on Mobile Phones */
           .sv-cards-grid { grid-template-columns: 1fr; gap: 10px; }
           .sv-service-card { padding: 14px 16px; border-radius: 16px; }
           .sv-card-icon-img { width: 34px; height: 34px; margin-bottom: 0; }
@@ -501,10 +523,8 @@ export default function ServicesModal() {
           .sv-big-pink-btn { width: 100%; justify-content: center; font-size: 14px; padding: 12px 18px; }
 
           /* Mobile Page 2 Layout */
-          .sv-booking-lottie-card { padding: 14px; }
-          .sv-booking-lottie-title { font-size: 22px; }
-          .sv-booking-lottie-sub { font-size: 12px; }
-          .sv-booking-lottie-wrap-center { width: 200px; height: 120px; }
+          .sv-booking-lottie-card { padding: 12px; }
+          .sv-booking-lottie-wrap-center { width: 240px; height: 130px; }
 
           .sv-booking-col-card { padding: 14px; border-radius: 16px; }
           .sv-confirm-booking-btn { width: 100%; justify-content: center; }
@@ -581,7 +601,7 @@ export default function ServicesModal() {
             <div className="sv-modal-body">
               <div className="sv-booking-page-container">
 
-                {/* Top Banner Card featuring Centered Large Lottie Animation */}
+                {/* Top Banner Card featuring Centered Large Lottie Animation Only */}
                 <div className="sv-booking-lottie-card">
                   <div className="sv-booking-lottie-wrap-center">
                     <DotLottieReact
@@ -656,7 +676,7 @@ export default function ServicesModal() {
 
                     {/* Submit Button */}
                     <div style={{ marginTop: "auto" }}>
-                      {bookErr && <p className="sv-form-error-msg" style={{ marginBottom: "8px", color: "#FF007F", fontWeight: 700 }}>{bookErr}</p>}
+                      {bookErr && <p style={{ marginBottom: "8px", color: "#FF007F", fontWeight: 700, fontSize: "12px" }}>{bookErr}</p>}
                       <button className="sv-confirm-booking-btn" onClick={handleBook}>
                         CONFIRM BOOKING →
                       </button>
@@ -669,15 +689,23 @@ export default function ServicesModal() {
             </div>
           )}
 
-          {/* ── PAGE 3 CONFIRMED VIEW ── */}
+          {/* ── PAGE 3 CONFIRMED VIEW WITH CONFETTI ANIMATION ── */}
           {screen === "confirmed" && (
             <div className="sv-modal-body">
               <div className="sv-confirmation-screen">
+
+                {/* Confetti particles */}
+                <div className="sv-confetti-ring">
+                  {["#FF007F", "#FFB020", "#2DC8E2", "#2BB04A", "#8E2DE2", "#FF7043", "#FF007F", "#FFB020"].map((c, i) => (
+                    <span key={i} className="sv-confetti-particle" style={{ background: c, animationDelay: `${i * 90}ms` }} />
+                  ))}
+                </div>
+
                 <div className="sv-confirmed-check">✓</div>
                 <h3 className="sv-confirmed-title">SLOT BOOKED! 🎉</h3>
                 <p className="sv-confirmed-text">
-                  Thanks <span>{name}</span>! Your call is scheduled for{" "}
-                  <span>{days[selDay].full} at {selTime}</span>.
+                  Thanks <span>{name || "Guest"}</span>! Your call is locked in for{" "}
+                  <span>{currentDayText} at {selTime}</span>.
                   I&apos;ll reach out to you soon!
                 </p>
                 <button className="sv-done-close-btn" onClick={close}>CLOSE ✕</button>
