@@ -33,7 +33,7 @@ const SERVICES = [
   {
     icon: "/icons/website.png",
     title: "MODERN WEBSITES",
-    accent: "#00b4d8",
+    accent: "#E22D6D",
     items: [
       "Static & Dynamic Websites",
       "Custom Web Applications",
@@ -44,7 +44,7 @@ const SERVICES = [
   {
     icon: "/icons/Chatbot.png",
     title: "AI ASSISTANTS & CHATBOTS",
-    accent: "#00b4d8",
+    accent: "#2DC8E2",
     items: [
       "Smart AI Chatbots",
       "Custom Trained Models",
@@ -113,14 +113,14 @@ export default function ServicesModal() {
   const days = getNext7Days();
 
   useEffect(() => {
-    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v6")) return;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v7")) return;
     const t = setTimeout(() => setVisible(true), 3000);
     return () => clearTimeout(t);
   }, []);
 
   const close = () => {
     setVisible(false);
-    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v6", "1");
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v7", "1");
   };
 
   const handleBook = () => {
@@ -149,8 +149,8 @@ export default function ServicesModal() {
         }
 
         .sv-modal-container {
-          position: relative; width: 100%; max-width: 1060px;
-          max-height: 94vh;
+          position: relative; width: 100%; max-width: 1040px;
+          max-height: 95vh;
           background: #11131b;
           border: 3px solid #1C202B;
           border-radius: 24px;
@@ -172,19 +172,19 @@ export default function ServicesModal() {
         }
         .sv-modal-close-btn:hover { background: #FF007F; border-color: #FF007F; transform: rotate(90deg); }
 
-        /* ── Full Width Top Banner Image ── */
+        /* ── Page 1: Full Width 100% Uncropped Top Banner ── */
         .sv-top-banner-full {
           width: 100%;
           background: #ffffff;
+          border-bottom: 3px solid #1C202B;
           display: flex; align-items: center; justify-content: center;
           overflow: hidden; flex-shrink: 0;
-          line-height: 0;
         }
         .sv-top-banner-full img {
           width: 100%;
           height: auto;
-          max-height: 220px;
-          object-fit: cover;
+          max-height: 240px;
+          object-fit: contain;
           display: block;
         }
 
@@ -209,7 +209,7 @@ export default function ServicesModal() {
         }
         .sv-section-tag {
           font-family: 'Open Sans', sans-serif;
-          font-size: 10px; font-weight: 800; text-transform: uppercase;
+          font-size: 10.5px; font-weight: 800; text-transform: uppercase;
           letter-spacing: 2px; color: #ffffff;
           background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
           padding: 4px 20px; border-radius: 9999px;
@@ -248,9 +248,9 @@ export default function ServicesModal() {
         .sv-service-card:hover .sv-card-icon-img { transform: scale(1.12) rotate(-4deg); }
 
         .sv-card-title-text {
-          font-family: 'Inter', sans-serif;
-          font-size: 15px; font-weight: 900; letter-spacing: -0.2px; color: #11131b;
-          margin: 0; line-height: 1.2; text-transform: uppercase;
+          font-family: 'Bangers', cursive;
+          font-size: 17px; letter-spacing: 1px; color: #11131b;
+          margin: 0; line-height: 1.15; text-transform: uppercase;
         }
 
         .sv-card-ul {
@@ -258,8 +258,8 @@ export default function ServicesModal() {
           display: flex; flex-direction: column; gap: 5px;
         }
         .sv-card-li {
-          font-family: 'Inter', sans-serif;
-          font-size: 12px; color: rgba(17,19,27,0.78); font-weight: 600;
+          font-family: 'Open Sans', sans-serif;
+          font-size: 12px; color: rgba(17,19,27,0.8); font-weight: 600;
           display: flex; align-items: flex-start; gap: 7px; line-height: 1.35;
         }
         .sv-card-bullet {
@@ -285,18 +285,18 @@ export default function ServicesModal() {
           display: flex; align-items: center; gap: 16px;
         }
         .sv-quote-icon-badge {
-          font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 900;
+          font-family: 'Bangers', cursive; font-size: 36px;
           color: #FF007F; line-height: 1; flex-shrink: 0;
         }
         .sv-quote-title {
-          font-family: 'Inter', sans-serif;
-          font-size: 14px; font-weight: 900; text-transform: uppercase;
-          color: #ffffff; letter-spacing: 0.5px; margin: 0 0 2px;
+          font-family: 'Bangers', cursive;
+          font-size: 18px; letter-spacing: 1px;
+          color: #ffffff; margin: 0 0 2px; text-transform: uppercase;
         }
         .sv-quote-title span { color: #FF007F; }
         .sv-quote-sub {
-          font-family: 'Inter', sans-serif;
-          font-size: 12px; color: rgba(255,255,255,0.6); margin: 0;
+          font-family: 'Open Sans', sans-serif;
+          font-size: 12px; color: rgba(255,255,255,0.65); margin: 0;
         }
 
         /* Big Pink "BOOK A FREE DISCOVERY CALL" Button */
@@ -305,9 +305,8 @@ export default function ServicesModal() {
           border: none;
           border-radius: 14px;
           padding: 14px 28px;
-          font-family: 'Inter', sans-serif;
-          font-size: 15px; font-weight: 900; font-style: italic;
-          letter-spacing: 0.5px; text-transform: uppercase; color: #ffffff;
+          font-family: 'Bangers', cursive;
+          font-size: 18px; letter-spacing: 1.5px; text-transform: uppercase; color: #ffffff;
           cursor: pointer; display: flex; align-items: center; gap: 12px;
           transition: background 150ms, transform 100ms, box-shadow 150ms;
           box-shadow: 0 0 24px rgba(255,0,127,0.45);
@@ -330,55 +329,69 @@ export default function ServicesModal() {
           border-top: 1px solid rgba(255,255,255,0.08);
           padding-top: 10px;
           display: flex; align-items: center; justify-content: center; gap: 28px; flex-wrap: wrap;
-          font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7);
+          font-family: 'Open Sans', sans-serif; font-size: 11.5px; font-weight: 700; color: rgba(255,255,255,0.75);
         }
         .sv-sub-badge-item { display: flex; align-items: center; gap: 6px; }
         .sv-sub-badge-item span.pink { color: #FF007F; }
 
         /* Bottom note */
         .sv-bottom-trusted-note {
-          text-align: center; font-family: 'Inter', sans-serif;
-          font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px;
+          text-align: center; font-family: 'Open Sans', sans-serif;
+          font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 2px;
           display: flex; align-items: center; justify-content: center; gap: 6px;
         }
         .sv-bottom-trusted-note span.pink { color: #FF007F; font-weight: 700; }
 
         /* ══════════════════════════════════════════
-           PAGE 2: BOOKING SCREEN (Lottie Top + Split Layout)
+           PAGE 2: BOOKING SCREEN (Vibrant Lottie Top Card + Split Layout)
         ══════════════════════════════════════════ */
         .sv-booking-page-container {
           display: flex; flex-direction: column; gap: 14px;
         }
 
-        /* Top Lottie Card Banner for Booking Screen */
+        /* Large & Visible Lottie Top Banner Card for Page 2 */
         .sv-booking-lottie-card {
           width: 100%;
           background: #ffffff;
-          border-radius: 18px;
-          padding: 12px;
-          display: flex; align-items: center; justify-content: center;
+          border-radius: 20px;
+          padding: 16px 24px;
+          display: flex; align-items: center; justify-content: space-between;
           overflow: hidden;
-          box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-          height: 140px;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+          border: 3px solid #1C202B;
         }
-        .sv-booking-lottie-wrap {
-          width: 160px; height: 120px;
-          display: flex; align-items: center; justify-content: center;
+        .sv-booking-lottie-text-col {
+          text-align: left;
+        }
+        .sv-booking-lottie-title {
+          font-family: 'Bangers', cursive;
+          font-size: 26px; letter-spacing: 1.5px; color: #11131b; margin: 0 0 4px;
+          text-transform: uppercase;
+        }
+        .sv-booking-lottie-sub {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 13px; font-weight: 600; color: rgba(17,19,27,0.7); margin: 0;
         }
 
-        /* Booking Header Row */
+        .sv-booking-lottie-wrap {
+          width: 220px; height: 140px;
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+        }
+
+        /* Booking Header Bar */
         .sv-booking-nav-bar {
           display: flex; align-items: center; justify-content: space-between;
         }
         .sv-booking-title-heading {
-          font-family: 'Inter', sans-serif;
-          font-size: 22px; font-weight: 900; letter-spacing: -0.5px; color: #ffffff; margin: 0;
+          font-family: 'Bangers', cursive;
+          font-size: 24px; letter-spacing: 1.5px; color: #ffffff; margin: 0;
           text-transform: uppercase;
         }
         .sv-back-to-services-btn {
-          background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15);
+          background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.18);
           border-radius: 10px; padding: 6px 16px;
-          font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700;
+          font-family: 'Open Sans', sans-serif; font-size: 11.5px; font-weight: 700;
           color: #ffffff; cursor: pointer; text-transform: uppercase; transition: all 150ms;
         }
         .sv-back-to-services-btn:hover { background: #FF007F; border-color: #FF007F; }
@@ -390,30 +403,31 @@ export default function ServicesModal() {
 
         .sv-booking-col-card {
           background: #171a24;
-          border: 1.5px solid rgba(255,255,255,0.08);
-          border-radius: 18px;
-          padding: 18px;
-          display: flex; flex-direction: column; gap: 12px;
+          border: 1.5px solid rgba(255,255,255,0.12);
+          border-radius: 20px;
+          padding: 20px;
+          display: flex; flex-direction: column; gap: 14px;
         }
         .sv-col-card-title {
-          font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800;
+          font-family: 'Open Sans', sans-serif; font-size: 11px; font-weight: 800;
           text-transform: uppercase; letter-spacing: 1.5px; color: #FF007F;
           border-left: 3px solid #FF007F; padding-left: 8px; margin: 0;
         }
 
         /* Form Inputs */
-        .sv-form-field { display: flex; flex-direction: column; gap: 4px; }
+        .sv-form-field { display: flex; flex-direction: column; gap: 5px; }
         .sv-form-label {
-          font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700;
-          color: rgba(255,255,255,0.7);
+          font-family: 'Open Sans', sans-serif; font-size: 12px; font-weight: 700;
+          color: #ffffff;
         }
         .sv-form-input {
-          background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
-          border-radius: 10px; padding: 10px 14px;
-          font-family: 'Inter', sans-serif; font-size: 13px; color: #ffffff;
+          background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.18);
+          border-radius: 10px; padding: 11px 14px;
+          font-family: 'Open Sans', sans-serif; font-size: 13.5px; color: #ffffff;
           outline: none; width: 100%; box-sizing: border-box; transition: border-color 150ms;
         }
-        .sv-form-input:focus { border-color: #FF007F; background: rgba(255,0,127,0.08); }
+        .sv-form-input::placeholder { color: rgba(255,255,255,0.5); }
+        .sv-form-input:focus { border-color: #FF007F; background: rgba(255,0,127,0.1); }
 
         /* Date Strip Pills */
         .sv-dates-pill-strip {
@@ -422,35 +436,35 @@ export default function ServicesModal() {
         .sv-dates-pill-strip::-webkit-scrollbar { display: none; }
         .sv-date-pill-item {
           flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
-          background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1);
-          border-radius: 12px; padding: 8px 12px; cursor: pointer; min-width: 54px;
-          transition: all 180ms; font-family: 'Inter', sans-serif;
+          background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.15);
+          border-radius: 12px; padding: 10px 14px; cursor: pointer; min-width: 58px;
+          transition: all 180ms; font-family: 'Open Sans', sans-serif;
         }
-        .sv-date-pill-item:hover { background: rgba(255,0,127,0.15); border-color: #FF007F; transform: translateY(-2px); }
+        .sv-date-pill-item:hover { background: rgba(255,0,127,0.18); border-color: #FF007F; transform: translateY(-2px); }
         .sv-date-pill-item.selected {
-          background: #FF007F; border-color: #FF007F;
-          box-shadow: 0 4px 14px rgba(255,0,127,0.4); transform: translateY(-2px);
+          background: #FF007F; border-color: #ffffff;
+          box-shadow: 0 4px 14px rgba(255,0,127,0.5); transform: translateY(-2px);
         }
-        .sv-date-day-short { font-size: 9px; font-weight: 700; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+        .sv-date-day-short { font-size: 9.5px; font-weight: 700; text-transform: uppercase; color: rgba(255,255,255,0.7); }
         .sv-date-pill-item.selected .sv-date-day-short { color: #ffffff; }
-        .sv-date-num-big { font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 900; color: #ffffff; line-height: 1; margin: 2px 0; }
-        .sv-date-month-name { font-size: 9px; font-weight: 600; color: rgba(255,255,255,0.4); }
-        .sv-date-pill-item.selected .sv-date-month-name { color: rgba(255,255,255,0.85); }
+        .sv-date-num-big { font-family: 'Bangers', cursive; font-size: 22px; color: #ffffff; line-height: 1; margin: 2px 0; }
+        .sv-date-month-name { font-size: 9.5px; font-weight: 600; color: rgba(255,255,255,0.6); }
+        .sv-date-pill-item.selected .sv-date-month-name { color: rgba(255,255,255,0.9); }
 
         /* Time Slots Grid */
         .sv-time-slots-grid {
           display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
         }
         .sv-time-slot-btn {
-          background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.1);
-          border-radius: 10px; padding: 8px 6px;
-          font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700;
-          color: rgba(255,255,255,0.8); cursor: pointer; text-align: center;
+          background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.15);
+          border-radius: 10px; padding: 9px 6px;
+          font-family: 'Open Sans', sans-serif; font-size: 11.5px; font-weight: 700;
+          color: rgba(255,255,255,0.9); cursor: pointer; text-align: center;
           transition: all 150ms;
         }
-        .sv-time-slot-btn:hover { background: rgba(255,0,127,0.15); border-color: #FF007F; }
+        .sv-time-slot-btn:hover { background: rgba(255,0,127,0.18); border-color: #FF007F; }
         .sv-time-slot-btn.selected {
-          background: #FF007F; border-color: #FF007F; color: #ffffff;
+          background: #FF007F; border-color: #ffffff; color: #ffffff;
           box-shadow: 0 2px 10px rgba(255,0,127,0.4);
         }
 
@@ -458,71 +472,77 @@ export default function ServicesModal() {
           width: 100%;
           background: linear-gradient(135deg, #FF007F 0%, #e6006d 100%);
           border: none; border-radius: 12px;
-          padding: 13px 28px;
-          font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 900;
-          letter-spacing: 0.5px; text-transform: uppercase; color: #ffffff;
-          cursor: pointer; box-shadow: 0 0 20px rgba(255,0,127,0.4);
+          padding: 14px 28px;
+          font-family: 'Bangers', cursive; font-size: 18px;
+          letter-spacing: 1px; text-transform: uppercase; color: #ffffff;
+          cursor: pointer; box-shadow: 0 0 24px rgba(255,0,127,0.45);
           transition: all 150ms;
         }
-        .sv-confirm-booking-btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255,0,127,0.6); }
+        .sv-confirm-booking-btn:hover { transform: translateY(-2px); box-shadow: 0 0 36px rgba(255,0,127,0.65); }
 
         /* Confirmed Screen */
         .sv-confirmation-screen {
           display: flex; flex-direction: column; align-items: center; justify-content: center;
-          padding: 32px 16px; text-align: center; gap: 14px;
+          padding: 36px 16px; text-align: center; gap: 14px;
         }
         .sv-confirmed-check {
-          width: 72px; height: 72px; border-radius: 50%;
+          width: 76px; height: 76px; border-radius: 50%;
           background: #2BB04A; border: 3px solid #ffffff;
-          box-shadow: 0 0 30px rgba(43,176,74,0.5);
+          box-shadow: 0 0 32px rgba(43,176,74,0.5);
           display: flex; align-items: center; justify-content: center;
-          font-size: 36px; color: #ffffff; font-weight: bold;
+          font-size: 38px; color: #ffffff; font-weight: bold;
           animation: sv-confetti-pop 0.5s ease;
         }
         .sv-confirmed-title {
-          font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 900; color: #ffffff; margin: 0;
+          font-family: 'Bangers', cursive; font-size: 36px; letter-spacing: 1.5px; color: #ffffff; margin: 0;
         }
         .sv-confirmed-text {
-          font-family: 'Inter', sans-serif; font-size: 14px; color: rgba(255,255,255,0.7);
+          font-family: 'Open Sans', sans-serif; font-size: 14px; color: rgba(255,255,255,0.75);
           max-width: 360px; line-height: 1.5; margin: 0;
         }
         .sv-confirmed-text span { color: #FF007F; font-weight: 700; }
         .sv-done-close-btn {
           background: #FF007F; border: none; border-radius: 12px;
-          padding: 10px 28px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
+          padding: 10px 28px; font-family: 'Bangers', cursive; font-size: 17px;
           color: #ffffff; cursor: pointer; box-shadow: 0 0 16px rgba(255,0,127,0.4);
         }
 
         /* ══════════════════════════════════════════
-           MOBILE RESPONSIVENESS OVERHAUL
+           MOBILE RESPONSIVENESS OVERHAUL (Native App Style)
         ══════════════════════════════════════════ */
         @media (max-width: 840px) {
           .sv-cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
           .sv-booking-grid-split { grid-template-columns: 1fr; }
-          .sv-top-banner-full img { max-height: 170px; }
           .sv-modal-body { padding: 12px 16px 16px; }
         }
 
         @media (max-width: 600px) {
-          .sv-modal-backdrop { padding: 8px; }
-          .sv-modal-container { border-radius: 18px; max-height: 96vh; }
-          .sv-top-banner-full img { max-height: 130px; }
+          .sv-modal-backdrop { padding: 6px; }
+          .sv-modal-container { border-radius: 20px; max-height: 96vh; }
+
+          .sv-top-banner-full img { max-height: 140px; }
 
           .sv-cards-grid { grid-template-columns: 1fr; gap: 10px; }
           .sv-service-card { padding: 14px 16px; border-radius: 16px; }
           .sv-card-icon-img { width: 34px; height: 34px; margin-bottom: 0; }
-          .sv-card-title-text { font-size: 14px; }
-          .sv-card-li { font-size: 11px; }
+          .sv-card-title-text { font-size: 15px; }
+          .sv-card-li { font-size: 11.5px; }
 
           .sv-modal-body { padding: 10px 12px 14px; }
 
           .sv-cta-banner-card { padding: 12px 14px; }
           .sv-cta-main-row { flex-direction: column; align-items: stretch; gap: 10px; }
-          .sv-big-pink-btn { width: 100%; justify-content: center; font-size: 13px; padding: 12px 18px; }
+          .sv-big-pink-btn { width: 100%; justify-content: center; font-size: 14px; padding: 12px 18px; }
 
-          .sv-booking-lottie-card { height: 110px; }
-          .sv-booking-lottie-wrap { width: 130px; height: 90px; }
-          .sv-booking-grid-split { grid-template-columns: 1fr; gap: 10px; }
+          /* Mobile Page 2 Layout */
+          .sv-booking-lottie-card { height: auto; padding: 14px; flex-direction: column; text-align: center; gap: 8px; }
+          .sv-booking-lottie-text-col { text-align: center; }
+          .sv-booking-lottie-title { font-size: 20px; }
+          .sv-booking-lottie-sub { font-size: 11.5px; }
+          .sv-booking-lottie-wrap { width: 180px; height: 110px; }
+
+          .sv-booking-col-card { padding: 14px; border-radius: 16px; }
+          .sv-confirm-booking-btn { width: 100%; justify-content: center; }
         }
       `}</style>
 
@@ -537,7 +557,7 @@ export default function ServicesModal() {
           {/* ── PAGE 1 SERVICES VIEW ── */}
           {screen === "services" && (
             <>
-              {/* Full Width Top Banner Image (Model-top-card.png) */}
+              {/* Full Width 100% Uncropped Top Banner Image (Model-top-card.png) */}
               <div className="sv-top-banner-full">
                 <img src="/icons/Model-top-card.png" alt="Sre Varshan - Let's build something Extraordinary" />
               </div>
@@ -609,8 +629,12 @@ export default function ServicesModal() {
             <div className="sv-modal-body">
               <div className="sv-booking-page-container">
 
-                {/* Top Lottie Animation Card (Replaces photo card) */}
+                {/* Top Banner Card featuring Large Lottie Animation */}
                 <div className="sv-booking-lottie-card">
+                  <div className="sv-booking-lottie-text-col">
+                    <h3 className="sv-booking-lottie-title">BOOK A 1-ON-1 DISCOVERY CALL</h3>
+                    <p className="sv-booking-lottie-sub">Select your date &amp; time below to schedule our project call.</p>
+                  </div>
                   <div className="sv-booking-lottie-wrap">
                     <DotLottieReact
                       src="https://lottie.host/fdbd57ab-593d-4207-97d3-c0f0c80eea07/yj7ppgUSY8.lottie"
@@ -684,7 +708,7 @@ export default function ServicesModal() {
 
                     {/* Submit Button */}
                     <div style={{ marginTop: "auto" }}>
-                      {bookErr && <p className="sv-form-error-msg" style={{ marginBottom: "8px" }}>{bookErr}</p>}
+                      {bookErr && <p className="sv-form-error-msg" style={{ marginBottom: "8px", color: "#FF007F", fontWeight: 700 }}>{bookErr}</p>}
                       <button className="sv-confirm-booking-btn" onClick={handleBook}>
                         CONFIRM BOOKING →
                       </button>
