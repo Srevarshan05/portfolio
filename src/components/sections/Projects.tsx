@@ -39,7 +39,7 @@ const PROJECTS = [
       { icon: "🏛️", text: "Government Patented" }
     ],
     btnText: "READ PATENT",
-    btnLink: "https://github.com/srevarshan",
+    btnLink: "https://drive.google.com/file/d/1aHz-L_QBa_YLxD9TSk-3CfKgHFpKw0RI/view?usp=sharing",
   },
   {
     id: "nutriminds",
