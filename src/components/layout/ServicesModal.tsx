@@ -118,14 +118,14 @@ export default function ServicesModal() {
   const days = getNext7Days();
 
   useEffect(() => {
-    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v13")) return;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v15")) return;
     const t = setTimeout(() => setVisible(true), 3000);
     return () => clearTimeout(t);
   }, []);
 
   const close = () => {
     setVisible(false);
-    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v13", "1");
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v15", "1");
   };
 
   const handleBook = async () => {
@@ -138,28 +138,18 @@ export default function ServicesModal() {
     setEmail(finalEmail);
     setSending(true);
 
+    const mailSubject = `🔥 NEW DISCOVERY CALL BOOKING: ${finalName}`;
+
     const bookingPayload = {
       name: finalName,
       email: finalEmail,
       phone: finalPhone,
       date: selectedDateStr,
       time: selTime,
-      subject: `🔥 NEW DISCOVERY CALL BOOKING: ${finalName}`,
-      message: `
-📅 NEW 1-ON-1 DISCOVERY CALL BOOKING
-==================================================
-👤 Client Name: ${finalName}
-✉️ Email: ${finalEmail}
-📞 Phone: ${finalPhone}
-
-📆 Scheduled Date: ${selectedDateStr}
-⏰ Scheduled Time: ${selTime}
-==================================================
-Destination Email: srevarshan9600622@gmail.com
-      `,
+      subject: mailSubject,
     };
 
-    // Service 1: Direct HTTP Dispatch to FormSubmit (Sends straight to srevarshan9600622@gmail.com)
+    // Service 1: FormSubmit Client API with Styled Table Template
     try {
       await fetch("https://formsubmit.co/ajax/srevarshan9600622@gmail.com", {
         method: "POST",
@@ -168,13 +158,15 @@ Destination Email: srevarshan9600622@gmail.com
           "Accept": "application/json",
         },
         body: JSON.stringify({
-          name: finalName,
-          email: finalEmail,
-          phone: finalPhone,
-          date: selectedDateStr,
-          time: selTime,
-          _subject: bookingPayload.subject,
-          message: bookingPayload.message,
+          _subject: mailSubject,
+          _template: "table",
+          _captcha: "false",
+          _url: "https://srevarshan.in",
+          "Client Name": finalName,
+          "Email Address": finalEmail,
+          "Phone Number": finalPhone,
+          "Scheduled Date": selectedDateStr,
+          "Scheduled Time Slot": selTime,
         }),
       });
     } catch (e) {
@@ -208,7 +200,6 @@ Destination Email: srevarshan9600622@gmail.com
           phone_number: finalPhone,
           booking_date: selectedDateStr,
           booking_time: selTime,
-          message: bookingPayload.message,
         },
         emailjsPublicKey
       );
@@ -216,7 +207,7 @@ Destination Email: srevarshan9600622@gmail.com
       console.log("EmailJS dispatch completed:", e);
     }
 
-    // Save locally so no booking data is lost
+    // Save locally
     try {
       if (typeof localStorage !== "undefined") {
         const prev = JSON.parse(localStorage.getItem("sv-bookings") || "[]");
