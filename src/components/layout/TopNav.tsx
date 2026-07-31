@@ -113,25 +113,23 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
             flexShrink:     0,
           }}
         >
-          {/* Circular badge container SV logo */}
+          {/* Favicon logo image */}
           <div
             aria-hidden="true"
             style={{
-              width:           "36px",
-              height:          "36px",
-              background:      "#1C202B",
-              borderRadius:    "50%",
-              display:         "flex",
-              alignItems:      "center",
-              justifyContent:  "center",
-              color:           "white",
-              fontFamily:      "'Bangers', cursive",
-              fontSize:        "16px",
-              letterSpacing:   "0.5px",
-              flexShrink:      0,
+              width:        "36px",
+              height:       "36px",
+              borderRadius: "50%",
+              overflow:     "hidden",
+              flexShrink:   0,
+              border:       "2px solid #1C202B",
             }}
           >
-            SV
+            <img
+              src="/Portfolio-favi.png"
+              alt="Sre Varshan logo"
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            />
           </div>
 
           {/* Name & Title (hidden on compact mobile mode) */}

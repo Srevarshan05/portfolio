@@ -16,6 +16,7 @@ import Footer              from "@/components/layout/Footer";
 
 import TopNav            from "@/components/layout/TopNav";
 import CommandPalette    from "@/components/layout/CommandPalette";
+import ServicesModal     from "@/components/layout/ServicesModal";
 
 export default function Home() {
   const [cmdOpen, setCmdOpen] = useState(false);
@@ -34,6 +35,9 @@ export default function Home() {
 
   return (
     <>
+      {/* ── Services popup modal (shown after 3s) ── */}
+      <ServicesModal />
+
       {/* ── Fixed top navigation ── */}
       <TopNav onCommandPaletteOpen={() => setCmdOpen(true)} />
 
