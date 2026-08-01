@@ -599,33 +599,82 @@ export default function ServicesModal() {
 
         /* ── RESPONSIVE ────────────────────────────────────────────── */
         @media (max-width: 860px) {
-          .bk-modal { flex-direction: column; max-height: 96vh; }
-          .bk-left { width: 100%; flex-direction: row; align-items: center; flex-shrink: 0; border-right: none; border-bottom: 1.5px solid #f0f0f0; }
-          .bk-profile-photo { width: 120px; height: 120px; min-height: unset; flex-shrink: 0; border-radius: 0; overflow: hidden; }
-          .bk-profile-photo img { height: 120px; }
-          .bk-bio { border-bottom: none; border-right: 1px solid #ececec; padding: 12px 16px; }
-          .bk-services-list { display: none; }
-          .bk-bottom-banner { display: none; }
-          .bk-right-body { grid-template-columns: 1fr; gap: 20px; }
-          .bk-right-header { padding: 18px 20px 14px; }
-          .bk-right-body { padding: 16px 20px; }
-          .bk-footer { padding: 14px 20px; }
-        }
-
-        @media (max-width: 600px) {
-          .bk-modal { border-radius: 20px; }
-          .bk-left { display: block; }
-          .bk-profile-photo { width: 100%; height: 180px; }
-          .bk-profile-photo img { height: 180px; width: 100%; object-fit: cover; object-position: top; }
-          .bk-bio { border-right: none; border-bottom: 1px solid #ececec; }
-          .bk-services-list { display: flex; padding: 14px 16px; gap: 10px; }
-          .bk-bottom-banner { margin: 0 16px 16px; }
-          .bk-right-body { grid-template-columns: 1fr; gap: 16px; padding: 14px 16px; }
-          .bk-right-header { padding: 16px 16px 12px; }
-          .bk-header-title { font-size: 24px; }
-          .bk-footer { flex-direction: column; align-items: stretch; padding: 14px 16px; }
-          .bk-confirm-btn { justify-content: center; font-size: 17px; }
-          .bk-time-grid { grid-template-columns: repeat(2, 1fr); }
+          .bk-backdrop { padding: 8px; }
+          .bk-modal {
+            flex-direction: column;
+            max-height: 92vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 20px;
+          }
+          .bk-close {
+            position: sticky;
+            top: 12px;
+            right: 12px;
+            z-index: 100;
+            align-self: flex-end;
+            margin-bottom: -36px;
+            margin-right: 12px;
+          }
+          .bk-left {
+            width: 100%;
+            flex-shrink: 0;
+            overflow: visible;
+            border-right: none;
+            border-bottom: 1.5px solid #f0f0f0;
+          }
+          .bk-profile-photo {
+            width: 100%;
+            height: 180px;
+            min-height: unset;
+          }
+          .bk-profile-photo img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            object-position: top center;
+          }
+          .bk-bio {
+            padding: 16px 20px;
+            border-bottom: 1px solid #ececec;
+            border-right: none;
+          }
+          .bk-services-list {
+            display: flex;
+            flex-direction: column;
+            padding: 14px 20px;
+            gap: 10px;
+          }
+          .bk-bottom-banner {
+            margin: 0 20px 20px;
+          }
+          .bk-right {
+            width: 100%;
+            overflow: visible;
+            flex: none;
+          }
+          .bk-right-header {
+            padding: 20px 20px 14px;
+          }
+          .bk-right-body {
+            grid-template-columns: 1fr;
+            gap: 20px;
+            padding: 16px 20px;
+          }
+          .bk-footer {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 16px 20px 28px;
+          }
+          .bk-confirm-btn {
+            justify-content: center;
+            font-size: 17px;
+            width: 100%;
+          }
+          .bk-time-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
         }
       `}</style>
 
