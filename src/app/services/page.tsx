@@ -213,55 +213,6 @@ export default function ServicesPage() {
           display: block;
         }
 
-        /* ═══ SMUDGED SECTION DIVIDERS ═══════════════════════════════════ */
-        /* Soft smudged gradient blend between Hero & Services */
-        .sp-smudge-hero-services {
-          height: 90px;
-          background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-          position: relative;
-          overflow: hidden;
-        }
-        .sp-smudge-hero-services::before {
-          content: '';
-          position: absolute;
-          top: -40px; left: 20%; right: 20%; height: 80px;
-          background: radial-gradient(ellipse at center, rgba(226,45,109,0.12) 0%, transparent 70%);
-          filter: blur(20px);
-          pointer-events: none;
-        }
-
-        /* Soft smudged gradient blend between Services & Process (Dark) */
-        .sp-smudge-services-process {
-          height: 100px;
-          background: linear-gradient(180deg, #f8fafc 0%, #1C202B 100%);
-          position: relative;
-          overflow: hidden;
-        }
-        .sp-smudge-services-process::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(circle at 50% 50%, rgba(226,45,109,0.15) 0%, transparent 65%);
-          filter: blur(25px);
-          pointer-events: none;
-        }
-
-        /* Soft smudged gradient blend between Process (Dark) & Expect */
-        .sp-smudge-process-expect {
-          height: 100px;
-          background: linear-gradient(180deg, #1C202B 0%, #f8fafc 100%);
-          position: relative;
-          overflow: hidden;
-        }
-        .sp-smudge-process-expect::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(circle at 50% 50%, rgba(226,45,109,0.15) 0%, transparent 65%);
-          filter: blur(25px);
-          pointer-events: none;
-        }
-
         /* ═══ SECTION SHELL ═════════════════════════════════════════════ */
         .sp-section {
           max-width: 1140px; margin: 0 auto;
@@ -333,23 +284,29 @@ export default function ServicesPage() {
         }
         .sp-svc-check { color: var(--brand); font-weight: 900; flex-shrink: 0; margin-top: 1px; font-size: 14px; }
 
-        /* ═══ PROCESS (DARK SECTION WITH ENHANCED FONTS & ICONS) ════════ */
-        .sp-process-outer {
-          background: var(--dark);
-          padding: 80px clamp(16px,4vw,48px);
-          position: relative; overflow: hidden;
+        /* ═══ PROCESS (CLEAN MODERN ROUNDED DARK CARD) ═════════════════ */
+        .sp-process-wrap {
+          padding: 30px clamp(16px, 4vw, 48px);
         }
-        .sp-process-outer::before {
+        .sp-process-card {
+          background: var(--dark);
+          border-radius: 32px;
+          padding: 64px clamp(24px, 5vw, 60px);
+          max-width: 1140px; margin: 0 auto;
+          position: relative; overflow: hidden;
+          box-shadow: 0 20px 60px rgba(28,32,43,0.22);
+          border: 1px solid rgba(255,255,255,0.08);
+        }
+        .sp-process-card::before {
           content: '';
           position: absolute; inset: 0;
           background:
-            radial-gradient(ellipse at 15% 80%, rgba(226,45,109,0.22) 0%, transparent 55%),
-            radial-gradient(ellipse at 85% 20%, rgba(226,45,109,0.15) 0%, transparent 50%);
-          filter: blur(30px);
+            radial-gradient(ellipse at 10% 90%, rgba(226,45,109,0.20) 0%, transparent 55%),
+            radial-gradient(ellipse at 90% 10%, rgba(226,45,109,0.12) 0%, transparent 50%);
           pointer-events: none;
         }
         .sp-process-inner {
-          max-width: 1140px; margin: 0 auto; position: relative; z-index: 2;
+          position: relative; z-index: 2;
         }
         .sp-process-eyebrow {
           font-size: 12px; font-weight: 800; text-transform: uppercase;
@@ -371,7 +328,7 @@ export default function ServicesPage() {
           position: absolute; top: 30px;
           left: calc(10% + 15px); right: calc(10% + 15px);
           height: 2px;
-          background: linear-gradient(90deg, rgba(226,45,109,0.3), rgba(255,255,255,0.2), rgba(226,45,109,0.3));
+          background: linear-gradient(90deg, rgba(226,45,109,0.4), rgba(255,255,255,0.2), rgba(226,45,109,0.4));
           z-index: 0;
         }
         .sp-process-step {
@@ -511,9 +468,6 @@ export default function ServicesPage() {
 
         </div>
 
-        {/* Smudged transition between Hero & Services */}
-        <div className="sp-smudge-hero-services" />
-
         {/* ══ SERVICES I PROVIDE ═════════════════════════════════════════ */}
         <section>
           <div className="sp-section">
@@ -543,28 +497,24 @@ export default function ServicesPage() {
           </div>
         </section>
 
-        {/* Smudged transition between Services & Process */}
-        <div className="sp-smudge-services-process" />
-
-        {/* ══ PROCESS (DARK SECTION WITH ENHANCED FONTS) ═════════════════ */}
-        <div className="sp-process-outer">
-          <div className="sp-process-inner">
-            <p className="sp-process-eyebrow">MY PROCESS</p>
-            <h2 className="sp-process-h2">How We Work Together</h2>
-            <div className="sp-process-steps">
-              {PROCESS.map((p) => (
-                <div className="sp-process-step" key={p.step}>
-                  <div className="sp-process-circle">{p.step}</div>
-                  <h3 className="sp-process-step-title">{p.label}</h3>
-                  <p className="sp-process-step-desc">{p.desc}</p>
-                </div>
-              ))}
+        {/* ══ PROCESS (CLEAN MODERN ROUNDED DARK CARD CONTAINER) ═════════ */}
+        <div className="sp-process-wrap">
+          <div className="sp-process-card">
+            <div className="sp-process-inner">
+              <p className="sp-process-eyebrow">MY PROCESS</p>
+              <h2 className="sp-process-h2">How We Work Together</h2>
+              <div className="sp-process-steps">
+                {PROCESS.map((p) => (
+                  <div className="sp-process-step" key={p.step}>
+                    <div className="sp-process-circle">{p.step}</div>
+                    <h3 className="sp-process-step-title">{p.label}</h3>
+                    <p className="sp-process-step-desc">{p.desc}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Smudged transition between Process & Expect */}
-        <div className="sp-smudge-process-expect" />
 
         {/* ══ EXPECT ════════════════════════════════════════════════════ */}
         <section>
