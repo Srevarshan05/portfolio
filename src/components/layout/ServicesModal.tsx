@@ -51,22 +51,22 @@ function buildCalendar(year: number, month: number) {
 /* ─── Services list (left panel) ────────────────────────────────────── */
 const SERVICES_LEFT = [
   {
-    icon: "⭐",
+    icon: "/icons/Gen-Ai.png",
     title: "AI-Powered Solutions",
     desc: "Custom AI solutions, chatbots, and automation that solve real problems.",
   },
   {
-    icon: "💻",
+    icon: "/icons/website.png",
     title: "Modern Web Development",
     desc: "Fast, responsive and scalable websites built for performance.",
   },
   {
-    icon: "🚀",
+    icon: "/icons/automation.png",
     title: "Business Automation",
     desc: "Streamline workflows and save time with intelligent automation.",
   },
   {
-    icon: "💬",
+    icon: "/icons/Consult.png",
     title: "Consulting & Strategy",
     desc: "From idea to execution — get the right AI strategy for your business.",
   },
@@ -646,22 +646,15 @@ export default function ServicesModal() {
             <div className="bk-services-list">
               {SERVICES_LEFT.map((s) => (
                 <div className="bk-svc-row" key={s.title}>
-                  <div className="bk-svc-icon">{s.icon}</div>
+                  <div className="bk-svc-icon">
+                    <img src={s.icon} alt={s.title} width={24} height={24} style={{objectFit:"contain"}} />
+                  </div>
                   <div>
                     <p className="bk-svc-title">{s.title}</p>
                     <p className="bk-svc-desc">{s.desc}</p>
                   </div>
                 </div>
               ))}
-            </div>
-
-            {/* Bottom Banner */}
-            <div className="bk-bottom-banner">
-              <span className="bk-banner-icon">✨</span>
-              <p className="bk-banner-text">
-                <strong>Helping small businesses and startups</strong>
-                build AI-powered products that create real value.
-              </p>
             </div>
           </div>
 
@@ -674,7 +667,9 @@ export default function ServicesModal() {
               <>
                 {/* Header */}
                 <div className="bk-right-header">
-                  <div className="bk-header-icon">📅</div>
+                  <div className="bk-header-icon">
+                    <img src="/icons/mobile.png" alt="Book a Call" width={32} height={32} style={{objectFit:"contain"}} />
+                  </div>
                   <div>
                     <h3 className="bk-header-title">BOOK A CALL</h3>
                     <p className="bk-header-sub">Let&apos;s discuss your project and explore how I can help you.</p>
@@ -738,13 +733,7 @@ export default function ServicesModal() {
                       </div>
                     </div>
 
-                    <div className="bk-privacy-box">
-                      <span className="bk-privacy-icon">🛡️</span>
-                      <p className="bk-privacy-text">
-                        <strong>Your data is safe with me.</strong>
-                        I respect your privacy and will never share your information with anyone.
-                      </p>
-                    </div>
+
                   </div>
 
                   {/* Right Col — Calendar & Time */}
