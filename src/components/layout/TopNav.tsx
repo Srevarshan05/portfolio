@@ -195,7 +195,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
               );
             })}
 
-            {/* ── Services Page Link ── */}
+            {/* ── Solutions Page Link ── */}
             <Link
               href="/services"
               id="nav-services-page"
@@ -220,7 +220,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
                 flexShrink:    0,
               }}
             >
-              Services
+              Solutions
             </Link>
           </nav>
         )}
@@ -331,7 +331,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
               display:       "block",
             }}
           >
-            Services
+            Solutions
           </Link>
         </div>
       )}

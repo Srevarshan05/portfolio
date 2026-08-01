@@ -427,7 +427,7 @@ export default function ServicesPage() {
           <ul className="sp-nav-links">
             <li><Link href="/">Home</Link></li>
             <li><Link href="/#about">About Me</Link></li>
-            <li><Link href="/services" className="sp-active">Services</Link></li>
+            <li><Link href="/services" className="sp-active">Solutions</Link></li>
             <li><Link href="/#projects">Work</Link></li>
             <li><Link href="/#contact">Contact Me</Link></li>
           </ul>
@@ -439,7 +439,7 @@ export default function ServicesPage() {
 
           {/* Left */}
           <div className="sp-hero-left">
-            <span className="sp-hero-eyebrow">SERVICES</span>
+            <span className="sp-hero-eyebrow">SOLUTIONS</span>
             <h1 className="sp-hero-h1">
               Build <em>Smarter.</em><br />
               Grow <em>Faster.</em>
@@ -453,7 +453,7 @@ export default function ServicesPage() {
                 className="sp-btn-primary"
                 onClick={() => setModalOpen(true)}
               >
-                📅&nbsp; Book a Free Call
+                Book a Free Call
               </button>
               <Link className="sp-btn-ghost" href="/#projects">
                 View My Work →
@@ -468,12 +468,12 @@ export default function ServicesPage() {
 
         </div>
 
-        {/* ══ SERVICES I PROVIDE ═════════════════════════════════════════ */}
+        {/* ══ SOLUTIONS I PROVIDE ═════════════════════════════════════════ */}
         <section>
           <div className="sp-section">
             <div className="sp-section-top">
               <span className="sp-eyebrow">WHAT I DO</span>
-              <h2 className="sp-h2">Services I Provide</h2>
+              <h2 className="sp-h2">Solutions I Provide</h2>
               <p className="sp-subtext">Simple solutions. Powerful results.</p>
             </div>
             <div className="sp-services-grid">
@@ -547,7 +547,6 @@ export default function ServicesPage() {
               boxShadow:"0 40px 100px rgba(0,0,0,0.4)",
               animation:"slideUp 0.35s cubic-bezier(0.22,1,0.36,1)"
             }}>
-              <div style={{fontSize:"56px",marginBottom:"20px"}}>📅</div>
               <h3 style={{fontFamily:"Inter, sans-serif !important",fontWeight:900,fontSize:"26px",color:"#0f172a",marginBottom:"12px",letterSpacing:"-0.5px"}}>
                 Book a Free Call
               </h3>

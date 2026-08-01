@@ -809,7 +809,7 @@ export default function ServicesModal() {
                     </p>
                   </div>
                   <button className="bk-confirm-btn" onClick={handleConfirm} disabled={sending}>
-                    {sending ? <><div className="bk-spinner" /><span>Booking...</span></> : <><span className="bk-btn-icon">📅</span><span>CONFIRM BOOKING</span></>}
+                    {sending ? <><div className="bk-spinner" /><span>Booking...</span></> : <span>CONFIRM BOOKING →</span>}
                   </button>
                 </div>
               </>
