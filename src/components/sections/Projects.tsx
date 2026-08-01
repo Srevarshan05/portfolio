@@ -952,17 +952,70 @@ export default function ProjectsSection() {
               Enter the 4-digit PIN password to view the <strong>{activeProject?.title || "Banana Weevil"}</strong> workflow diagram.
             </p>
 
-            <form onSubmit={handlePinSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px", alignItems: "center" }}>
+            <form
+              onSubmit={handlePinSubmit}
+              style={{ display: "flex", flexDirection: "column", gap: "16px", alignItems: "center", width: "100%" }}
+            >
+              {/* Discrete 4-Digit Box Indicators */}
+              <div
+                onClick={() => {
+                  const el = document.getElementById("pin-hidden-input");
+                  if (el) el.focus();
+                }}
+                style={{
+                  display: "flex",
+                  gap: "12px",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  margin: "8px 0 4px",
+                }}
+              >
+                {[0, 1, 2, 3].map((idx) => {
+                  const isFilled = pinInput.length > idx;
+                  const isCurrent = pinInput.length === idx;
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        width: "54px",
+                        height: "60px",
+                        borderRadius: "14px",
+                        border: pinError
+                          ? "3px solid #E22D6D"
+                          : isCurrent
+                          ? "3px solid #E22D6D"
+                          : isFilled
+                          ? "3px solid #1C202B"
+                          : "2.5px solid #CBD5E1",
+                        background: isFilled ? "#FFE5EE" : "#F8FAFC",
+                        boxShadow: isCurrent
+                          ? "0 0 0 3px rgba(226,45,109,0.25)"
+                          : "3px 3px 0 0 #1C202B",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "20px",
+                        color: "#1C202B",
+                        transition: "all 150ms ease",
+                      }}
+                    >
+                      {isFilled ? "●" : <span style={{ opacity: 0.25, fontSize: "16px" }}>○</span>}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Input field (styled clean and clear) */}
               <input
+                id="pin-hidden-input"
                 type="password"
                 maxLength={4}
-                placeholder="• • • •"
                 value={pinInput}
                 onChange={(e) => {
-                  const val = e.target.value;
+                  const val = e.target.value.replace(/\D/g, "");
                   setPinInput(val);
                   setPinError(false);
-                  if (val.trim() === "1971") {
+                  if (val === "1971") {
                     setIsUnlocked(true);
                     setIsPinPromptOpen(false);
                     setPinError(false);
@@ -971,30 +1024,25 @@ export default function ProjectsSection() {
                 }}
                 autoFocus
                 style={{
-                  width: "160px",
-                  height: "54px",
-                  textAlign: "center",
-                  fontSize: "26px",
-                  fontWeight: "bold",
-                  letterSpacing: "12px",
-                  fontFamily: "monospace",
-                  border: pinError ? "3px solid #E22D6D" : "3.5px solid #1C202B",
-                  borderRadius: "12px",
-                  background: "#F4F6FF",
-                  outline: "none",
-                  boxShadow: pinError ? "4px 4px 0 0 #E22D6D" : "4px 4px 0 0 #1C202B",
-                  color: "#1C202B",
-                  transition: "border-color 0.2s, box-shadow 0.2s",
+                  position: "absolute",
+                  opacity: 0,
+                  pointerEvents: "none",
+                  width: "1px",
+                  height: "1px",
                 }}
               />
 
-              {pinError && (
+              {pinError ? (
                 <p style={{ color: "#E22D6D", fontSize: "13px", fontWeight: "bold", margin: 0 }}>
-                  ❌ Incorrect PIN (Try 1971)
+                  ❌ Incorrect PIN. Access Denied.
+                </p>
+              ) : (
+                <p style={{ color: "#64748B", fontSize: "12px", margin: 0 }}>
+                  Click boxes and enter 4 digits to unlock
                 </p>
               )}
 
-              <div style={{ display: "flex", gap: "12px", width: "100%", marginTop: "12px" }}>
+              <div style={{ display: "flex", gap: "12px", width: "100%", marginTop: "8px" }}>
                 <button
                   type="button"
                   onClick={() => setIsPinPromptOpen(false)}
