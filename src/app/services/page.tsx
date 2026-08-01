@@ -145,12 +145,18 @@ export default function ServicesPage() {
           margin-bottom: 18px; display: block;
         }
         .sp-hero-h1 {
-          font-size: clamp(44px,5.5vw,72px);
-          font-weight: 900; line-height: 1.04;
-          color: var(--dark); margin-bottom: 22px;
-          letter-spacing: -2px;
+          font-size: clamp(42px, 5.5vw, 68px);
+          font-weight: 800;
+          line-height: 1.08;
+          color: var(--dark);
+          margin-bottom: 22px;
+          letter-spacing: -1.5px;
         }
-        .sp-hero-h1 em { color: var(--brand); font-style: normal; }
+        .sp-hero-h1 em {
+          color: var(--brand);
+          font-style: normal;
+          font-weight: 900;
+        }
         .sp-hero-p {
           font-size: 16px; color: var(--muted);
           line-height: 1.75; margin-bottom: 36px;
@@ -183,13 +189,13 @@ export default function ServicesPage() {
         .sp-hero-right {
           position: relative;
           overflow: hidden;
-          background: #f6f7fb;   /* matches photo background */
+          background: #f5f5f5;
         }
         .sp-hero-right img {
           position: absolute; inset: 0;
           width: 100%; height: 100%;
           object-fit: cover;
-          object-position: top center;
+          object-position: 55% top;
         }
 
         /* ═══ DIVIDER ════════════════════════════════════════════════════ */

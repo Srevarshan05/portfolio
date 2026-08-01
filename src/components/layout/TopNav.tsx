@@ -207,19 +207,20 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
                 letterSpacing: "0.8px",
                 color:         "#E22D6D",
                 background:    "rgba(226,45,109,0.08)",
-                border:        "1.5px solid rgba(226,45,109,0.25)",
+                border:        "1.5px solid rgba(226,45,109,0.3)",
                 height:        "32px",
                 display:       "inline-flex",
                 alignItems:    "center",
                 justifyContent:"center",
-                padding:       "0 14px",
+                padding:       "0 16px",
                 borderRadius:  "9999px",
                 textDecoration:"none",
                 transition:    "all 150ms",
                 whiteSpace:    "nowrap",
+                flexShrink:    0,
               }}
             >
-              ⚡ Services
+              Services
             </Link>
           </nav>
         )}
@@ -330,7 +331,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
               display:       "block",
             }}
           >
-            ⚡ Services
+            Services
           </Link>
         </div>
       )}
