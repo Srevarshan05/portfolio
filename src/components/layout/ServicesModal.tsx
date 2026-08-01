@@ -93,6 +93,15 @@ export default function ServicesModal() {
   const cells = buildCalendar(calYear, calMonth);
 
   useEffect(() => {
+    // If ?book=1 is in the URL (coming from Services page), open immediately
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("book") === "1") {
+      setVisible(true);
+      // Clean the URL param without reload
+      const url = new URL(window.location.href);
+      url.searchParams.delete("book");
+      window.history.replaceState({}, "", url.toString());
+      return;
+    }
     if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v20")) return;
     const t = setTimeout(() => setVisible(true), 3000);
     return () => clearTimeout(t);
