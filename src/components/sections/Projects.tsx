@@ -155,6 +155,32 @@ export default function ProjectsSection() {
   
   const [activeProject, setActiveProject] = useState<typeof PROJECTS[0] | null>(null);
   const [isWorkflowOpen, setIsWorkflowOpen] = useState(false);
+  const [isPinPromptOpen, setIsPinPromptOpen] = useState(false);
+  const [pinInput, setPinInput] = useState("");
+  const [pinError, setPinError] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+
+  const handleOpenWorkflow = () => {
+    if (isUnlocked) {
+      setIsWorkflowOpen(true);
+    } else {
+      setPinInput("");
+      setPinError(false);
+      setIsPinPromptOpen(true);
+    }
+  };
+
+  const handlePinSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (pinInput.trim() === "1971") {
+      setIsUnlocked(true);
+      setIsPinPromptOpen(false);
+      setPinError(false);
+      setIsWorkflowOpen(true);
+    } else {
+      setPinError(true);
+    }
+  };
 
   return (
     <section id="projects" className="section section-white" ref={sectionRef} style={{ background: "#FFFFFF" }}>
@@ -357,7 +383,7 @@ export default function ProjectsSection() {
                   <div className="modal-footer" style={{ justifyContent: "flex-end" }}>
                     <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                       <button
-                        onClick={() => setIsWorkflowOpen(true)}
+                        onClick={handleOpenWorkflow}
                         className="modal-action-btn secondary-btn"
                         style={{ cursor: "pointer" }}
                       >
@@ -512,7 +538,7 @@ export default function ProjectsSection() {
                   <div className="modal-footer" style={{ justifyContent: "flex-end" }}>
                     <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                       <button
-                        onClick={() => setIsWorkflowOpen(true)}
+                        onClick={handleOpenWorkflow}
                         className="modal-action-btn secondary-btn"
                         style={{ cursor: "pointer" }}
                       >
@@ -658,7 +684,7 @@ export default function ProjectsSection() {
                     </div>
                     <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                       <button
-                        onClick={() => setIsWorkflowOpen(true)}
+                        onClick={handleOpenWorkflow}
                         className="modal-action-btn secondary-btn"
                         style={{ cursor: "pointer" }}
                       >
@@ -839,7 +865,7 @@ export default function ProjectsSection() {
                   <div className="modal-footer" style={{ justifyContent: "flex-end" }}>
                     <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                       <button
-                        onClick={() => setIsWorkflowOpen(true)}
+                        onClick={handleOpenWorkflow}
                         className="modal-action-btn secondary-btn"
                         style={{ cursor: "pointer" }}
                       >
@@ -858,6 +884,157 @@ export default function ProjectsSection() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── PIN Protection Verification Modal ── */}
+      {isPinPromptOpen && (
+        <div
+          className="modal-backdrop"
+          onClick={() => setIsPinPromptOpen(false)}
+          style={{ zIndex: 99999, backgroundColor: "rgba(28, 32, 43, 0.85)", backdropFilter: "blur(6px)" }}
+        >
+          <div
+            className="project-modal-container"
+            style={{
+              maxWidth: "420px",
+              width: "90%",
+              padding: "36px 28px",
+              textAlign: "center",
+              borderRadius: "16px",
+              boxShadow: "8px 8px 0 0 #1C202B",
+              border: "3.5px solid #1C202B",
+              background: "#FFFFFF",
+              position: "relative",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setIsPinPromptOpen(false)}
+              style={{
+                position: "absolute",
+                top: "14px",
+                right: "16px",
+                background: "none",
+                border: "none",
+                fontSize: "22px",
+                fontWeight: "bold",
+                color: "#1C202B",
+                cursor: "pointer",
+              }}
+            >
+              ✕
+            </button>
+
+            <div style={{ fontSize: "44px", marginBottom: "12px" }}>🔒</div>
+            <h3
+              style={{
+                fontFamily: "'Bangers', cursive",
+                fontSize: "28px",
+                letterSpacing: "1.5px",
+                color: "#1C202B",
+                marginBottom: "8px",
+                textTransform: "uppercase",
+              }}
+            >
+              PIN PROTECTED
+            </h3>
+            <p
+              style={{
+                fontFamily: "'Open Sans', sans-serif",
+                fontSize: "13.5px",
+                color: "#4A5468",
+                lineHeight: "1.5",
+                marginBottom: "24px",
+              }}
+            >
+              Enter the 4-digit PIN password to view the <strong>{activeProject?.title || "Banana Weevil"}</strong> workflow diagram.
+            </p>
+
+            <form onSubmit={handlePinSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px", alignItems: "center" }}>
+              <input
+                type="password"
+                maxLength={4}
+                placeholder="• • • •"
+                value={pinInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setPinInput(val);
+                  setPinError(false);
+                  if (val.trim() === "1971") {
+                    setIsUnlocked(true);
+                    setIsPinPromptOpen(false);
+                    setPinError(false);
+                    setIsWorkflowOpen(true);
+                  }
+                }}
+                autoFocus
+                style={{
+                  width: "160px",
+                  height: "54px",
+                  textAlign: "center",
+                  fontSize: "26px",
+                  fontWeight: "bold",
+                  letterSpacing: "12px",
+                  fontFamily: "monospace",
+                  border: pinError ? "3px solid #E22D6D" : "3.5px solid #1C202B",
+                  borderRadius: "12px",
+                  background: "#F4F6FF",
+                  outline: "none",
+                  boxShadow: pinError ? "4px 4px 0 0 #E22D6D" : "4px 4px 0 0 #1C202B",
+                  color: "#1C202B",
+                  transition: "border-color 0.2s, box-shadow 0.2s",
+                }}
+              />
+
+              {pinError && (
+                <p style={{ color: "#E22D6D", fontSize: "13px", fontWeight: "bold", margin: 0 }}>
+                  ❌ Incorrect PIN (Try 1971)
+                </p>
+              )}
+
+              <div style={{ display: "flex", gap: "12px", width: "100%", marginTop: "12px" }}>
+                <button
+                  type="button"
+                  onClick={() => setIsPinPromptOpen(false)}
+                  style={{
+                    flex: 1,
+                    padding: "12px",
+                    borderRadius: "10px",
+                    border: "2.5px solid #1C202B",
+                    background: "#FFFFFF",
+                    color: "#1C202B",
+                    fontFamily: "'Open Sans', sans-serif",
+                    fontWeight: "700",
+                    fontSize: "13px",
+                    cursor: "pointer",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    flex: 1,
+                    padding: "12px",
+                    borderRadius: "10px",
+                    border: "2.5px solid #1C202B",
+                    background: "var(--brand)",
+                    color: "#FFFFFF",
+                    fontFamily: "'Bangers', cursive",
+                    fontSize: "17px",
+                    letterSpacing: "1px",
+                    cursor: "pointer",
+                    boxShadow: "3px 3px 0 0 #1C202B",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  UNLOCK →
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
