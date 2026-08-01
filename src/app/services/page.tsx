@@ -72,18 +72,31 @@ export default function ServicesPage() {
         :root {
           --brand: #E22D6D;
           --dark: #1C202B;
-          --text: #111827;
-          --muted: #6b7280;
-          --border: #e5e7eb;
+          --text: #0f172a;
+          --muted: #475569;
+          --border: #e2e8f0;
           --bg-pink: #fff0f4;
         }
-        body, .sp-page { font-family: 'Inter', sans-serif; }
-        .sp-page { background: #f6f7fb; color: var(--text); min-height: 100vh; }
+
+        body, .sp-page {
+          font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+          background: #f8fafc;
+          color: var(--text);
+          min-height: 100vh;
+        }
+
+        /* ═══ CRITICAL FONT OVERRIDES TO OVERRIDE BANGERS ════════════════ */
+        .sp-page h1, .sp-page h2, .sp-page h3, .sp-page h4,
+        .sp-hero-h1, .sp-h2, .sp-process-h2, .sp-svc-title,
+        .sp-nav-brand-name, .sp-process-step-title {
+          font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+          text-transform: uppercase;
+        }
 
         /* ═══ NAV ════════════════════════════════════════════════════════ */
         .sp-nav {
           position: sticky; top: 0; z-index: 200;
-          background: #fff;
+          background: #ffffff;
           border-bottom: 2px solid var(--dark);
           box-shadow: 0 3px 0 0 var(--dark);
           height: 60px;
@@ -101,7 +114,7 @@ export default function ServicesPage() {
         }
         .sp-nav-brand-name {
           font-size: 15px; font-weight: 900; letter-spacing: 1.5px;
-          color: var(--dark); text-transform: uppercase;
+          color: var(--dark);
         }
         .sp-nav-links {
           display: flex; align-items: center; gap: 4px;
@@ -125,42 +138,40 @@ export default function ServicesPage() {
         .sp-nav-cta:hover { background: #c0185a; }
 
         /* ═══ HERO ═══════════════════════════════════════════════════════ */
-        /* Full-bleed two-column: left text, right = full photo */
         .sp-hero-wrap {
           display: grid;
-          grid-template-columns: 1fr 42%;
-          min-height: 88vh;
-          background: #fff;
+          grid-template-columns: 1fr 44%;
+          min-height: 85vh;
+          background: #ffffff;
         }
 
-        /* Left side */
         .sp-hero-left {
           display: flex; flex-direction: column; justify-content: center;
           padding: clamp(40px,6vw,80px) clamp(24px,5vw,72px);
-          background: #fff;
+          background: #ffffff;
         }
         .sp-hero-eyebrow {
-          font-size: 11px; font-weight: 700; text-transform: uppercase;
-          letter-spacing: 2.5px; color: var(--brand);
+          font-size: 12px; font-weight: 800; text-transform: uppercase;
+          letter-spacing: 3px; color: var(--brand);
           margin-bottom: 18px; display: block;
         }
         .sp-hero-h1 {
-          font-size: clamp(42px, 5.5vw, 68px);
-          font-weight: 800;
-          line-height: 1.08;
-          color: var(--dark);
+          font-size: clamp(42px, 5.5vw, 68px) !important;
+          font-weight: 900 !important;
+          line-height: 1.06;
+          color: #0f172a !important;
           margin-bottom: 22px;
-          letter-spacing: -1.5px;
+          letter-spacing: -1.5px !important;
         }
         .sp-hero-h1 em {
-          color: var(--brand);
+          color: var(--brand) !important;
           font-style: normal;
-          font-weight: 900;
+          font-weight: 900 !important;
         }
         .sp-hero-p {
           font-size: 16px; color: var(--muted);
           line-height: 1.75; margin-bottom: 36px;
-          max-width: 440px;
+          max-width: 440px; font-weight: 500;
         }
         .sp-hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
         .sp-btn-primary {
@@ -185,174 +196,239 @@ export default function ServicesPage() {
         }
         .sp-btn-ghost:hover { background: rgba(28,32,43,0.05); }
 
-        /* Right side — photo container */
         .sp-hero-right {
           display: flex;
           align-items: center;
           justify-content: center;
           padding: clamp(24px, 4vw, 48px);
-          background: #fff;
+          background: #ffffff;
         }
         .sp-hero-right img {
           width: 100%;
-          max-width: 480px;
+          max-width: 460px;
           height: auto;
-          max-height: 540px;
+          max-height: 520px;
           object-fit: contain;
-          border-radius: 24px;
+          border-radius: 20px;
           display: block;
         }
 
-        /* ═══ DIVIDER ════════════════════════════════════════════════════ */
-        .sp-divider { border: none; border-top: 1.5px solid var(--border); }
+        /* ═══ SMUDGED SECTION DIVIDERS ═══════════════════════════════════ */
+        /* Soft smudged gradient blend between Hero & Services */
+        .sp-smudge-hero-services {
+          height: 90px;
+          background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+          position: relative;
+          overflow: hidden;
+        }
+        .sp-smudge-hero-services::before {
+          content: '';
+          position: absolute;
+          top: -40px; left: 20%; right: 20%; height: 80px;
+          background: radial-gradient(ellipse at center, rgba(226,45,109,0.12) 0%, transparent 70%);
+          filter: blur(20px);
+          pointer-events: none;
+        }
 
-        /* ═══ SECTION ════════════════════════════════════════════════════ */
+        /* Soft smudged gradient blend between Services & Process (Dark) */
+        .sp-smudge-services-process {
+          height: 100px;
+          background: linear-gradient(180deg, #f8fafc 0%, #1C202B 100%);
+          position: relative;
+          overflow: hidden;
+        }
+        .sp-smudge-services-process::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(circle at 50% 50%, rgba(226,45,109,0.15) 0%, transparent 65%);
+          filter: blur(25px);
+          pointer-events: none;
+        }
+
+        /* Soft smudged gradient blend between Process (Dark) & Expect */
+        .sp-smudge-process-expect {
+          height: 100px;
+          background: linear-gradient(180deg, #1C202B 0%, #f8fafc 100%);
+          position: relative;
+          overflow: hidden;
+        }
+        .sp-smudge-process-expect::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(circle at 50% 50%, rgba(226,45,109,0.15) 0%, transparent 65%);
+          filter: blur(25px);
+          pointer-events: none;
+        }
+
+        /* ═══ SECTION SHELL ═════════════════════════════════════════════ */
         .sp-section {
           max-width: 1140px; margin: 0 auto;
-          padding: 72px clamp(16px,4vw,48px);
+          padding: 60px clamp(16px,4vw,48px) 80px;
         }
-        .sp-section-top { text-align: center; margin-bottom: 48px; }
+        .sp-section-top { text-align: center; margin-bottom: 56px; }
         .sp-eyebrow {
-          font-size: 11px; font-weight: 700; text-transform: uppercase;
-          letter-spacing: 2.5px; color: var(--brand);
-          display: block; margin-bottom: 10px;
+          font-size: 12px; font-weight: 800; text-transform: uppercase;
+          letter-spacing: 3px; color: var(--brand);
+          display: block; margin-bottom: 12px;
         }
         .sp-h2 {
-          font-size: clamp(30px,4vw,44px);
-          font-weight: 900; color: var(--dark);
-          letter-spacing: -0.5px; line-height: 1.1; margin-bottom: 10px;
+          font-size: clamp(32px, 4vw, 46px) !important;
+          font-weight: 900 !important;
+          color: #0f172a !important;
+          letter-spacing: -1px !important;
+          line-height: 1.1; margin-bottom: 12px;
         }
         .sp-subtext {
-          font-size: 15px; color: var(--muted); line-height: 1.65;
+          font-size: 16px; color: var(--muted); line-height: 1.65; font-weight: 500;
         }
 
         /* ═══ SERVICES GRID ══════════════════════════════════════════════ */
         .sp-services-grid {
           display: grid;
           grid-template-columns: repeat(3,1fr);
-          gap: 24px;
+          gap: 28px;
         }
         .sp-svc-card {
-          background: #fff;
+          background: #ffffff;
           border: 2px solid var(--border);
-          border-radius: 20px; padding: 28px 24px;
-          transition: border-color 180ms, box-shadow 180ms, transform 180ms;
+          border-radius: 24px; padding: 32px 26px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+          transition: border-color 200ms, box-shadow 200ms, transform 200ms;
           position: relative; overflow: hidden;
         }
         .sp-svc-card::after {
-          content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+          content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
           background: linear-gradient(90deg,var(--brand),#c0185a);
           transform: scaleX(0); transform-origin: left; transition: transform 200ms;
         }
         .sp-svc-card:hover {
           border-color: var(--brand);
-          box-shadow: 0 12px 40px rgba(226,45,109,0.13);
-          transform: translateY(-4px);
+          box-shadow: 0 16px 45px rgba(226,45,109,0.15);
+          transform: translateY(-6px);
         }
         .sp-svc-card:hover::after { transform: scaleX(1); }
         .sp-svc-icon-wrap {
-          width: 56px; height: 56px; border-radius: 16px;
+          width: 58px; height: 58px; border-radius: 18px;
           background: var(--bg-pink); border: 1.5px solid #ffd6e4;
           display: flex; align-items: center; justify-content: center;
-          margin-bottom: 16px;
+          margin-bottom: 20px;
         }
-        .sp-svc-icon-wrap img { width: 30px; height: 30px; object-fit: contain; }
+        .sp-svc-icon-wrap img { width: 32px; height: 32px; object-fit: contain; }
         .sp-svc-title {
-          font-size: 16px; font-weight: 800; color: var(--dark);
-          margin-bottom: 8px; line-height: 1.3;
+          font-size: 19px !important;
+          font-weight: 800 !important;
+          color: #0f172a !important;
+          margin-bottom: 10px; line-height: 1.35;
         }
         .sp-svc-desc {
-          font-size: 13px; color: var(--muted);
-          line-height: 1.65; margin-bottom: 16px;
+          font-size: 14px; color: var(--muted);
+          line-height: 1.65; margin-bottom: 20px; font-weight: 400;
         }
-        .sp-svc-bullets { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+        .sp-svc-bullets { list-style: none; display: flex; flex-direction: column; gap: 8px; }
         .sp-svc-bullet {
-          font-size: 12.5px; color: #374151;
-          display: flex; align-items: flex-start; gap: 8px; line-height: 1.4;
+          font-size: 13.5px; color: #1e293b; font-weight: 600;
+          display: flex; align-items: flex-start; gap: 8px; line-height: 1.45;
         }
-        .sp-svc-check { color: var(--brand); font-weight: 900; flex-shrink: 0; margin-top: 1px; }
+        .sp-svc-check { color: var(--brand); font-weight: 900; flex-shrink: 0; margin-top: 1px; font-size: 14px; }
 
-        /* ═══ PROCESS (dark section) ═════════════════════════════════════ */
+        /* ═══ PROCESS (DARK SECTION WITH ENHANCED FONTS & ICONS) ════════ */
         .sp-process-outer {
           background: var(--dark);
-          padding: 72px clamp(16px,4vw,48px);
+          padding: 80px clamp(16px,4vw,48px);
           position: relative; overflow: hidden;
         }
         .sp-process-outer::before {
           content: '';
           position: absolute; inset: 0;
           background:
-            radial-gradient(ellipse at 5% 80%, rgba(226,45,109,0.18) 0%, transparent 50%),
-            radial-gradient(ellipse at 90% 10%, rgba(226,45,109,0.1) 0%, transparent 50%);
+            radial-gradient(ellipse at 15% 80%, rgba(226,45,109,0.22) 0%, transparent 55%),
+            radial-gradient(ellipse at 85% 20%, rgba(226,45,109,0.15) 0%, transparent 50%);
+          filter: blur(30px);
           pointer-events: none;
         }
         .sp-process-inner {
-          max-width: 1140px; margin: 0 auto; position: relative;
+          max-width: 1140px; margin: 0 auto; position: relative; z-index: 2;
         }
         .sp-process-eyebrow {
-          font-size: 11px; font-weight: 700; text-transform: uppercase;
-          letter-spacing: 2.5px; color: var(--brand); margin-bottom: 10px;
+          font-size: 12px; font-weight: 800; text-transform: uppercase;
+          letter-spacing: 3px; color: var(--brand); margin-bottom: 12px; text-align: center;
         }
         .sp-process-h2 {
-          font-size: clamp(28px,3.5vw,40px);
-          font-weight: 900; color: #fff;
-          letter-spacing: -0.5px; margin-bottom: 48px;
+          font-size: clamp(32px, 4.5vw, 48px) !important;
+          font-weight: 900 !important;
+          color: #ffffff !important;
+          letter-spacing: -1px !important;
+          margin-bottom: 56px; text-align: center;
         }
         .sp-process-steps {
-          display: grid; grid-template-columns: repeat(5,1fr); gap: 20px;
+          display: grid; grid-template-columns: repeat(5,1fr); gap: 24px;
           position: relative;
         }
         .sp-process-steps::before {
           content: '';
-          position: absolute; top: 24px;
-          left: calc(10% + 12px); right: calc(10% + 12px);
-          height: 1px; background: rgba(255,255,255,0.12); z-index: 0;
+          position: absolute; top: 30px;
+          left: calc(10% + 15px); right: calc(10% + 15px);
+          height: 2px;
+          background: linear-gradient(90deg, rgba(226,45,109,0.3), rgba(255,255,255,0.2), rgba(226,45,109,0.3));
+          z-index: 0;
         }
         .sp-process-step {
           display: flex; flex-direction: column;
-          align-items: center; text-align: center; gap: 10px; z-index: 1;
+          align-items: center; text-align: center; gap: 14px; z-index: 1;
         }
         .sp-process-circle {
-          width: 48px; height: 48px; border-radius: 50%;
-          background: linear-gradient(135deg, var(--brand) 0%, #c0185a 100%);
+          width: 60px; height: 60px; border-radius: 50%;
+          background: linear-gradient(135deg, var(--brand) 0%, #ff528c 100%);
           display: flex; align-items: center; justify-content: center;
-          font-size: 16px; font-weight: 900; color: #fff;
-          box-shadow: 0 4px 16px rgba(226,45,109,0.45);
+          font-size: 22px; font-weight: 900; color: #ffffff;
+          box-shadow: 0 0 25px rgba(226,45,109,0.5);
+          transition: transform 200ms, box-shadow 200ms;
         }
-        .sp-process-step-num {
-          font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.35);
-          letter-spacing: 1px;
+        .sp-process-step:hover .sp-process-circle {
+          transform: scale(1.1);
+          box-shadow: 0 0 35px rgba(226,45,109,0.7);
         }
         .sp-process-step-title {
-          font-size: 14px; font-weight: 700; color: #fff;
+          font-size: 19px !important;
+          font-weight: 800 !important;
+          color: #ffffff !important;
+          margin-top: 4px;
+          letter-spacing: -0.3px;
         }
         .sp-process-step-desc {
-          font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.55;
+          font-size: 13.5px;
+          color: rgba(255,255,255,0.78);
+          line-height: 1.6;
+          font-weight: 400;
+          max-width: 200px;
         }
 
         /* ═══ EXPECT ═════════════════════════════════════════════════════ */
         .sp-expect-grid {
-          display: grid; grid-template-columns: repeat(6,1fr); gap: 16px;
+          display: grid; grid-template-columns: repeat(6,1fr); gap: 18px;
         }
         .sp-expect-item {
           display: flex; flex-direction: column; align-items: center;
-          text-align: center; gap: 10px;
-          padding: 22px 12px; border: 2px solid var(--border);
-          border-radius: 16px; background: #fff;
-          transition: all 150ms;
+          text-align: center; gap: 12px;
+          padding: 24px 14px; border: 2px solid var(--border);
+          border-radius: 20px; background: #ffffff;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.02);
+          transition: all 180ms;
         }
         .sp-expect-item:hover {
           border-color: var(--brand); background: var(--bg-pink);
-          transform: translateY(-3px);
+          transform: translateY(-4px); box-shadow: 0 10px 25px rgba(226,45,109,0.12);
         }
         .sp-expect-icon {
-          width: 48px; height: 48px; border-radius: 14px;
+          width: 52px; height: 52px; border-radius: 16px;
           background: var(--bg-pink); border: 1.5px solid #ffd6e4;
-          display: flex; align-items: center; justify-content: center; font-size: 22px;
+          display: flex; align-items: center; justify-content: center; font-size: 24px;
         }
         .sp-expect-label {
-          font-size: 12px; font-weight: 700; color: var(--text);
-          line-height: 1.4; white-space: pre-line;
+          font-size: 13px; font-weight: 700; color: var(--text);
+          line-height: 1.45; white-space: pre-line;
         }
 
         /* ═══ BOOKING MODAL (inline) ══════════════════════════════════════ */
@@ -372,7 +448,7 @@ export default function ServicesPage() {
           .sp-process-steps { grid-template-columns: repeat(3,1fr); }
           .sp-process-steps::before { display: none; }
           .sp-hero-wrap { grid-template-columns: 1fr; min-height: unset; }
-          .sp-hero-right { min-height: 360px; }
+          .sp-hero-right { padding: 32px; }
         }
         @media (max-width: 640px) {
           .sp-nav-links { display: none; }
@@ -380,7 +456,6 @@ export default function ServicesPage() {
           .sp-expect-grid   { grid-template-columns: repeat(2,1fr); }
           .sp-process-steps { grid-template-columns: repeat(2,1fr); }
           .sp-hero-left { padding: 40px 20px; }
-          .sp-hero-right { min-height: 280px; }
         }
       `}</style>
 
@@ -429,16 +504,17 @@ export default function ServicesPage() {
             </div>
           </div>
 
-          {/* Right — full photo */}
+          {/* Right — photo */}
           <div className="sp-hero-right">
             <img src="/icons/new-model-card.png" alt="Sre Varshan — Let's Build Together" />
           </div>
 
         </div>
 
-        <hr className="sp-divider" />
+        {/* Smudged transition between Hero & Services */}
+        <div className="sp-smudge-hero-services" />
 
-        {/* ══ SERVICES ══════════════════════════════════════════════════ */}
+        {/* ══ SERVICES I PROVIDE ═════════════════════════════════════════ */}
         <section>
           <div className="sp-section">
             <div className="sp-section-top">
@@ -452,7 +528,7 @@ export default function ServicesPage() {
                   <div className="sp-svc-icon-wrap">
                     <img src={svc.icon} alt={svc.title} />
                   </div>
-                  <p className="sp-svc-title">{svc.title}</p>
+                  <h3 className="sp-svc-title">{svc.title}</h3>
                   <p className="sp-svc-desc">{svc.desc}</p>
                   <ul className="sp-svc-bullets">
                     {svc.bullets.map((b) => (
@@ -467,7 +543,10 @@ export default function ServicesPage() {
           </div>
         </section>
 
-        {/* ══ PROCESS ═══════════════════════════════════════════════════ */}
+        {/* Smudged transition between Services & Process */}
+        <div className="sp-smudge-services-process" />
+
+        {/* ══ PROCESS (DARK SECTION WITH ENHANCED FONTS) ═════════════════ */}
         <div className="sp-process-outer">
           <div className="sp-process-inner">
             <p className="sp-process-eyebrow">MY PROCESS</p>
@@ -476,8 +555,7 @@ export default function ServicesPage() {
               {PROCESS.map((p) => (
                 <div className="sp-process-step" key={p.step}>
                   <div className="sp-process-circle">{p.step}</div>
-                  <span className="sp-process-step-num">{p.step}</span>
-                  <p className="sp-process-step-title">{p.label}</p>
+                  <h3 className="sp-process-step-title">{p.label}</h3>
                   <p className="sp-process-step-desc">{p.desc}</p>
                 </div>
               ))}
@@ -485,7 +563,8 @@ export default function ServicesPage() {
           </div>
         </div>
 
-        <hr className="sp-divider" />
+        {/* Smudged transition between Process & Expect */}
+        <div className="sp-smudge-process-expect" />
 
         {/* ══ EXPECT ════════════════════════════════════════════════════ */}
         <section>
@@ -513,16 +592,16 @@ export default function ServicesPage() {
           >
             {/* Redirect to home — ServicesModal auto-opens there */}
             <div style={{
-              background:"#fff", borderRadius:"20px", padding:"48px",
+              background:"#fff", borderRadius:"24px", padding:"48px",
               maxWidth:"440px", width:"100%", textAlign:"center",
               boxShadow:"0 40px 100px rgba(0,0,0,0.4)",
               animation:"slideUp 0.35s cubic-bezier(0.22,1,0.36,1)"
             }}>
               <div style={{fontSize:"56px",marginBottom:"20px"}}>📅</div>
-              <h3 style={{fontFamily:"Inter",fontWeight:900,fontSize:"26px",color:"#111827",marginBottom:"12px",letterSpacing:"-0.5px"}}>
+              <h3 style={{fontFamily:"Inter, sans-serif !important",fontWeight:900,fontSize:"26px",color:"#0f172a",marginBottom:"12px",letterSpacing:"-0.5px"}}>
                 Book a Free Call
               </h3>
-              <p style={{fontSize:"14px",color:"#6b7280",lineHeight:"1.65",marginBottom:"28px"}}>
+              <p style={{fontSize:"14px",color:"#475569",lineHeight:"1.65",marginBottom:"28px"}}>
                 Click below to open the booking form where you can select a date
                 and time that works for you.
               </p>
@@ -542,8 +621,8 @@ export default function ServicesPage() {
                 onClick={() => setModalOpen(false)}
                 style={{
                   display:"block",marginTop:"16px",
-                  background:"none",border:"none",color:"#9ca3af",
-                  fontSize:"13px",cursor:"pointer",fontFamily:"Inter"
+                  background:"none",border:"none",color:"#94a3b8",
+                  fontSize:"13px",cursor:"pointer",fontFamily:"Inter, sans-serif"
                 }}
               >
                 Cancel
