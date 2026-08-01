@@ -185,17 +185,22 @@ export default function ServicesPage() {
         }
         .sp-btn-ghost:hover { background: rgba(28,32,43,0.05); }
 
-        /* Right side — full image fill */
+        /* Right side — photo container */
         .sp-hero-right {
-          position: relative;
-          overflow: hidden;
-          background: #f5f5f5;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: clamp(24px, 4vw, 48px);
+          background: #fff;
         }
         .sp-hero-right img {
-          position: absolute; inset: 0;
-          width: 100%; height: 100%;
-          object-fit: cover;
-          object-position: 55% top;
+          width: 100%;
+          max-width: 480px;
+          height: auto;
+          max-height: 540px;
+          object-fit: contain;
+          border-radius: 24px;
+          display: block;
         }
 
         /* ═══ DIVIDER ════════════════════════════════════════════════════ */
