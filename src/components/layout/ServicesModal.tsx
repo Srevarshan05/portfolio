@@ -1,812 +1,841 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
 import emailjs from "@emailjs/browser";
 
-const DotLottieReact = dynamic(
-  () => import("@lottiefiles/dotlottie-react").then((mod) => mod.DotLottieReact),
-  {
-    ssr: false,
-    loading: () => <div className="sv-lottie-placeholder">⌛ Loading...</div>,
-  }
-);
+/* ─── Types ─────────────────────────────────────────────────────────── */
+type Screen = "booking" | "confirmed";
 
-type Screen = "services" | "booking" | "confirmed";
+/* ─── Calendar helpers ───────────────────────────────────────────────── */
+const MONTHS = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December",
+];
+const DAYS_SHORT = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
 
-function getNext7Days() {
-  const result = [];
-  const DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  for (let i = 0; i < 7; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
-    result.push({
-      short: DAY[d.getDay()],
-      num: d.getDate(),
-      mon: MON[d.getMonth()],
-      full: d.toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
-    });
+const TIME_SLOTS = [
+  "10:00 AM","11:00 AM","12:00 PM",
+  "02:00 PM","03:00 PM","04:00 PM",
+  "05:00 PM","06:00 PM","07:00 PM",
+];
+
+const TOPICS = [
+  "AI Solutions & Chatbots",
+  "Modern Website Development",
+  "Business Automation",
+  "Custom AI Integration",
+  "Smart Billing & POS",
+  "AI Strategy & Consulting",
+  "Other / General Inquiry",
+];
+
+function buildCalendar(year: number, month: number) {
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrev = new Date(year, month, 0).getDate();
+  const cells: { day: number; month: "prev" | "cur" | "next" }[] = [];
+
+  for (let i = firstDay - 1; i >= 0; i--) {
+    cells.push({ day: daysInPrev - i, month: "prev" });
   }
-  return result;
+  for (let d = 1; d <= daysInMonth; d++) {
+    cells.push({ day: d, month: "cur" });
+  }
+  let next = 1;
+  while (cells.length % 7 !== 0) {
+    cells.push({ day: next++, month: "next" });
+  }
+  return cells;
 }
 
-const TIME_SLOTS = ["10:00 AM", "11:30 AM", "02:00 PM", "04:00 PM", "06:00 PM"];
-
-const SERVICES = [
+/* ─── Services list (left panel) ────────────────────────────────────── */
+const SERVICES_LEFT = [
   {
-    icon: "/icons/website.png",
-    title: "MODERN WEBSITES",
-    accent: "#E22D6D",
-    items: [
-      "Static & Dynamic Websites",
-      "Custom Web Applications",
-      "Business & Portfolio Websites",
-      "Responsive & SEO Friendly",
-    ],
+    icon: "⭐",
+    title: "AI-Powered Solutions",
+    desc: "Custom AI solutions, chatbots, and automation that solve real problems.",
   },
   {
-    icon: "/icons/Chatbot.png",
-    title: "AI ASSISTANTS & CHATBOTS",
-    accent: "#2DC8E2",
-    items: [
-      "Smart AI Chatbots",
-      "Custom Trained Models",
-      "LLM Integration (OpenAI, Gemini, etc.)",
-      "24/7 Automated Support",
-    ],
+    icon: "💻",
+    title: "Modern Web Development",
+    desc: "Fast, responsive and scalable websites built for performance.",
   },
   {
-    icon: "/icons/automation.png",
-    title: "BUSINESS AUTOMATION",
-    accent: "#FFB020",
-    items: [
-      "Process Automation",
-      "Business Workflow Design",
-      "n8n / API Integrations",
-      "CRM & Task Automation",
-    ],
+    icon: "🚀",
+    title: "Business Automation",
+    desc: "Streamline workflows and save time with intelligent automation.",
   },
   {
-    icon: "/icons/Gen-Ai.png",
-    title: "CUSTOM AI SOLUTIONS",
-    accent: "#8E2DE2",
-    items: [
-      "Generative AI Integration",
-      "RAG Applications",
-      "AI Agents & Copilots",
-      "Prompt Engineering",
-      "AI-Powered Features",
-    ],
-  },
-  {
-    icon: "/icons/receipt.png",
-    title: "SMART BILLING & POS",
-    accent: "#2BB04A",
-    items: [
-      "Digital E-Receipts",
-      "Payment Gateway Integration",
-      "Income & Expense Tracker",
-      "Analytics Dashboard",
-      "Inventory & Reporting",
-    ],
-  },
-  {
-    icon: "/icons/Consult.png",
-    title: "AI STRATEGY & CONSULTING",
-    accent: "#FF7043",
-    items: [
-      "Technical Consultation",
-      "AI Use Case Discovery",
-      "Architecture Planning",
-      "Product Strategy",
-      "MVP Development",
-    ],
+    icon: "💬",
+    title: "Consulting & Strategy",
+    desc: "From idea to execution — get the right AI strategy for your business.",
   },
 ];
 
+/* ─── Main Component ─────────────────────────────────────────────────── */
 export default function ServicesModal() {
-  const [visible, setVisible]         = useState(false);
-  const [screen, setScreen]           = useState<Screen>("services");
-  const [selDay, setSelDay]           = useState<number>(0);
-  const [selTime, setSelTime]         = useState<string>("02:00 PM");
-  const [name, setName]               = useState("");
-  const [phone, setPhone]             = useState("");
-  const [email, setEmail]             = useState("");
-  const [bookErr, setBookErr]         = useState("");
-  const [sending, setSending]         = useState(false);
-  const days = getNext7Days();
+  const [visible, setVisible]   = useState(false);
+  const [screen, setScreen]     = useState<Screen>("booking");
+  const [name, setName]         = useState("");
+  const [email, setEmail]       = useState("");
+  const [phone, setPhone]       = useState("");
+  const [topic, setTopic]       = useState("");
+  const [note, setNote]         = useState("");
+  const [sending, setSending]   = useState(false);
+
+  /* Calendar state */
+  const today = new Date();
+  const [calYear, setCalYear]   = useState(today.getFullYear());
+  const [calMonth, setCalMonth] = useState(today.getMonth());
+  const [selDay, setSelDay]     = useState(today.getDate());
+  const [selTime, setSelTime]   = useState("02:00 PM");
+
+  const cells = buildCalendar(calYear, calMonth);
 
   useEffect(() => {
-    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v15")) return;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v20")) return;
     const t = setTimeout(() => setVisible(true), 3000);
     return () => clearTimeout(t);
   }, []);
 
   const close = () => {
     setVisible(false);
-    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v15", "1");
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v20", "1");
   };
 
-  const handleBook = async () => {
-    const finalName  = name.trim() || "Guest Client";
+  const selectedDateStr = new Date(calYear, calMonth, selDay).toLocaleDateString("en-IN", {
+    weekday: "long", year: "numeric", month: "long", day: "numeric",
+  });
+
+  const handleConfirm = async () => {
+    const finalName  = name.trim()  || "Guest Client";
     const finalEmail = email.trim() || "srevarshan9600622@gmail.com";
     const finalPhone = phone.trim() || "Not provided";
-    const selectedDateStr = days[selDay]?.full || days[0]?.full || "Upcoming Date";
+    const finalTopic = topic || "General Inquiry";
+    const finalNote  = note.trim()  || "No additional notes";
 
-    setName(finalName);
-    setEmail(finalEmail);
     setSending(true);
 
     const mailSubject = `🔥 NEW DISCOVERY CALL BOOKING: ${finalName}`;
 
-    const bookingPayload = {
-      name: finalName,
-      email: finalEmail,
-      phone: finalPhone,
-      date: selectedDateStr,
-      time: selTime,
-      subject: mailSubject,
-    };
-
-    // Service 1: FormSubmit Client API with Styled Table Template
+    // Service 1: FormSubmit API (styled table)
     try {
       await fetch("https://formsubmit.co/ajax/srevarshan9600622@gmail.com", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({
           _subject: mailSubject,
           _template: "table",
           _captcha: "false",
-          _url: "https://srevarshan.in",
           "Client Name": finalName,
           "Email Address": finalEmail,
           "Phone Number": finalPhone,
+          "Topic": finalTopic,
+          "Project Notes": finalNote,
           "Scheduled Date": selectedDateStr,
           "Scheduled Time Slot": selTime,
         }),
       });
-    } catch (e) {
-      console.warn("Direct FormSubmit client dispatch:", e);
-    }
+    } catch (e) { console.warn("FormSubmit dispatch:", e); }
 
-    // Service 2: Next.js API Route (/api/contact)
+    // Service 2: API route
     try {
       await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bookingPayload),
+        body: JSON.stringify({
+          name: finalName, email: finalEmail, phone: finalPhone,
+          date: selectedDateStr, time: selTime,
+          subject: mailSubject,
+          topic: finalTopic, note: finalNote,
+        }),
       });
-    } catch (e) {
-      console.warn("API Contact route dispatch:", e);
-    }
+    } catch (e) { console.warn("API route dispatch:", e); }
 
-    // Service 3: EmailJS browser SDK ("use email.js")
+    // Service 3: EmailJS
     try {
-      const emailjsServiceId  = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || "service_portfolio";
-      const emailjsTemplateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || "template_booking";
-      const emailjsPublicKey  = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || "public_key";
-
-      await emailjs.send(
-        emailjsServiceId,
-        emailjsTemplateId,
-        {
-          to_email: "srevarshan9600622@gmail.com",
-          from_name: finalName,
-          from_email: finalEmail,
-          phone_number: finalPhone,
-          booking_date: selectedDateStr,
-          booking_time: selTime,
-        },
-        emailjsPublicKey
-      );
-    } catch (e) {
-      console.log("EmailJS dispatch completed:", e);
-    }
+      const svcId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || "service_portfolio";
+      const tplId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || "template_booking";
+      const pubKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || "public_key";
+      await emailjs.send(svcId, tplId, {
+        to_email: "srevarshan9600622@gmail.com",
+        from_name: finalName, from_email: finalEmail,
+        phone_number: finalPhone, booking_date: selectedDateStr, booking_time: selTime,
+      }, pubKey);
+    } catch (e) { console.log("EmailJS dispatch:", e); }
 
     // Save locally
     try {
       if (typeof localStorage !== "undefined") {
         const prev = JSON.parse(localStorage.getItem("sv-bookings") || "[]");
-        prev.push({ ...bookingPayload, timestamp: new Date().toISOString() });
+        prev.push({ name: finalName, email: finalEmail, phone: finalPhone, date: selectedDateStr, time: selTime, timestamp: new Date().toISOString() });
         localStorage.setItem("sv-bookings", JSON.stringify(prev));
       }
     } catch (e) {}
 
     setSending(false);
-    setBookErr("");
     setScreen("confirmed");
   };
 
   if (!visible) return null;
 
-  const currentDayText = days[selDay]?.full || days[0]?.full || "Selected Date";
+  const prevMonth = () => {
+    if (calMonth === 0) { setCalYear(y => y - 1); setCalMonth(11); }
+    else setCalMonth(m => m - 1);
+    setSelDay(0);
+  };
+  const nextMonth = () => {
+    if (calMonth === 11) { setCalYear(y => y + 1); setCalMonth(0); }
+    else setCalMonth(m => m + 1);
+    setSelDay(0);
+  };
 
   return (
     <>
       <style>{`
-        @keyframes sv-modal-fade { from { opacity:0; } to { opacity:1; } }
-        @keyframes sv-modal-pop  { from { opacity:0; transform:scale(0.96) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
-        @keyframes sv-confetti-pop { 0% { transform: scale(0.4); opacity: 0; } 60% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
-        @keyframes sv-confetti-float { 0% { opacity:1; transform: translateY(0) rotate(0deg); } 100% { opacity:0; transform: translateY(120px) rotate(720deg); } }
-        @keyframes sv-spin { to { transform: rotate(360deg); } }
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;600;700;800&display=swap');
 
-        .sv-modal-backdrop {
+        @keyframes sv-fade-in   { from { opacity:0 } to { opacity:1 } }
+        @keyframes sv-slide-up  { from { opacity:0; transform:translateY(24px) scale(0.97) } to { opacity:1; transform:none } }
+        @keyframes sv-pop-check { 0%{transform:scale(0.3);opacity:0} 60%{transform:scale(1.2)} 100%{transform:scale(1);opacity:1} }
+        @keyframes sv-confetti  { 0%{opacity:1;transform:translateY(0) rotate(0deg)} 100%{opacity:0;transform:translateY(100px) rotate(720deg)} }
+        @keyframes sv-spin      { to { transform:rotate(360deg) } }
+
+        /* ── Backdrop ─────────────────────────────────────────────── */
+        .bk-backdrop {
           position: fixed; inset: 0; z-index: 9999;
-          background: rgba(12, 14, 21, 0.88);
-          backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+          background: rgba(10,12,20,0.75);
+          backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
           display: flex; align-items: center; justify-content: center;
           padding: 12px;
-          animation: sv-modal-fade 0.3s ease;
+          animation: sv-fade-in 0.25s ease;
         }
 
-        .sv-modal-container {
-          position: relative; width: 100%; max-width: 1040px;
-          max-height: 95vh;
-          background: #11131b;
-          border: 3px solid #1C202B;
+        /* ── Modal Shell ──────────────────────────────────────────── */
+        .bk-modal {
+          position: relative;
+          width: 100%; max-width: 1060px;
+          max-height: 92vh;
+          background: #ffffff;
           border-radius: 24px;
-          box-shadow: 0 32px 80px rgba(0,0,0,0.85);
+          box-shadow: 0 40px 100px rgba(0,0,0,0.45);
           overflow: hidden;
-          display: flex; flex-direction: column;
-          animation: sv-modal-pop 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+          display: flex;
+          animation: sv-slide-up 0.35s cubic-bezier(0.22,1,0.36,1);
         }
 
-        .sv-modal-close-btn {
-          position: absolute; top: 14px; right: 14px; z-index: 50;
+        /* ── Close Button ─────────────────────────────────────────── */
+        .bk-close {
+          position: absolute; top: 18px; right: 18px; z-index: 20;
           width: 36px; height: 36px; border-radius: 50%;
-          background: #1C202B; border: 2px solid #ffffff;
-          color: #ffffff; font-family: 'Open Sans', sans-serif;
-          font-size: 16px; font-weight: 900; cursor: pointer;
+          background: #f3f4f6; border: none; cursor: pointer;
           display: flex; align-items: center; justify-content: center;
+          font-size: 18px; color: #111827; font-weight: 900;
           transition: background 150ms, transform 150ms;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.12);
         }
-        .sv-modal-close-btn:hover { background: #FF007F; border-color: #FF007F; transform: rotate(90deg); }
+        .bk-close:hover { background: #E22D6D; color: #fff; transform: rotate(90deg); }
 
-        /* ── Top Banner Container ── */
-        .sv-top-banner-full {
+        /* ── Left Panel ───────────────────────────────────────────── */
+        .bk-left {
+          width: 310px; flex-shrink: 0;
+          background: #f8f9fb;
+          border-right: 1.5px solid #f0f0f0;
+          display: flex; flex-direction: column;
+          overflow-y: auto;
+        }
+
+        .bk-profile-photo {
           width: 100%;
           background: #ffffff;
           display: flex; align-items: center; justify-content: center;
-          overflow: hidden; flex-shrink: 0;
+          overflow: hidden;
+          min-height: 200px;
           position: relative;
         }
-        .sv-top-banner-full img {
-          width: 100%;
-          height: auto;
-          object-fit: contain;
+        .bk-profile-photo img {
+          width: 100%; height: 240px;
+          object-fit: cover; object-position: top center;
           display: block;
         }
 
-        /* ── Main Body Container ── */
-        .sv-modal-body {
-          background: #11131b;
-          flex: 1; overflow-y: auto; overflow-x: hidden;
-          padding: 16px 24px 20px;
-          display: flex; flex-direction: column; gap: 14px;
-          scrollbar-width: thin;
-          scrollbar-color: rgba(255,255,255,0.2) transparent;
+        .bk-bio {
+          padding: 20px 22px 16px;
+          border-bottom: 1px solid #ececec;
         }
-        .sv-modal-body::-webkit-scrollbar { width: 5px; }
-        .sv-modal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-
-        .sv-header-divider-row {
-          display: flex; align-items: center; justify-content: center; gap: 12px;
-          margin-bottom: 2px;
-        }
-        .sv-divider-line {
-          width: 40px; height: 2px; background: #FF007F; border-radius: 9999px;
-        }
-        .sv-section-tag {
+        .bk-hey {
           font-family: 'Open Sans', sans-serif;
-          font-size: 10.5px; font-weight: 800; text-transform: uppercase;
-          letter-spacing: 2px; color: #ffffff;
-          background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
-          padding: 4px 20px; border-radius: 9999px;
+          font-size: 13px; color: #6b7280; margin-bottom: 4px; display: block;
+        }
+        .bk-name {
+          font-family: 'Bangers', cursive;
+          font-size: 26px; letter-spacing: 1px; color: #111827;
+          margin: 0 0 4px; text-transform: uppercase;
+        }
+        .bk-title-tag {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 12.5px; font-weight: 700; color: #E22D6D;
+          margin: 0;
         }
 
-        /* ── Services Cards 3×2 Grid ── */
-        .sv-cards-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 14px;
+        .bk-services-list {
+          padding: 16px 22px;
+          display: flex; flex-direction: column; gap: 12px;
+          flex: 1;
+        }
+        .bk-svc-row {
+          display: flex; align-items: flex-start; gap: 12px;
+        }
+        .bk-svc-icon {
+          width: 36px; height: 36px; border-radius: 10px;
+          background: #fff; border: 1.5px solid #f0f0f0;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 17px; flex-shrink: 0;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+        }
+        .bk-svc-title {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 13px; font-weight: 700; color: #111827;
+          margin: 0 0 2px;
+        }
+        .bk-svc-desc {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 11.5px; color: #6b7280; margin: 0; line-height: 1.4;
         }
 
-        .sv-service-card {
-          background: #ffffff;
-          border-radius: 20px;
-          padding: 18px 20px 16px;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-          transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms;
-          cursor: default; position: relative; overflow: hidden;
-          display: flex; flex-direction: column;
-        }
-        .sv-service-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 16px 36px rgba(255,0,127,0.2);
-        }
-
-        .sv-card-top-row {
+        .bk-bottom-banner {
+          margin: 16px 22px 22px;
+          background: #fff0f4; border: 1.5px solid #ffd6e4;
+          border-radius: 14px; padding: 14px 16px;
           display: flex; align-items: center; gap: 12px;
-          margin-bottom: 12px;
         }
-        .sv-card-icon-img {
-          width: 42px; height: 42px;
-          object-fit: contain; display: block; flex-shrink: 0;
-          transition: transform 200ms;
-        }
-        .sv-service-card:hover .sv-card-icon-img { transform: scale(1.12) rotate(-4deg); }
-
-        .sv-card-title-text {
-          font-family: 'Bangers', cursive;
-          font-size: 17px; letter-spacing: 1px; color: #11131b;
-          margin: 0; line-height: 1.15; text-transform: uppercase;
-        }
-
-        .sv-card-ul {
-          list-style: none; margin: 0; padding: 0;
-          display: flex; flex-direction: column; gap: 5px;
-        }
-        .sv-card-li {
+        .bk-banner-icon { font-size: 24px; flex-shrink: 0; }
+        .bk-banner-text {
           font-family: 'Open Sans', sans-serif;
-          font-size: 12px; color: rgba(17,19,27,0.8); font-weight: 600;
-          display: flex; align-items: flex-start; gap: 7px; line-height: 1.35;
+          font-size: 12px; color: #374151; line-height: 1.5; margin: 0;
         }
-        .sv-card-bullet {
-          width: 6px; height: 6px; border-radius: 50%; background: #FF007F; flex-shrink: 0; margin-top: 5px;
-        }
+        .bk-banner-text strong { color: #E22D6D; display: block; }
 
-        /* ── Bottom CTA Banner Card Perfectly Aligned ── */
-        .sv-cta-banner-card {
-          background: #171a24;
-          border: 1.5px solid rgba(255,255,255,0.1);
-          border-radius: 20px;
-          padding: 18px 24px;
-          display: flex; align-items: center; justify-content: space-between;
-          gap: 20px; flex-wrap: wrap; margin-top: 6px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        /* ── Right Panel ──────────────────────────────────────────── */
+        .bk-right {
+          flex: 1;
+          overflow-y: auto; overflow-x: hidden;
+          display: flex; flex-direction: column;
+          scrollbar-width: thin; scrollbar-color: #e5e7eb transparent;
         }
+        .bk-right::-webkit-scrollbar { width: 4px; }
+        .bk-right::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
 
-        .sv-cta-quote-left {
-          display: flex; align-items: center; gap: 16px;
+        /* ── Right Header ─────────────────────────────────────────── */
+        .bk-right-header {
+          padding: 28px 32px 20px;
+          border-bottom: 1px solid #f0f0f0;
+          display: flex; align-items: center; gap: 18px;
         }
-        .sv-quote-icon-badge {
-          font-family: 'Bangers', cursive; font-size: 36px;
-          color: #FF007F; line-height: 1; flex-shrink: 0;
+        .bk-header-icon {
+          width: 54px; height: 54px; border-radius: 16px;
+          background: #fff0f4; border: 2px solid #ffd6e4;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 26px; flex-shrink: 0;
         }
-        .sv-quote-title {
+        .bk-header-title {
           font-family: 'Bangers', cursive;
-          font-size: 18px; letter-spacing: 1px;
-          color: #ffffff; margin: 0 0 2px; text-transform: uppercase;
+          font-size: 32px; letter-spacing: 1.5px; color: #111827;
+          margin: 0; text-transform: uppercase; line-height: 1;
         }
-        .sv-quote-title span { color: #FF007F; }
-        .sv-quote-sub {
+        .bk-header-sub {
           font-family: 'Open Sans', sans-serif;
-          font-size: 12px; color: rgba(255,255,255,0.65); margin: 0;
+          font-size: 13px; color: #6b7280; margin: 4px 0 0;
         }
 
-        /* Big Pink "BOOK A FREE DISCOVERY CALL" Button */
-        .sv-big-pink-btn {
-          background: linear-gradient(135deg, #FF007F 0%, #e6006d 100%);
-          border: none;
-          border-radius: 14px;
-          padding: 14px 28px;
-          font-family: 'Bangers', cursive;
-          font-size: 18px; letter-spacing: 1.5px; text-transform: uppercase; color: #ffffff;
-          cursor: pointer; display: flex; align-items: center; gap: 12px;
-          transition: background 150ms, transform 100ms, box-shadow 150ms;
-          box-shadow: 0 0 24px rgba(255,0,127,0.45);
-          white-space: nowrap;
-        }
-        .sv-big-pink-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 0 36px rgba(255,0,127,0.65);
-        }
-        .sv-big-pink-btn:active { transform: translateY(0); }
-        .sv-mobile-icon-circle {
-          width: 32px; height: 32px; border-radius: 50%;
-          background: #11131b; display: flex; align-items: center; justify-content: center;
-          flex-shrink: 0;
-        }
-        .sv-mobile-icon-circle img { width: 18px; height: 18px; object-fit: contain; }
-
-        /* ══════════════════════════════════════════
-           PAGE 2: BOOKING SCREEN (Centered Large Lottie Top Card)
-        ══════════════════════════════════════════ */
-        .sv-booking-page-container {
-          display: flex; flex-direction: column; gap: 14px;
+        /* ── Right Body ───────────────────────────────────────────── */
+        .bk-right-body {
+          padding: 24px 32px 20px;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 28px;
+          flex: 1;
         }
 
-        .sv-lottie-placeholder {
-          font-family: 'Open Sans', sans-serif; font-size: 12px; color: rgba(17,19,27,0.5);
-          font-weight: 700;
+        /* ── Section Headers ─────────────────────────────────────── */
+        .bk-section-title {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 11px; font-weight: 800; text-transform: uppercase;
+          letter-spacing: 1.5px; color: #E22D6D;
+          border-left: 3px solid #E22D6D; padding-left: 10px;
+          margin: 0 0 16px;
         }
 
-        /* Large & Centered Lottie Banner Card for Page 2 */
-        .sv-booking-lottie-card {
-          width: 100%;
-          background: #ffffff;
-          border-radius: 20px;
-          padding: 12px 24px;
-          display: flex; align-items: center; justify-content: center;
-          overflow: hidden;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-          border: 3px solid #1C202B;
+        /* ── Form Fields ─────────────────────────────────────────── */
+        .bk-form-col { display: flex; flex-direction: column; gap: 14px; }
+        .bk-field { display: flex; flex-direction: column; gap: 5px; }
+        .bk-label {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 12.5px; font-weight: 700; color: #374151;
         }
-        .sv-booking-lottie-wrap-center {
-          width: 340px; height: 180px;
-          display: flex; align-items: center; justify-content: center;
+        .bk-input-wrap {
+          position: relative;
+        }
+        .bk-input-icon {
+          position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+          font-size: 14px; color: #9ca3af; pointer-events: none;
+        }
+        .bk-input {
+          width: 100%; box-sizing: border-box;
+          background: #f9fafb; border: 1.5px solid #e5e7eb;
+          border-radius: 10px; padding: 10px 14px 10px 38px;
+          font-family: 'Open Sans', sans-serif; font-size: 13.5px; color: #111827;
+          outline: none; transition: border-color 150ms, box-shadow 150ms;
+        }
+        .bk-input::placeholder { color: #9ca3af; }
+        .bk-input:focus { border-color: #E22D6D; box-shadow: 0 0 0 3px rgba(226,45,109,0.1); background: #fff; }
+        .bk-select {
+          width: 100%; box-sizing: border-box;
+          background: #f9fafb; border: 1.5px solid #e5e7eb;
+          border-radius: 10px; padding: 10px 14px 10px 38px;
+          font-family: 'Open Sans', sans-serif; font-size: 13.5px; color: #111827;
+          outline: none; cursor: pointer; appearance: none;
+          transition: border-color 150ms;
+        }
+        .bk-select:focus { border-color: #E22D6D; }
+
+        .bk-textarea-wrap { position: relative; }
+        .bk-textarea-icon {
+          position: absolute; left: 13px; top: 12px;
+          font-size: 14px; color: #9ca3af;
+        }
+        .bk-textarea {
+          width: 100%; box-sizing: border-box; resize: none;
+          background: #f9fafb; border: 1.5px solid #e5e7eb;
+          border-radius: 10px; padding: 10px 14px 28px 38px;
+          font-family: 'Open Sans', sans-serif; font-size: 13.5px; color: #111827;
+          outline: none; min-height: 90px;
+          transition: border-color 150ms;
+        }
+        .bk-textarea::placeholder { color: #9ca3af; }
+        .bk-textarea:focus { border-color: #E22D6D; background: #fff; }
+        .bk-char-count {
+          position: absolute; bottom: 8px; right: 12px;
+          font-size: 11px; color: #9ca3af;
+          font-family: 'Open Sans', sans-serif;
         }
 
-        /* Booking Header Bar */
-        .sv-booking-nav-bar {
+        .bk-privacy-box {
+          background: #f0fdf4; border: 1.5px solid #bbf7d0;
+          border-radius: 12px; padding: 12px 14px;
+          display: flex; align-items: flex-start; gap: 10px;
+          margin-top: 2px;
+        }
+        .bk-privacy-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+        .bk-privacy-text {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 12px; color: #374151; line-height: 1.5; margin: 0;
+        }
+        .bk-privacy-text strong { color: #059669; display: block; }
+
+        /* ── Calendar ──────────────────────────────────────────────── */
+        .bk-cal-col { display: flex; flex-direction: column; gap: 0; }
+        .bk-cal-header {
           display: flex; align-items: center; justify-content: space-between;
+          margin-bottom: 14px;
         }
-        .sv-booking-title-heading {
-          font-family: 'Bangers', cursive;
-          font-size: 24px; letter-spacing: 1.5px; color: #ffffff; margin: 0;
+        .bk-cal-nav-btn {
+          width: 28px; height: 28px; border-radius: 8px;
+          background: #f3f4f6; border: 1px solid #e5e7eb;
+          cursor: pointer; display: flex; align-items: center; justify-content: center;
+          font-size: 13px; color: #374151; transition: all 130ms;
+        }
+        .bk-cal-nav-btn:hover { background: #E22D6D; color: #fff; border-color: #E22D6D; }
+        .bk-cal-month {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 14px; font-weight: 700; color: #111827;
+        }
+        .bk-cal-grid {
+          display: grid; grid-template-columns: repeat(7, 1fr);
+          gap: 2px;
+        }
+        .bk-cal-day-hdr {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 10px; font-weight: 700; color: #9ca3af;
+          text-align: center; padding: 4px 0 6px;
           text-transform: uppercase;
         }
-        .sv-back-to-services-btn {
-          background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.18);
-          border-radius: 10px; padding: 6px 16px;
-          font-family: 'Open Sans', sans-serif; font-size: 11.5px; font-weight: 700;
-          color: #ffffff; cursor: pointer; text-transform: uppercase; transition: all 150ms;
+        .bk-cal-cell {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 13px; color: #374151;
+          text-align: center; padding: 7px 4px;
+          border-radius: 8px; cursor: pointer;
+          transition: all 130ms;
         }
-        .sv-back-to-services-btn:hover { background: #FF007F; border-color: #FF007F; }
-
-        /* Booking Form & Date Split Grid */
-        .sv-booking-grid-split {
-          display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+        .bk-cal-cell.other-month { color: #d1d5db; cursor: default; }
+        .bk-cal-cell.today { color: #E22D6D; font-weight: 700; }
+        .bk-cal-cell:not(.other-month):not(.selected):hover {
+          background: #fff0f4; color: #E22D6D;
         }
-
-        .sv-booking-col-card {
-          background: #171a24;
-          border: 1.5px solid rgba(255,255,255,0.12);
-          border-radius: 20px;
-          padding: 20px;
-          display: flex; flex-direction: column; gap: 14px;
-        }
-        .sv-col-card-title {
-          font-family: 'Open Sans', sans-serif; font-size: 11px; font-weight: 800;
-          text-transform: uppercase; letter-spacing: 1.5px; color: #FF007F;
-          border-left: 3px solid #FF007F; padding-left: 8px; margin: 0;
+        .bk-cal-cell.selected {
+          background: #E22D6D; color: #fff; font-weight: 700;
+          box-shadow: 0 2px 10px rgba(226,45,109,0.4);
         }
 
-        /* Form Inputs */
-        .sv-form-field { display: flex; flex-direction: column; gap: 5px; }
-        .sv-form-label {
-          font-family: 'Open Sans', sans-serif; font-size: 12px; font-weight: 700;
-          color: #ffffff;
+        /* ── Time Slots ────────────────────────────────────────────── */
+        .bk-time-section { margin-top: 18px; }
+        .bk-time-label {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 10px;
         }
-        .sv-form-input {
-          background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.18);
-          border-radius: 10px; padding: 11px 14px;
-          font-family: 'Open Sans', sans-serif; font-size: 13.5px; color: #ffffff;
-          outline: none; width: 100%; box-sizing: border-box; transition: border-color 150ms;
-        }
-        .sv-form-input::placeholder { color: rgba(255,255,255,0.5); }
-        .sv-form-input:focus { border-color: #FF007F; background: rgba(255,0,127,0.1); }
-
-        /* Date Strip Pills */
-        .sv-dates-pill-strip {
-          display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none;
-        }
-        .sv-dates-pill-strip::-webkit-scrollbar { display: none; }
-        .sv-date-pill-item {
-          flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
-          background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.15);
-          border-radius: 14px; padding: 10px 14px; cursor: pointer; min-width: 58px;
-          transition: all 180ms; font-family: 'Open Sans', sans-serif;
-        }
-        .sv-date-pill-item:hover { background: rgba(255,0,127,0.18); border-color: #FF007F; transform: translateY(-2px); }
-        .sv-date-pill-item.selected {
-          background: #FF007F; border-color: #ffffff;
-          box-shadow: 0 0 18px rgba(255,0,127,0.6); transform: translateY(-2px);
-        }
-        .sv-date-day-short { font-size: 9.5px; font-weight: 700; text-transform: uppercase; color: rgba(255,255,255,0.7); }
-        .sv-date-pill-item.selected .sv-date-day-short { color: #ffffff; }
-        .sv-date-num-big { font-family: 'Bangers', cursive; font-size: 22px; color: #ffffff; line-height: 1; margin: 2px 0; }
-        .sv-date-month-name { font-size: 9.5px; font-weight: 600; color: rgba(255,255,255,0.6); }
-        .sv-date-pill-item.selected .sv-date-month-name { color: rgba(255,255,255,0.9); }
-
-        /* Time Slots Grid */
-        .sv-time-slots-grid {
+        .bk-time-grid {
           display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
         }
-        .sv-time-slot-btn {
-          background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.15);
-          border-radius: 10px; padding: 9px 6px;
-          font-family: 'Open Sans', sans-serif; font-size: 11.5px; font-weight: 700;
-          color: rgba(255,255,255,0.9); cursor: pointer; text-align: center;
-          transition: all 150ms;
+        .bk-time-btn {
+          background: #f9fafb; border: 1.5px solid #e5e7eb;
+          border-radius: 10px; padding: 8px 4px;
+          font-family: 'Open Sans', sans-serif; font-size: 12px; font-weight: 700;
+          color: #374151; cursor: pointer; text-align: center;
+          transition: all 130ms;
         }
-        .sv-time-slot-btn:hover { background: rgba(255,0,127,0.18); border-color: #FF007F; }
-        .sv-time-slot-btn.selected {
-          background: #FF007F; border-color: #ffffff; color: #ffffff;
-          box-shadow: 0 0 16px rgba(255,0,127,0.6);
+        .bk-time-btn:hover { background: #fff0f4; border-color: #E22D6D; color: #E22D6D; }
+        .bk-time-btn.selected {
+          background: #E22D6D; border-color: #E22D6D; color: #fff;
+          box-shadow: 0 2px 10px rgba(226,45,109,0.4);
         }
 
-        .sv-confirm-booking-btn {
-          width: 100%;
-          background: linear-gradient(135deg, #FF007F 0%, #e6006d 100%);
-          border: none; border-radius: 12px;
-          padding: 14px 28px;
+        /* ── Bottom Action Bar ─────────────────────────────────────── */
+        .bk-footer {
+          padding: 18px 32px;
+          border-top: 1px solid #f0f0f0;
+          display: flex; align-items: center; justify-content: space-between;
+          gap: 16px; background: #fff;
+        }
+        .bk-footer-hint {
+          display: flex; align-items: center; gap: 12px;
+        }
+        .bk-hint-icon {
+          width: 40px; height: 40px; border-radius: 12px;
+          background: #fff0f4; border: 1.5px solid #ffd6e4;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 20px; flex-shrink: 0;
+        }
+        .bk-hint-text {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 12.5px; color: #6b7280; margin: 0; line-height: 1.5;
+        }
+        .bk-hint-text strong { color: #111827; display: block; }
+        .bk-confirm-btn {
+          background: linear-gradient(135deg, #E22D6D 0%, #c0185a 100%);
+          border: none; border-radius: 14px;
+          padding: 14px 30px;
           font-family: 'Bangers', cursive; font-size: 19px;
           letter-spacing: 1.5px; text-transform: uppercase; color: #ffffff;
-          cursor: pointer; box-shadow: 0 0 24px rgba(255,0,127,0.45);
-          transition: all 150ms; display: flex; align-items: center; justify-content: center; gap: 8px;
+          cursor: pointer;
+          display: flex; align-items: center; gap: 12px;
+          box-shadow: 0 6px 24px rgba(226,45,109,0.45);
+          transition: transform 150ms, box-shadow 150ms;
+          white-space: nowrap;
         }
-        .sv-confirm-booking-btn:hover { transform: translateY(-2px); box-shadow: 0 0 36px rgba(255,0,127,0.65); }
-        .sv-spinner { width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: sv-spin 0.6s linear infinite; }
+        .bk-confirm-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(226,45,109,0.6); }
+        .bk-confirm-btn:active { transform: none; }
+        .bk-confirm-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+        .bk-btn-icon { font-size: 20px; }
+        .bk-spinner {
+          width: 16px; height: 16px;
+          border: 2.5px solid rgba(255,255,255,0.5);
+          border-top-color: #fff; border-radius: 50%;
+          animation: sv-spin 0.6s linear infinite;
+        }
 
-        /* ── PAGE 3: CONFIRMED ANIMATED SCREEN ── */
-        .sv-confirmation-screen {
-          display: flex; flex-direction: column; align-items: center; justify-content: center;
-          padding: 44px 20px; text-align: center; gap: 16px; position: relative;
-          animation: sv-confetti-pop 0.5s ease;
+        /* ── Confirmed Screen ──────────────────────────────────────── */
+        .bk-confirmed-wrap {
+          flex: 1; display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          padding: 48px 32px; text-align: center;
+          position: relative; gap: 16px;
+          animation: sv-slide-up 0.4s ease;
         }
-        .sv-confetti-ring {
-          display: flex; gap: 10px; position: absolute; top: 20px; pointer-events: none;
+        .bk-confetti-row {
+          display: flex; gap: 10px; position: absolute; top: 24px; pointer-events: none;
         }
-        .sv-confetti-particle {
+        .bk-confetti-dot {
           width: 10px; height: 10px; border-radius: 50%;
-          animation: sv-confetti-float 1.2s ease-out forwards;
+          animation: sv-confetti 1.2s ease-out forwards;
         }
-        .sv-confirmed-check {
-          width: 80px; height: 80px; border-radius: 50%;
-          background: linear-gradient(135deg, #2BB04A 0%, #1c8835 100%);
-          border: 3px solid #ffffff;
-          box-shadow: 0 0 36px rgba(43,176,74,0.6);
+        .bk-check-circle {
+          width: 84px; height: 84px; border-radius: 50%;
+          background: linear-gradient(135deg, #059669 0%, #047857 100%);
+          border: 3px solid #fff;
+          box-shadow: 0 0 40px rgba(5,150,105,0.5);
           display: flex; align-items: center; justify-content: center;
-          font-size: 42px; color: #ffffff; font-weight: bold;
-          animation: sv-confetti-pop 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+          font-size: 44px; color: #fff;
+          animation: sv-pop-check 0.5s cubic-bezier(0.22,1,0.36,1);
         }
-        .sv-confirmed-title {
-          font-family: 'Bangers', cursive; font-size: 38px; letter-spacing: 1.5px; color: #ffffff; margin: 0;
-          text-shadow: 0 0 20px rgba(255,0,127,0.4);
+        .bk-confirmed-title {
+          font-family: 'Bangers', cursive;
+          font-size: 38px; letter-spacing: 1.5px; color: #111827; margin: 0;
         }
-        .sv-confirmed-text {
-          font-family: 'Open Sans', sans-serif; font-size: 14.5px; color: rgba(255,255,255,0.85);
-          max-width: 380px; line-height: 1.6; margin: 0;
+        .bk-confirmed-sub {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 14.5px; color: #6b7280;
+          max-width: 360px; line-height: 1.6; margin: 0;
         }
-        .sv-confirmed-text span { color: #FF007F; font-weight: 700; }
-        .sv-done-close-btn {
-          background: linear-gradient(135deg, #FF007F 0%, #e6006d 100%);
-          border: 2px solid #ffffff; border-radius: 12px;
-          padding: 12px 32px; font-family: 'Bangers', cursive; font-size: 18px;
-          letter-spacing: 1px; color: #ffffff; cursor: pointer;
-          box-shadow: 0 0 20px rgba(255,0,127,0.5); transition: all 150ms;
+        .bk-confirmed-sub span { color: #E22D6D; font-weight: 700; }
+        .bk-close-btn {
+          background: linear-gradient(135deg, #E22D6D 0%, #c0185a 100%);
+          border: none; border-radius: 12px;
+          padding: 12px 32px;
+          font-family: 'Bangers', cursive; font-size: 18px;
+          letter-spacing: 1px; color: #fff; cursor: pointer;
+          box-shadow: 0 6px 20px rgba(226,45,109,0.4);
+          transition: all 150ms;
         }
-        .sv-done-close-btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255,0,127,0.7); }
+        .bk-close-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(226,45,109,0.55); }
 
-        /* ══════════════════════════════════════════
-           MOBILE RESPONSIVENESS OVERHAUL
-        ══════════════════════════════════════════ */
-        @media (max-width: 840px) {
-          .sv-cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-          .sv-booking-grid-split { grid-template-columns: 1fr; }
-          .sv-modal-body { padding: 12px 16px 16px; }
+        /* ── RESPONSIVE ────────────────────────────────────────────── */
+        @media (max-width: 860px) {
+          .bk-modal { flex-direction: column; max-height: 96vh; }
+          .bk-left { width: 100%; flex-direction: row; align-items: center; flex-shrink: 0; border-right: none; border-bottom: 1.5px solid #f0f0f0; }
+          .bk-profile-photo { width: 120px; height: 120px; min-height: unset; flex-shrink: 0; border-radius: 0; overflow: hidden; }
+          .bk-profile-photo img { height: 120px; }
+          .bk-bio { border-bottom: none; border-right: 1px solid #ececec; padding: 12px 16px; }
+          .bk-services-list { display: none; }
+          .bk-bottom-banner { display: none; }
+          .bk-right-body { grid-template-columns: 1fr; gap: 20px; }
+          .bk-right-header { padding: 18px 20px 14px; }
+          .bk-right-body { padding: 16px 20px; }
+          .bk-footer { padding: 14px 20px; }
         }
 
         @media (max-width: 600px) {
-          .sv-modal-backdrop { padding: 6px; }
-          .sv-modal-container { border-radius: 20px; max-height: 96vh; }
-
-          .sv-cards-grid { grid-template-columns: 1fr; gap: 10px; }
-          .sv-service-card { padding: 14px 16px; border-radius: 16px; }
-          .sv-card-icon-img { width: 34px; height: 34px; margin-bottom: 0; }
-          .sv-card-title-text { font-size: 15px; }
-          .sv-card-li { font-size: 11.5px; }
-
-          .sv-modal-body { padding: 10px 12px 14px; }
-
-          .sv-cta-banner-card { padding: 14px; }
-          .sv-cta-main-row { flex-direction: column; align-items: stretch; gap: 12px; text-align: center; }
-          .sv-cta-quote-left { flex-direction: column; text-align: center; gap: 6px; }
-          .sv-big-pink-btn { width: 100%; justify-content: center; font-size: 14px; padding: 12px 18px; }
-
-          /* Mobile Page 2 Layout */
-          .sv-booking-lottie-card { padding: 12px; }
-          .sv-booking-lottie-wrap-center { width: 240px; height: 130px; }
-
-          .sv-booking-col-card { padding: 14px; border-radius: 16px; }
-          .sv-confirm-booking-btn { width: 100%; justify-content: center; }
+          .bk-modal { border-radius: 20px; }
+          .bk-left { display: block; }
+          .bk-profile-photo { width: 100%; height: 180px; }
+          .bk-profile-photo img { height: 180px; width: 100%; object-fit: cover; object-position: top; }
+          .bk-bio { border-right: none; border-bottom: 1px solid #ececec; }
+          .bk-services-list { display: flex; padding: 14px 16px; gap: 10px; }
+          .bk-bottom-banner { margin: 0 16px 16px; }
+          .bk-right-body { grid-template-columns: 1fr; gap: 16px; padding: 14px 16px; }
+          .bk-right-header { padding: 16px 16px 12px; }
+          .bk-header-title { font-size: 24px; }
+          .bk-footer { flex-direction: column; align-items: stretch; padding: 14px 16px; }
+          .bk-confirm-btn { justify-content: center; font-size: 17px; }
+          .bk-time-grid { grid-template-columns: repeat(2, 1fr); }
         }
       `}</style>
 
-      <div className="sv-modal-backdrop" onClick={(e) => { if (e.target === e.currentTarget) close(); }}>
-        <div className="sv-modal-container">
+      <div className="bk-backdrop" onClick={(e) => { if (e.target === e.currentTarget) close(); }}>
+        <div className="bk-modal">
 
-          {/* Close Button */}
-          <button className="sv-modal-close-btn" onClick={close} aria-label="Close modal">
-            ✕
-          </button>
+          {/* ── Close Button ──────────────────────────── */}
+          <button className="bk-close" onClick={close} aria-label="Close">✕</button>
 
-          {/* ── PAGE 1 SERVICES VIEW ── */}
-          {screen === "services" && (
-            <>
-              {/* Full Width 100% Uncropped Top Banner Image */}
-              <div className="sv-top-banner-full">
-                <img src="/icons/Model-top-card.png" alt="Sre Varshan - Let's build something Extraordinary" />
-              </div>
+          {/* ════════════════════════════════════════════
+              LEFT PANEL
+          ════════════════════════════════════════════ */}
+          <div className="bk-left">
+            {/* Profile Photo */}
+            <div className="bk-profile-photo">
+              <img src="/icons/new-model-card.png" alt="Sre Varshan" />
+            </div>
 
-              {/* Main Body Section */}
-              <div className="sv-modal-body">
-                {/* Header Tag */}
-                <div className="sv-header-divider-row">
-                  <div className="sv-divider-line" />
-                  <span className="sv-section-tag">WHAT CAN WE BUILD TOGETHER?</span>
-                  <div className="sv-divider-line" />
+            {/* Bio */}
+            <div className="bk-bio">
+              <span className="bk-hey">Hey there! 👋</span>
+              <h2 className="bk-name">I&apos;M SRE VARSHAN</h2>
+              <p className="bk-title-tag">Applied AI &amp; GenAI Engineer</p>
+            </div>
+
+            {/* Services List */}
+            <div className="bk-services-list">
+              {SERVICES_LEFT.map((s) => (
+                <div className="bk-svc-row" key={s.title}>
+                  <div className="bk-svc-icon">{s.icon}</div>
+                  <div>
+                    <p className="bk-svc-title">{s.title}</p>
+                    <p className="bk-svc-desc">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Bottom Banner */}
+            <div className="bk-bottom-banner">
+              <span className="bk-banner-icon">✨</span>
+              <p className="bk-banner-text">
+                <strong>Helping small businesses and startups</strong>
+                build AI-powered products that create real value.
+              </p>
+            </div>
+          </div>
+
+          {/* ════════════════════════════════════════════
+              RIGHT PANEL
+          ════════════════════════════════════════════ */}
+          <div className="bk-right">
+
+            {screen === "booking" && (
+              <>
+                {/* Header */}
+                <div className="bk-right-header">
+                  <div className="bk-header-icon">📅</div>
+                  <div>
+                    <h3 className="bk-header-title">BOOK A CALL</h3>
+                    <p className="bk-header-sub">Let&apos;s discuss your project and explore how I can help you.</p>
+                  </div>
                 </div>
 
-                {/* 3×2 Services Cards Grid */}
-                <div className="sv-cards-grid">
-                  {SERVICES.map((s) => (
-                    <div className="sv-service-card" key={s.title}>
-                      <div className="sv-card-top-row">
-                        <img className="sv-card-icon-img" src={s.icon} alt={s.title} />
-                        <h3 className="sv-card-title-text">{s.title}</h3>
+                {/* Body Grid */}
+                <div className="bk-right-body">
+
+                  {/* Left Col — Your Details */}
+                  <div className="bk-form-col">
+                    <p className="bk-section-title">YOUR DETAILS</p>
+
+                    <div className="bk-field">
+                      <label className="bk-label">Your Name *</label>
+                      <div className="bk-input-wrap">
+                        <span className="bk-input-icon">👤</span>
+                        <input className="bk-input" placeholder="Enter your name" value={name} onChange={e => setName(e.target.value)} />
                       </div>
-                      <ul className="sv-card-ul">
-                        {s.items.map((item) => (
-                          <li className="sv-card-li" key={item}>
-                            <span className="sv-card-bullet" />
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Bottom CTA Banner Card */}
-                <div className="sv-cta-banner-card">
-                  <div className="sv-cta-quote-left">
-                    <div className="sv-quote-icon-badge">“</div>
-                    <div>
-                      <h4 className="sv-quote-title">CRAFTED WITH PRECISION. <span>BUILT FOR IMPACT.</span></h4>
-                      <p className="sv-quote-sub">Great ideas deserve exceptional execution. Let&apos;s build yours.</p>
-                    </div>
-                  </div>
-                  <button className="sv-big-pink-btn" onClick={() => setScreen("booking")}>
-                    <div className="sv-mobile-icon-circle">
-                      <img src="/icons/mobile.png" alt="Call" />
-                    </div>
-                    <span>BOOK A FREE DISCOVERY CALL</span>
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* ── PAGE 2 BOOKING VIEW ── */}
-          {screen === "booking" && (
-            <div className="sv-modal-body">
-              <div className="sv-booking-page-container">
-
-                {/* Top Banner Card featuring Centered Large Lottie Animation Only */}
-                <div className="sv-booking-lottie-card">
-                  <div className="sv-booking-lottie-wrap-center">
-                    <DotLottieReact
-                      src="https://lottie.host/fdbd57ab-593d-4207-97d3-c0f0c80eea07/yj7ppgUSY8.lottie"
-                      loop
-                      autoplay
-                    />
-                  </div>
-                </div>
-
-                {/* Navigation Bar */}
-                <div className="sv-booking-nav-bar">
-                  <button className="sv-back-to-services-btn" onClick={() => { setScreen("services"); setBookErr(""); }}>← Back to Services</button>
-                  <h3 className="sv-booking-title-heading">PICK YOUR DATE &amp; TIME</h3>
-                </div>
-
-                {/* Booking Form Split Grid */}
-                <div className="sv-booking-grid-split">
-                  
-                  {/* Left Column: YOUR DETAILS */}
-                  <div className="sv-booking-col-card">
-                    <h4 className="sv-col-card-title">YOUR DETAILS</h4>
-                    
-                    <div className="sv-form-field">
-                      <label className="sv-form-label">Your Name *</label>
-                      <input className="sv-form-input" placeholder="Sre Varshan" value={name} onChange={(e) => setName(e.target.value)} />
                     </div>
 
-                    <div className="sv-form-field">
-                      <label className="sv-form-label">Email Address *</label>
-                      <input className="sv-form-input" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <div className="bk-field">
+                      <label className="bk-label">Email Address *</label>
+                      <div className="bk-input-wrap">
+                        <span className="bk-input-icon">✉️</span>
+                        <input className="bk-input" type="email" placeholder="Enter your email" value={email} onChange={e => setEmail(e.target.value)} />
+                      </div>
                     </div>
 
-                    <div className="sv-form-field">
-                      <label className="sv-form-label">Phone Number (Optional)</label>
-                      <input className="sv-form-input" placeholder="+91 96006 22497" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                    <div className="bk-field">
+                      <label className="bk-label">Phone Number *</label>
+                      <div className="bk-input-wrap">
+                        <span className="bk-input-icon">📞</span>
+                        <input className="bk-input" placeholder="Enter your phone number" value={phone} onChange={e => setPhone(e.target.value)} />
+                      </div>
+                    </div>
+
+                    <div className="bk-field">
+                      <label className="bk-label">What would you like to discuss?</label>
+                      <div className="bk-input-wrap">
+                        <span className="bk-input-icon">💬</span>
+                        <select className="bk-select" value={topic} onChange={e => setTopic(e.target.value)}>
+                          <option value="">Select a topic</option>
+                          {TOPICS.map(t => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="bk-field">
+                      <label className="bk-label">Tell me more about your project (optional)</label>
+                      <div className="bk-textarea-wrap">
+                        <span className="bk-textarea-icon">✏️</span>
+                        <textarea
+                          className="bk-textarea"
+                          placeholder="Briefly describe your project or idea..."
+                          maxLength={300}
+                          value={note}
+                          onChange={e => setNote(e.target.value)}
+                        />
+                        <span className="bk-char-count">{note.length}/300</span>
+                      </div>
+                    </div>
+
+                    <div className="bk-privacy-box">
+                      <span className="bk-privacy-icon">🛡️</span>
+                      <p className="bk-privacy-text">
+                        <strong>Your data is safe with me.</strong>
+                        I respect your privacy and will never share your information with anyone.
+                      </p>
                     </div>
                   </div>
 
-                  {/* Right Column: PICK A DATE & TIME */}
-                  <div className="sv-booking-col-card">
-                    <h4 className="sv-col-card-title">PICK A DATE &amp; TIME</h4>
+                  {/* Right Col — Calendar & Time */}
+                  <div className="bk-cal-col">
+                    <p className="bk-section-title">PICK A DATE &amp; TIME</p>
 
-                    {/* Date Pills */}
-                    <div className="sv-dates-pill-strip">
-                      {days.map((d, i) => (
-                        <div
-                          key={i}
-                          className={`sv-date-pill-item${selDay === i ? " selected" : ""}`}
-                          onClick={() => setSelDay(i)}
-                          title={d.full}
-                        >
-                          <span className="sv-date-day-short">{d.short}</span>
-                          <span className="sv-date-num-big">{d.num}</span>
-                          <span className="sv-date-month-name">{d.mon}</span>
-                        </div>
+                    {/* Calendar */}
+                    <div className="bk-cal-header">
+                      <button className="bk-cal-nav-btn" onClick={prevMonth}>‹</button>
+                      <span className="bk-cal-month">{MONTHS[calMonth]} {calYear}</span>
+                      <button className="bk-cal-nav-btn" onClick={nextMonth}>›</button>
+                    </div>
+
+                    <div className="bk-cal-grid">
+                      {DAYS_SHORT.map(d => (
+                        <div className="bk-cal-day-hdr" key={d}>{d}</div>
                       ))}
+                      {cells.map((c, i) => {
+                        const isOther   = c.month !== "cur";
+                        const isToday   = c.month === "cur" && c.day === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear();
+                        const isSel     = c.month === "cur" && c.day === selDay;
+                        let cls = "bk-cal-cell";
+                        if (isOther) cls += " other-month";
+                        else if (isSel) cls += " selected";
+                        else if (isToday) cls += " today";
+                        return (
+                          <div
+                            key={i}
+                            className={cls}
+                            onClick={() => { if (!isOther) setSelDay(c.day); }}
+                          >
+                            {c.day}
+                          </div>
+                        );
+                      })}
                     </div>
 
                     {/* Time Slots */}
-                    <div className="sv-time-slots-grid">
-                      {TIME_SLOTS.map((t) => (
-                        <button
-                          key={t}
-                          className={`sv-time-slot-btn${selTime === t ? " selected" : ""}`}
-                          onClick={() => setSelTime(t)}
-                        >
-                          {t}
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Submit Button */}
-                    <div style={{ marginTop: "auto" }}>
-                      {bookErr && <p style={{ marginBottom: "8px", color: "#FF007F", fontWeight: 700, fontSize: "12px" }}>{bookErr}</p>}
-                      <button className="sv-confirm-booking-btn" onClick={handleBook} disabled={sending}>
-                        {sending ? (
-                          <>
-                            <div className="sv-spinner" />
-                            <span>Sending Email &amp; Booking...</span>
-                          </>
-                        ) : (
-                          <span>CONFIRM BOOKING →</span>
-                        )}
-                      </button>
+                    <div className="bk-time-section">
+                      <p className="bk-time-label">Available Time (IST)</p>
+                      <div className="bk-time-grid">
+                        {TIME_SLOTS.map(t => (
+                          <button
+                            key={t}
+                            className={`bk-time-btn${selTime === t ? " selected" : ""}`}
+                            onClick={() => setSelTime(t)}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
                 </div>
 
-              </div>
-            </div>
-          )}
+                {/* Footer */}
+                <div className="bk-footer">
+                  <div className="bk-footer-hint">
+                    <div className="bk-hint-icon">🎧</div>
+                    <p className="bk-hint-text">
+                      <strong>Not sure about the requirement?</strong>
+                      Book a free discovery call and lets talk!
+                    </p>
+                  </div>
+                  <button className="bk-confirm-btn" onClick={handleConfirm} disabled={sending}>
+                    {sending ? <><div className="bk-spinner" /><span>Booking...</span></> : <><span className="bk-btn-icon">📅</span><span>CONFIRM BOOKING</span></>}
+                  </button>
+                </div>
+              </>
+            )}
 
-          {/* ── PAGE 3 CONFIRMED VIEW WITH CONFETTI ANIMATION ── */}
-          {screen === "confirmed" && (
-            <div className="sv-modal-body">
-              <div className="sv-confirmation-screen">
-
-                {/* Confetti particles */}
-                <div className="sv-confetti-ring">
-                  {["#FF007F", "#FFB020", "#2DC8E2", "#2BB04A", "#8E2DE2", "#FF7043", "#FF007F", "#FFB020"].map((c, i) => (
-                    <span key={i} className="sv-confetti-particle" style={{ background: c, animationDelay: `${i * 90}ms` }} />
+            {/* ── Confirmed Screen ──────────────────── */}
+            {screen === "confirmed" && (
+              <div className="bk-confirmed-wrap">
+                <div className="bk-confetti-row">
+                  {["#E22D6D","#FFB020","#2DC8E2","#059669","#8E2DE2","#FF7043","#E22D6D","#FFB020"].map((c, i) => (
+                    <span key={i} className="bk-confetti-dot" style={{ background: c, animationDelay: `${i * 90}ms` }} />
                   ))}
                 </div>
-
-                <div className="sv-confirmed-check">✓</div>
-                <h3 className="sv-confirmed-title">SLOT BOOKED! 🎉</h3>
-                <p className="sv-confirmed-text">
-                  Thanks <span>{name || "Guest"}</span>! Your call is scheduled for{" "}
-                  <span>{currentDayText} at {selTime}</span>.
-                  An email notification has been dispatched to <span>srevarshan9600622@gmail.com</span>!
+                <div className="bk-check-circle">✓</div>
+                <h3 className="bk-confirmed-title">SLOT BOOKED! 🎉</h3>
+                <p className="bk-confirmed-sub">
+                  Thanks <span>{name || "there"}</span>! Your call is locked in for{" "}
+                  <span>{selectedDateStr} at {selTime}</span>.
+                  An email notification has been sent to <span>srevarshan9600622@gmail.com</span>!
                 </p>
-                <button className="sv-done-close-btn" onClick={close}>CLOSE ✕</button>
+                <button className="bk-close-btn" onClick={close}>CLOSE ✕</button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
         </div>
       </div>
