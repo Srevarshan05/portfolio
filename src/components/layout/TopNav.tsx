@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 const NAV_LINKS = [
   { id: "home",         label: "Home" },
@@ -193,6 +194,33 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
                 </button>
               );
             })}
+
+            {/* ── Services Page Link ── */}
+            <Link
+              href="/services"
+              id="nav-services-page"
+              style={{
+                fontFamily:    "'Open Sans', sans-serif",
+                fontSize:      "11px",
+                fontWeight:    700,
+                textTransform: "uppercase",
+                letterSpacing: "0.8px",
+                color:         "#E22D6D",
+                background:    "rgba(226,45,109,0.08)",
+                border:        "1.5px solid rgba(226,45,109,0.25)",
+                height:        "32px",
+                display:       "inline-flex",
+                alignItems:    "center",
+                justifyContent:"center",
+                padding:       "0 14px",
+                borderRadius:  "9999px",
+                textDecoration:"none",
+                transition:    "all 150ms",
+                whiteSpace:    "nowrap",
+              }}
+            >
+              ⚡ Services
+            </Link>
           </nav>
         )}
 
@@ -280,6 +308,30 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
               {link.label}
             </button>
           ))}
+          {/* Services Page Link */}
+          <Link
+            href="/services"
+            onClick={() => setMobileOpen(false)}
+            style={{
+              fontFamily:    "'Open Sans', sans-serif",
+              fontSize:      "13px",
+              fontWeight:    700,
+              textTransform: "uppercase",
+              letterSpacing: "0.8px",
+              color:         "#E22D6D",
+              background:    "rgba(226,45,109,0.08)",
+              border:        "1.5px solid rgba(226,45,109,0.2)",
+              borderRadius:  "12px",
+              padding:       "10px 14px",
+              textAlign:     "left",
+              cursor:        "pointer",
+              width:         "100%",
+              textDecoration:"none",
+              display:       "block",
+            }}
+          >
+            ⚡ Services
+          </Link>
         </div>
       )}
     </header>
