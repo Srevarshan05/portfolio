@@ -5,6 +5,70 @@ import { useScrollReveal } from "@/lib/useScrollReveal";
 
 const PROJECTS = [
   {
+    id: "textlens",
+    accent: "#2BB04A",
+    badgeText: "LOCAL OCR FRAMEWORK",
+    isPinkCard: false,
+    image: "/TextLens-video-thumb.png",
+    tetromino: (
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="#2BB04A">
+        {/* S-block */}
+        <rect x="10" y="0" width="8" height="8" stroke="#1C202B" strokeWidth="1.5" />
+        <rect x="20" y="0" width="8" height="8" stroke="#1C202B" strokeWidth="1.5" />
+        <rect x="0" y="10" width="8" height="8" stroke="#1C202B" strokeWidth="1.5" />
+        <rect x="10" y="10" width="8" height="8" stroke="#1C202B" strokeWidth="1.5" />
+      </svg>
+    ),
+    illustration: null,
+    title: "TextLens — GPU-Accelerated VLM OCR Framework",
+    description: "A Python framework that makes local document OCR simple to set up, reuse, and run across images and PDFs.",
+    features: [
+      { icon: "⚡", text: "Local image & PDF OCR" },
+      { icon: "🖥️", text: "GPU-aware model setup" },
+      { icon: "📦", text: "Batch processing & caching" },
+      { icon: "🔌", text: "FastAPI OCR serving" }
+    ],
+    btnText: "VIEW ON GITHUB",
+    btnLink: "https://github.com/Srevarshan05/textlens",
+  },
+  {
+    id: "rag-pipeline",
+    accent: "#E22D6D",
+    badgeText: "RAG FROM SCRATCH",
+    isPinkCard: false,
+    image: "/RAG-Pipeline-front-card.png",
+    illustration: (
+      <svg width="100%" height="120" viewBox="0 0 260 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Document to answer RAG pipeline illustration">
+        <rect x="12" y="35" width="44" height="54" rx="5" fill="#FFE5EE" stroke="#1C202B" strokeWidth="2.5" />
+        <path d="M23 50H45M23 61H45M23 72H38" stroke="#E22D6D" strokeWidth="3" strokeLinecap="round" />
+        <path d="M66 62H89" stroke="#1C202B" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M84 56L92 62L84 68" stroke="#1C202B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="118" cy="62" r="25" fill="#E8F4FD" stroke="#1C202B" strokeWidth="2.5" />
+        <circle cx="109" cy="53" r="4" fill="#4D5BFF" />
+        <circle cx="126" cy="51" r="4" fill="#8E2DE2" />
+        <circle cx="119" cy="68" r="4" fill="#2BB04A" />
+        <circle cx="134" cy="70" r="4" fill="#FFB020" />
+        <path d="M150 62H173" stroke="#1C202B" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M168 56L176 62L168 68" stroke="#1C202B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <ellipse cx="205" cy="44" rx="31" ry="11" fill="#F4E8FD" stroke="#1C202B" strokeWidth="2.5" />
+        <path d="M174 44V79C174 85 236 85 236 79V44" fill="#F4E8FD" stroke="#1C202B" strokeWidth="2.5" />
+        <ellipse cx="205" cy="79" rx="31" ry="11" fill="#F4E8FD" stroke="#1C202B" strokeWidth="2.5" />
+        <path d="M219 43C232 34 246 40 246 51C246 62 232 66 219 59" fill="#FFFFFF" stroke="#1C202B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="230" cy="50" r="2" fill="#E22D6D" />
+      </svg>
+    ),
+    title: "RAG Pipeline From Scratch",
+    description: "A fundamental document-grounded question-answering pipeline built hands-on to understand retrieval, embeddings, and context generation.",
+    features: [
+      { icon: "📥", text: "Multi-format document ingestion" },
+      { icon: "✂️", text: "Chunking & preprocessing" },
+      { icon: "🔎", text: "ChromaDB similarity retrieval" },
+      { icon: "💬", text: "Groq-grounded answers" }
+    ],
+    btnText: "VIEW ON GITHUB",
+    btnLink: "https://github.com/Srevarshan05/RAG-Pipeline-From-Scratch",
+  },
+  {
     id: "banana-weevil",
     accent: "var(--brand)",
     badgeText: "PATENTED AI",
@@ -149,6 +213,31 @@ const PROJECTS = [
   },
 ];
 
+const PROJECT_ORDER = [
+  "banana-weevil",
+  "textlens",
+  "nutriminds",
+  "rag-pipeline",
+  "acas-dhristi",
+  "xenia-crm",
+];
+
+function WalkthroughPlayer({ embedUrl, youtubeUrl, title }: { embedUrl: string; youtubeUrl: string; title: string }) {
+  return (
+    <div className="walkthrough-player">
+      <iframe
+        src={embedUrl}
+        title={`${title} walkthrough`}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowFullScreen
+      />
+      <a href={youtubeUrl} target="_blank" rel="noopener noreferrer">
+        Watch on YouTube →
+      </a>
+    </div>
+  );
+}
+
 export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   useScrollReveal(sectionRef as React.RefObject<HTMLElement>);
@@ -161,7 +250,7 @@ export default function ProjectsSection() {
   const [isUnlocked, setIsUnlocked] = useState(false);
 
   const handleOpenWorkflow = () => {
-    if (isUnlocked) {
+    if (activeProject?.id !== "banana-weevil" || isUnlocked) {
       setIsWorkflowOpen(true);
     } else {
       setPinInput("");
@@ -197,7 +286,7 @@ export default function ProjectsSection() {
 
         {/* Projects Grid */}
         <div className="projects-grid">
-          {PROJECTS.map((p, i) => (
+          {PROJECTS.slice().sort((a, b) => PROJECT_ORDER.indexOf(a.id) - PROJECT_ORDER.indexOf(b.id)).map((p, i) => (
             <article
               key={p.id}
               id={p.id}
@@ -281,7 +370,167 @@ export default function ProjectsSection() {
 
             {/* Modal Body */}
             <div className="project-modal-body">
-              {activeProject.id === "banana-weevil" ? (
+              {activeProject.id === "rag-pipeline" ? (
+                /* RAG Pipeline Details */
+                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  <div className="modal-overview">
+                    <p style={{ borderLeftColor: "#E22D6D" }}>
+                      A fundamental RAG pipeline built from scratch to understand what actually happens behind document-based question answering — from ingestion and chunking through retrieval and document-grounded generation.
+                    </p>
+                  </div>
+
+                  <div className="modal-divider" />
+
+                  <div className="modal-details-grid">
+                    <div className="modal-grid-col" style={{ gap: "16px" }}>
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#E22D6D" }}>
+                          Document Preparation
+                        </h4>
+                        <ul className="modal-list">
+                          <li><strong>Ingestion:</strong> Parses PDF, TXT, HTML, and CSV files into structured documents with content and metadata.</li>
+                          <li><strong>Chunking:</strong> Splits documents into smaller pieces and explores how chunk size and overlap influence retrieval quality.</li>
+                          <li><strong>Embeddings:</strong> Converts text to vector representations using Sentence Transformers to enable semantic similarity search.</li>
+                        </ul>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#4D5BFF" }}>
+                          Local Vector Search
+                        </h4>
+                        <p className="modal-text">
+                          Stores embeddings locally in ChromaDB, making them searchable by meaning rather than only by exact keyword matches.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="modal-grid-col" style={{ gap: "16px" }}>
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#2BB04A" }}>
+                          Retrieval & Answers
+                        </h4>
+                        <p className="modal-text">
+                          Query → embedding → similarity search → top-K relevant chunks → context. The retrieved context and query are then sent to Groq to generate a response grounded in the source documents.
+                        </p>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#FFB020" }}>
+                          Intentional Scope
+                        </h4>
+                        <p className="modal-text">
+                          This keeps the focus on the core RAG building blocks: no re-ranking, hybrid search, agents, or complex orchestration.
+                        </p>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#8E2DE2" }}>
+                          Tech Stack
+                        </h4>
+                        <p className="modal-text">Python · LangChain · Sentence Transformers · ChromaDB · Groq</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="modal-divider" />
+
+                  <div className="modal-footer" style={{ justifyContent: "flex-end" }}>
+                    <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                      <button
+                        onClick={handleOpenWorkflow}
+                        className="modal-action-btn secondary-btn"
+                        style={{ cursor: "pointer" }}
+                      >
+                        See Project Workflow →
+                      </button>
+                      <a
+                        href={activeProject.btnLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="modal-action-btn primary-btn"
+                      >
+                        {activeProject.btnText} →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ) : activeProject.id === "textlens" ? (
+                /* TextLens Details */
+                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  <div className="modal-overview">
+                    <p style={{ borderLeftColor: "#2BB04A" }}>
+                      TextLens is a Python framework that makes document OCR easier to set up, reuse, and run locally. It handles hardware detection, GPU configuration, model selection, document processing, batch OCR, and OCR serving through a simple developer workflow.
+                    </p>
+                  </div>
+
+                  <div className="modal-divider" />
+
+                  <div className="modal-details-grid">
+                    <div className="modal-grid-col" style={{ gap: "16px" }}>
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#2BB04A" }}>
+                          Local-First OCR
+                        </h4>
+                        <p className="modal-text">
+                          Process images and PDFs locally with multiple OCR model options, automatic model downloads, and caching for repeatable offline workflows.
+                        </p>
+                        <ul className="modal-list">
+                          <li><strong>Document support:</strong> Local image and PDF OCR.</li>
+                          <li><strong>Model flexibility:</strong> Multiple OCR models with automatic download and caching.</li>
+                          <li><strong>Batch workflows:</strong> Run OCR across collections of documents from the CLI.</li>
+                        </ul>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#4D5BFF" }}>
+                          Hardware-Aware Setup
+                        </h4>
+                        <p className="modal-text">
+                          Detects NVIDIA GPUs and CUDA availability, recommends models based on the available hardware, and automatically falls back to CPU when a GPU is not available.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="modal-grid-col" style={{ gap: "16px" }}>
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#FFB020" }}>
+                          Developer Workflow
+                        </h4>
+                        <p className="modal-text">
+                          TextLens provides a simple Python API and developer-friendly CLI tools for configuring, running, and integrating OCR without managing the underlying setup manually.
+                        </p>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#8E2DE2" }}>
+                          Tech Stack
+                        </h4>
+                        <p className="modal-text">
+                          Python · PyTorch · CUDA · Transformers · FastAPI · Docker
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="modal-divider" />
+
+                  <div className="modal-footer" style={{ justifyContent: "space-between" }}>
+                    <WalkthroughPlayer
+                      title="TextLens"
+                      embedUrl="https://www.youtube-nocookie.com/embed/CGADrrqRZ7Q?rel=0"
+                      youtubeUrl="https://youtu.be/CGADrrqRZ7Q"
+                    />
+                    <a
+                      href={activeProject.btnLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="modal-action-btn primary-btn"
+                    >
+                      {activeProject.btnText} →
+                    </a>
+                  </div>
+                </div>
+              ) : activeProject.id === "banana-weevil" ? (
                 /* Banana Weevil Details */
                 <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                   {/* Overview */}
@@ -671,17 +920,11 @@ export default function ProjectsSection() {
 
                   {/* Footer */}
                   <div className="modal-footer" style={{ justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                      <a
-                        href="https://www.youtube.com/watch?v=8VAZWC9b_Do&t=25s"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="modal-action-btn secondary-btn"
-                        style={{ background: "#FF0000", color: "#FFFFFF", borderColor: "#1C202B", boxShadow: "4px 4px 0 0 #1C202B" }}
-                      >
-                        🎥 Watch Walkthrough
-                      </a>
-                    </div>
+                    <WalkthroughPlayer
+                      title="Xenia CRM"
+                      embedUrl="https://www.youtube-nocookie.com/embed/8VAZWC9b_Do?start=25&rel=0"
+                      youtubeUrl="https://www.youtube.com/watch?v=8VAZWC9b_Do&t=25s"
+                    />
                     <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                       <button
                         onClick={handleOpenWorkflow}
@@ -1124,6 +1367,8 @@ export default function ProjectsSection() {
                   ? "/Nutriminds.png"
                   : activeProject?.id === "xenia-crm"
                   ? "/Xenia-worflow.png"
+                  : activeProject?.id === "rag-pipeline"
+                  ? "/RAG-Pipeline-workflow.png"
                   : "/Banana_Weevil_Portfolio.png"
               }
               alt={
@@ -1133,6 +1378,8 @@ export default function ProjectsSection() {
                   ? "NutriMinds AI Workflow Diagram"
                   : activeProject?.id === "xenia-crm"
                   ? "Xenia CRM Workflow Diagram"
+                  : activeProject?.id === "rag-pipeline"
+                  ? "RAG Pipeline Workflow Diagram"
                   : "Banana Weevil Pest Detection Workflow"
               }
               style={{
@@ -1533,6 +1780,39 @@ export default function ProjectsSection() {
           flex-wrap: wrap;
           gap: 20px;
         }
+
+        .walkthrough-player {
+          width: min(100%, 300px);
+          overflow: hidden;
+          background: #1C202B;
+          border: 3px solid #1C202B;
+          border-radius: 6px;
+          box-shadow: 4px 4px 0 0 #FF0000;
+        }
+
+        .walkthrough-player iframe {
+          display: block;
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          border: 0;
+        }
+
+        .walkthrough-player a {
+          display: block;
+          padding: 8px 10px;
+          color: #FFFFFF;
+          font-family: 'Open Sans', sans-serif;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.4px;
+          text-align: center;
+          text-decoration: none;
+          text-transform: uppercase;
+        }
+
+        .walkthrough-player a:hover {
+          background: #FF0000;
+        }
         
         .modal-metrics {
           display: flex;
@@ -1646,6 +1926,9 @@ export default function ProjectsSection() {
             flex-direction: column;
             align-items: stretch;
             gap: 12px;
+          }
+          .walkthrough-player {
+            width: 100%;
           }
           .modal-action-btn {
             min-height: 48px;
