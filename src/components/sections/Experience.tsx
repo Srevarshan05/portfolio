@@ -154,7 +154,7 @@ export default function ExperienceSection() {
   const [isWorkflowOpen, setIsWorkflowOpen] = useState(false);
 
   return (
-    <section id="experience" className="section section-white-grid" ref={sectionRef}>
+    <section id="experience" className="section section-white-grid experience-section" ref={sectionRef}>
       {/* Hand-drawn squiggly dividers at the section boundaries for smooth smudging */}
       <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "16px", overflow: "hidden", pointerEvents: "none", zIndex: 10 }}>
         <svg width="100%" height="16" viewBox="0 0 1200 16" preserveAspectRatio="none" fill="none" stroke="#1C202B" strokeWidth="4">
@@ -274,21 +274,9 @@ export default function ExperienceSection() {
                 {renderYellowO}
 
                 {/* Left Column: Description & Heading */}
-                <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                <div className="experience-card-copy">
                   {/* Eyebrow badge */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      fontFamily: "'Open Sans', sans-serif",
-                      fontSize: "11px",
-                      fontWeight: 800,
-                      textTransform: "uppercase",
-                      letterSpacing: "1px",
-                      color: r.accent,
-                    }}
-                  >
+                  <div className="experience-eyebrow" style={{ color: r.accent }}>
                     <span
                       style={{
                         width: "12px",
@@ -303,7 +291,7 @@ export default function ExperienceSection() {
                   </div>
 
                   {/* Title & Logo Container */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "24px", margin: "18px 0 14px 0", flexWrap: "wrap" }}>
+                  <div className="experience-title-row">
                     <img 
                       src={r.id === "emedlogix" ? "/EmedLogix-logo.jpg" : "/Edunet-Microsoft-logo.png"} 
                       alt={`${r.company} logo`}
@@ -318,17 +306,8 @@ export default function ExperienceSection() {
                         marginRight: "8px"
                       }}
                     />
-                    <div>
-                      <h3
-                        style={{
-                          fontFamily: "'Bangers', cursive",
-                          fontSize: "30px",
-                          color: "#1C202B",
-                          letterSpacing: "0.5px",
-                          lineHeight: 1.2,
-                          margin: 0,
-                        }}
-                      >
+                    <div className="experience-title-copy">
+                      <h3 className="experience-role-title">
                         {r.role}{" "}
                         <span
                           style={{
@@ -339,22 +318,14 @@ export default function ExperienceSection() {
                           @ {r.company}
                         </span>
                       </h3>
-                      <div style={{ marginTop: "6px", fontFamily: "'Open Sans', sans-serif", fontSize: "13px", fontWeight: 700, color: "var(--color-body-subtle)" }}>
+                      <div className="experience-meta">
                         {r.period} · {r.location}
                       </div>
                     </div>
                   </div>
 
                   {/* Subtext description */}
-                  <p
-                    style={{
-                      fontFamily: "'Open Sans', sans-serif",
-                      fontSize: "15px",
-                      lineHeight: 1.7,
-                      color: "var(--color-body)",
-                      margin: "0 0 22px 0",
-                    }}
-                  >
+                  <p className="experience-description">
                     {r.description}
                   </p>
 
@@ -367,23 +338,9 @@ export default function ExperienceSection() {
                   </button>
 
                   {/* Skills badges at bottom left */}
-                  <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "24px" }}>
+                  <div className="experience-skill-list">
                     {r.skills.slice(0, 4).map((s) => (
-                      <span
-                        key={s}
-                        style={{
-                          background: "#1C202B",
-                          color: "#FFFFFF",
-                          border: "2px solid #1C202B",
-                          boxShadow: "3px 3px 0 0 #B7C4ED",
-                          padding: "8px 14px",
-                          fontFamily: "'Open Sans', sans-serif",
-                          fontSize: "11px",
-                          fontWeight: 800,
-                          textTransform: "uppercase",
-                          letterSpacing: "0.5px",
-                        }}
-                      >
+                      <span key={s} className="experience-skill-pill">
                         {s}
                       </span>
                     ))}
@@ -426,23 +383,14 @@ export default function ExperienceSection() {
                     </div>
                   ) : (
                     <div className="sketch-highlights-box">
-                      <div style={{ fontFamily: "'Bangers', cursive", fontSize: "22px", color: "#1C202B", letterSpacing: "0.5px", textTransform: "uppercase", borderBottom: "2.5px dashed #1C202B", paddingBottom: "4px" }}>
+                      <div className="sketch-highlights-title">
                         Key Highlights
                       </div>
-                      <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "10px", marginTop: "4px" }}>
+                      <ul className="sketch-highlights-list">
                         {r.highlights.map((hl, idx) => (
                           <li 
                             key={idx}
-                            style={{
-                              fontFamily: "'Open Sans', sans-serif",
-                              fontSize: "13.5px",
-                              fontWeight: 700,
-                              color: "var(--color-body)",
-                              display: "flex",
-                              alignItems: "flex-start",
-                              gap: "8px",
-                              lineHeight: 1.4
-                            }}
+                            className="sketch-highlights-item"
                           >
                             <span style={{ color: r.accent, fontWeight: 900, fontSize: "14px" }}>✓</span>
                             <span>{hl}</span>
@@ -730,12 +678,15 @@ export default function ExperienceSection() {
       <style>{`
         .section-white-grid {
           background-color: #FFFFFF;
-          background-image: 
-            linear-gradient(rgba(28, 32, 43, 0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(28, 32, 43, 0.04) 1px, transparent 1px);
+          background-image:
+            linear-gradient(rgba(28, 32, 43, 0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(28, 32, 43, 0.035) 1px, transparent 1px);
           background-size: 24px 24px;
           position: relative;
           overflow: hidden;
+        }
+        .experience-section {
+          isolation: isolate;
         }
 
         /* Doodle Sketch Decorations */
@@ -758,69 +709,201 @@ export default function ExperienceSection() {
 
         .sketch-card {
           background: #FFFFFF;
-          border: 3.5px solid #1C202B;
-          border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-          box-shadow: 8px 8px 0 0 #1C202B;
-          padding: 48px;
+          border: 4px solid #1C202B;
+          border-radius: 8px;
+          box-shadow: 10px 10px 0 0 #1C202B;
+          padding: 0;
           position: relative;
-          display: grid;
-          grid-template-columns: 1fr 340px;
-          gap: 40px;
-          align-items: center;
-          transition: transform 200ms ease, box-shadow 200ms ease;
+          display: flex;
+          flex-direction: column;
+          transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 150ms;
+          overflow: hidden;
           z-index: 2;
         }
         .sketch-card:hover {
-          transform: translateY(-4px) rotate(-0.5deg);
-          box-shadow: 12px 12px 0 0 #1C202B;
+          transform: translateY(-4px);
+          box-shadow: 14px 14px 0 0 #1C202B;
+        }
+        .exp-cards-list {
+          display: grid !important;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 32px !important;
+          align-items: stretch;
+        }
+        .experience-card-copy {
+          display: flex;
+          flex-direction: column;
+          flex-grow: 1;
+          min-width: 0;
+          padding: 0 24px 24px;
+        }
+        .experience-eyebrow {
+          position: absolute;
+          top: 14px;
+          left: 14px;
+          z-index: 5;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-family: 'Open Sans', sans-serif;
+          font-size: 11px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          background: #FFFFFF;
+          border: 2px solid #1C202B;
+          border-radius: 2px;
+          padding: 6px 12px;
+        }
+        .experience-title-row {
+          display: grid;
+          grid-template-columns: auto minmax(0, 1fr);
+          align-items: center;
+          gap: 24px;
+          margin: 0 -24px 24px;
+          padding: 58px 24px 28px;
+          min-height: 180px;
+          background: #F4F6FF;
+          border-bottom: 4px solid #1C202B;
+        }
+        .experience-title-copy {
+          min-width: 0;
+        }
+        .experience-role-title {
+          font-family: 'Open Sans', sans-serif;
+          font-size: clamp(23px, 2vw, 31px);
+          font-weight: 900;
+          color: #1C202B;
+          letter-spacing: 0.2px;
+          line-height: 1.16;
+          margin: 0;
+          text-transform: none;
+        }
+        .experience-role-title span {
+          font-style: normal;
+          font-weight: 900;
+        }
+        .experience-meta {
+          margin-top: 8px;
+          font-family: 'Open Sans', sans-serif;
+          font-size: 13px;
+          font-weight: 700;
+          color: var(--color-body-subtle);
+          letter-spacing: 0.1px;
+        }
+        .experience-description {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 14px;
+          line-height: 1.6;
+          color: #2F3645;
+          min-height: 90px;
+          margin: 0 0 20px;
+        }
+        .experience-description::after {
+          content: "";
+          display: block;
+          border-top: 2px dashed rgba(28, 32, 43, 0.15);
+          margin-top: 20px;
+          width: 100%;
+        }
+        .experience-skill-list {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin-top: 20px;
+        }
+        .experience-skill-pill {
+          background: #1C202B;
+          color: #FFFFFF;
+          border: 2px solid #1C202B;
+          box-shadow: 3px 3px 0 0 #B7C4ED;
+          padding: 8px 12px;
+          font-family: 'Open Sans', sans-serif;
+          font-size: 10.5px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.55px;
+          line-height: 1;
+          border-radius: 4px;
+        }
+        .sketch-right-col {
+          padding: 0 24px 24px;
         }
 
         .sketch-highlights-box {
           background: #FFFDF6;
-          border: 3.5px solid #1C202B;
-          border-radius: 20px 200px 20px 150px/100px 20px 120px 20px;
+          border: 3px solid #1C202B;
+          border-radius: 6px;
           box-shadow: 5px 5px 0 0 var(--accent);
-          padding: 24px;
+          padding: 18px;
           display: flex;
           flex-direction: column;
           gap: 12px;
+          min-height: 190px;
+        }
+        .sketch-highlights-title {
+          font-family: 'Bangers', cursive;
+          font-size: 24px;
+          color: #1C202B;
+          letter-spacing: 0.6px;
+          text-transform: uppercase;
+          border-bottom: 2px dashed rgba(28, 32, 43, 0.55);
+          padding-bottom: 8px;
+        }
+        .sketch-highlights-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 11px;
+        }
+        .sketch-highlights-item {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 13.5px;
+          font-weight: 700;
+          color: var(--color-body);
+          display: flex;
+          align-items: flex-start;
+          gap: 9px;
+          line-height: 1.45;
         }
 
         .sketch-image-wrapper {
-          border: 3.5px solid #1C202B;
-          border-radius: 15px 95px 12px 85px/95px 12px 85px 15px;
+          border: 3px solid #1C202B;
+          border-radius: 6px;
           box-shadow: 5px 5px 0 0 var(--accent);
           overflow: hidden;
           position: relative;
         }
 
         .sketch-btn {
-          align-self: flex-start;
-          background: #FFB020;
-          color: #1C202B;
+          width: 100%;
+          background: #1C202B;
+          color: #FFFFFF;
           border: 3px solid #1C202B;
-          border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
-          box-shadow: 4px 4px 0 0 #1C202B;
+          border-radius: 4px;
+          box-shadow: 5px 5px 0 0 #FFB020;
           font-family: 'Open Sans', sans-serif;
           font-size: 13px;
           font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 1px;
+          letter-spacing: 1.5px;
           cursor: pointer;
-          padding: 10px 20px;
+          padding: 14px 20px;
           display: flex;
           align-items: center;
+          justify-content: center;
           gap: 6px;
           transition: transform 100ms, box-shadow 100ms;
         }
         .sketch-btn:hover {
-          transform: translate(-1px, -1px);
-          box-shadow: 5px 5px 0 0 #1C202B;
-          background: #FFC040;
+          transform: translate(-2px, -2px);
+          box-shadow: 7px 7px 0 0 #FFB020;
         }
         .sketch-btn:active {
-          transform: translate(1px, 1px);
-          box-shadow: 2px 2px 0 0 #1C202B;
+          transform: translate(2px, 2px);
+          box-shadow: 1px 1px 0 0 #FFB020;
         }
 
         /* Modal backdrop styling */
@@ -955,11 +1038,13 @@ export default function ExperienceSection() {
         }
 
         @media (max-width: 1023px) {
+          .exp-cards-list {
+            grid-template-columns: 1fr !important;
+            max-width: 680px;
+            margin: 0 auto;
+          }
           .sketch-card {
-            grid-template-columns: 1fr;
-            padding: 36px 28px;
-            gap: 28px;
-            border-radius: 120px 10px 110px 10px/10px 110px 10px 120px;
+            border-radius: 14px;
           }
           .exp-header-grid {
             grid-template-columns: 1fr !important;
@@ -968,12 +1053,16 @@ export default function ExperienceSection() {
           }
         }
         @media (max-width: 767px) {
+          .exp-cards-list {
+            max-width: none;
+          }
           .sketch-card {
-            grid-template-columns: 1fr;
-            padding: 24px 16px;
-            gap: 24px;
-            border-radius: 80px 8px 75px 8px/8px 75px 8px 80px;
+            border-radius: 12px;
             box-shadow: 6px 6px 0 0 #1C202B;
+          }
+          .experience-title-row {
+            grid-template-columns: 1fr;
+            gap: 14px;
           }
           .exp-header-grid {
             grid-template-columns: 1fr !important;
