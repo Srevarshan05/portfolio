@@ -5,6 +5,32 @@ import { useScrollReveal } from "@/lib/useScrollReveal";
 
 const PROJECTS = [
   {
+    id: "agrocare",
+    accent: "#2BB04A",
+    badgeText: "1ST PRIZE · SPECTRUM '25",
+    isPinkCard: false,
+    image: "/AgroCare-spectrum-award.jpeg",
+    tetromino: (
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="#2BB04A">
+        <rect x="0" y="0" width="8" height="8" stroke="#1C202B" strokeWidth="1.5" />
+        <rect x="10" y="0" width="8" height="8" stroke="#1C202B" strokeWidth="1.5" />
+        <rect x="20" y="0" width="8" height="8" stroke="#1C202B" strokeWidth="1.5" />
+        <rect x="10" y="10" width="8" height="8" stroke="#1C202B" strokeWidth="1.5" />
+      </svg>
+    ),
+    illustration: null,
+    title: "AgroCare — Multimodal AI & IoT for Cotton Farming",
+    description: "An award-winning precision farming platform combining a custom field probe, drone crop imagery, CNN disease detection, and LLM-guided recommendations.",
+    features: [
+      { icon: "🌱", text: "Custom pH, NPK & moisture probe" },
+      { icon: "📡", text: "ESP32 + LoRa field telemetry" },
+      { icon: "🚁", text: "Drone crop imaging + SLAM" },
+      { icon: "🤖", text: "CNN disease detection + LLM advice" }
+    ],
+    btnText: "VIEW ON GITHUB",
+    btnLink: "https://github.com/Srevarshan05/Agro-s-Care-IITM",
+  },
+  {
     id: "textlens",
     accent: "#2BB04A",
     badgeText: "LOCAL OCR FRAMEWORK",
@@ -215,6 +241,7 @@ const PROJECTS = [
 
 const PROJECT_ORDER = [
   "banana-weevil",
+  "agrocare",
   "textlens",
   "nutriminds",
   "rag-pipeline",
@@ -245,6 +272,7 @@ export default function ProjectsSection() {
   const [activeProject, setActiveProject] = useState<typeof PROJECTS[0] | null>(null);
   const [isWorkflowOpen, setIsWorkflowOpen] = useState(false);
   const [isPinPromptOpen, setIsPinPromptOpen] = useState(false);
+  const [pinTarget, setPinTarget] = useState<"project" | "workflow">("workflow");
   const [pinInput, setPinInput] = useState("");
   const [pinError, setPinError] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -253,10 +281,22 @@ export default function ProjectsSection() {
     if (activeProject?.id !== "banana-weevil" || isUnlocked) {
       setIsWorkflowOpen(true);
     } else {
+      setPinTarget("workflow");
       setPinInput("");
       setPinError(false);
       setIsPinPromptOpen(true);
     }
+  };
+
+  const handleOpenProject = (project: typeof PROJECTS[0]) => {
+    if (project.id === "banana-weevil" && !isUnlocked) {
+      setPinTarget("project");
+      setPinInput("");
+      setPinError(false);
+      setIsPinPromptOpen(true);
+      return;
+    }
+    setActiveProject(project);
   };
 
   const handlePinSubmit = (e?: React.FormEvent) => {
@@ -265,7 +305,12 @@ export default function ProjectsSection() {
       setIsUnlocked(true);
       setIsPinPromptOpen(false);
       setPinError(false);
-      setIsWorkflowOpen(true);
+      if (pinTarget === "project") {
+        const bananaProject = PROJECTS.find((project) => project.id === "banana-weevil");
+        if (bananaProject) setActiveProject(bananaProject);
+      } else {
+        setIsWorkflowOpen(true);
+      }
     } else {
       setPinError(true);
     }
@@ -327,7 +372,7 @@ export default function ProjectsSection() {
 
                 {/* Action Button */}
                 <button
-                  onClick={() => setActiveProject(p)}
+                  onClick={() => handleOpenProject(p)}
                   className="project-card-btn"
                   style={{
                     ['--btn-shadow-color']: p.isPinkCard ? "var(--brand)" : "#B7C4ED"
@@ -370,7 +415,109 @@ export default function ProjectsSection() {
 
             {/* Modal Body */}
             <div className="project-modal-body">
-              {activeProject.id === "rag-pipeline" ? (
+              {activeProject.id === "agrocare" ? (
+                /* AgroCare Details */
+                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  <div className="modal-overview">
+                    <p style={{ borderLeftColor: "#2BB04A" }}>
+                      AgroCare is a field-to-decision precision agriculture platform for cotton farming. It combines real-time soil and environmental telemetry from a custom probe with drone-acquired crop imagery, then turns disease and field-condition signals into clear, farmer-ready recommendations.
+                    </p>
+                  </div>
+
+                  <div className="modal-divider" />
+
+                  <div className="modal-details-grid">
+                    <div className="modal-grid-col" style={{ gap: "16px" }}>
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#2BB04A" }}>
+                          Custom Field Hardware
+                        </h4>
+                        <p className="modal-text">
+                          A field-deployable ESP32 sensing probe captures the soil and microclimate conditions that affect crop health.
+                        </p>
+                        <ul className="modal-list">
+                          <li><strong>Soil sensing:</strong> pH, nitrogen, phosphorus, potassium, and soil moisture.</li>
+                          <li><strong>Environmental sensing:</strong> temperature and humidity for field context.</li>
+                          <li><strong>Connectivity:</strong> LoRa-based long-range telemetry through an ESP32 node and gateway architecture.</li>
+                        </ul>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#2DC8E2" }}>
+                          Aerial Crop Intelligence
+                        </h4>
+                        <p className="modal-text">
+                          A drone acquires crop and leaf imagery across the field, with SLAM-assisted navigation supporting positioning and movement. A trained CNN processes those images to identify cotton leaf disease signals.
+                        </p>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#FFB020" }}>
+                          Recognition
+                        </h4>
+                        <p className="modal-text">
+                          Built and developed in just <strong>24 hours</strong> at <strong>Spectrum '25</strong>, a national-level hackathon. AgroCare earned <strong>1st Prize</strong> and $500 worth of prizes for connecting practical hardware, AI, and farmer-focused decision support.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="modal-grid-col" style={{ gap: "16px" }}>
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#8E2DE2" }}>
+                          Multimodal Decision Layer
+                        </h4>
+                        <p className="modal-text">
+                          AgroCare fuses visual crop health with live soil and environmental data instead of treating them as separate systems. An LLM recommendation layer translates this context into understandable fertilizer guidance, application timing, and field alerts.
+                        </p>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#E22D6D" }}>
+                          Farmer-First Application
+                        </h4>
+                        <ul className="modal-list">
+                          <li><strong>Simple dashboard:</strong> crop health, disease alerts, soil status, and field insights in one place.</li>
+                          <li><strong>Actionable output:</strong> raw measurements become context, recommendations, and next steps.</li>
+                          <li><strong>Accessible UX:</strong> multilingual support helps make the platform useful beyond English-only technical interfaces.</li>
+                        </ul>
+                      </div>
+
+                      <div className="modal-section-card">
+                        <h4 className="modal-section-title" style={{ color: "#4D5BFF" }}>
+                          Technology Stack
+                        </h4>
+                        <p className="modal-text">
+                          CNN · Computer Vision · LLMs · ESP32 · LoRa · pH / NPK / moisture sensors · UAV + SLAM · Firebase real-time synchronization · Multilingual web/mobile interface
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="modal-section-card">
+                    <h4 className="modal-section-title" style={{ color: "#FFB020" }}>
+                      Built in 24 Hours at Spectrum '25
+                    </h4>
+                    <div className="agrocare-photo-grid">
+                      <img src="/AgroCare-spectrum-award.jpeg" alt="AgroCare award moment at Spectrum 25" />
+                      <img src="/AgroCare-spectrum-build.jpeg" alt="AgroCare team building during Spectrum 25" />
+                      <img src="/AgroCare-spectrum-team.jpeg" alt="AgroCare team at Spectrum 25" />
+                    </div>
+                  </div>
+
+                  <div className="modal-divider" />
+
+                  <div className="modal-footer" style={{ justifyContent: "flex-end" }}>
+                    <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                      <button onClick={handleOpenWorkflow} className="modal-action-btn secondary-btn" style={{ cursor: "pointer" }}>
+                        See Architecture →
+                      </button>
+                      <a href={activeProject.btnLink} target="_blank" rel="noopener noreferrer" className="modal-action-btn primary-btn">
+                        {activeProject.btnText} →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ) : activeProject.id === "rag-pipeline" ? (
                 /* RAG Pipeline Details */
                 <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                   <div className="modal-overview">
@@ -1143,11 +1290,11 @@ export default function ProjectsSection() {
             style={{
               maxWidth: "420px",
               width: "90%",
-              padding: "36px 28px",
+              padding: "40px 32px 32px",
               textAlign: "center",
-              borderRadius: "16px",
-              boxShadow: "8px 8px 0 0 #1C202B",
-              border: "3.5px solid #1C202B",
+              borderRadius: "8px",
+              boxShadow: "0 16px 48px rgba(28, 32, 43, 0.18)",
+              border: "1px solid #E2E8F0",
               background: "#FFFFFF",
               position: "relative",
             }}
@@ -1170,15 +1317,25 @@ export default function ProjectsSection() {
               ✕
             </button>
 
-            <div style={{ fontSize: "44px", marginBottom: "12px" }}>🔒</div>
+            <img
+              src="/banana-project-padlock.png"
+              alt="Locked Banana Weevil project"
+              style={{
+                display: "block",
+                width: "46px",
+                height: "46px",
+                objectFit: "contain",
+                margin: "0 auto 12px",
+              }}
+            />
             <h3
               style={{
-                fontFamily: "'Bangers', cursive",
-                fontSize: "28px",
-                letterSpacing: "1.5px",
+                fontFamily: "'Open Sans', sans-serif",
+                fontSize: "20px",
+                fontWeight: 800,
+                letterSpacing: "0.2px",
                 color: "#1C202B",
-                marginBottom: "8px",
-                textTransform: "uppercase",
+                margin: "0 0 8px",
               }}
             >
               PIN PROTECTED
@@ -1186,18 +1343,18 @@ export default function ProjectsSection() {
             <p
               style={{
                 fontFamily: "'Open Sans', sans-serif",
-                fontSize: "13.5px",
+                fontSize: "13px",
                 color: "#4A5468",
                 lineHeight: "1.5",
-                marginBottom: "24px",
+                margin: "0 0 22px",
               }}
             >
-              Enter the 4-digit PIN password to view the <strong>{activeProject?.title || "Banana Weevil"}</strong> workflow diagram.
+              Enter the 4-digit PIN password to open the protected <strong>{activeProject?.title || "Banana Weevil"}</strong> project.
             </p>
 
             <form
               onSubmit={handlePinSubmit}
-              style={{ display: "flex", flexDirection: "column", gap: "16px", alignItems: "center", width: "100%" }}
+              style={{ display: "flex", flexDirection: "column", gap: "14px", alignItems: "center", width: "100%" }}
             >
               {/* Discrete 4-Digit Box Indicators */}
               <div
@@ -1207,10 +1364,10 @@ export default function ProjectsSection() {
                 }}
                 style={{
                   display: "flex",
-                  gap: "12px",
+                  gap: "14px",
                   justifyContent: "center",
                   cursor: "pointer",
-                  margin: "8px 0 4px",
+                  margin: "4px 0 8px",
                 }}
               >
                 {[0, 1, 2, 3].map((idx) => {
@@ -1220,24 +1377,22 @@ export default function ProjectsSection() {
                     <div
                       key={idx}
                       style={{
-                        width: "54px",
-                        height: "60px",
-                        borderRadius: "14px",
+                        width: "38px",
+                        height: "42px",
+                        borderRadius: "2px",
                         border: pinError
-                          ? "3px solid #E22D6D"
-                          : isCurrent
-                          ? "3px solid #E22D6D"
-                          : isFilled
-                          ? "3px solid #1C202B"
-                          : "2.5px solid #CBD5E1",
-                        background: isFilled ? "#FFE5EE" : "#F8FAFC",
+                          ? "1px solid #E22D6D"
+                          : isCurrent || isFilled
+                          ? "1px solid #94A3B8"
+                          : "1px solid #D7DDE5",
+                        background: "#FFFFFF",
                         boxShadow: isCurrent
-                          ? "0 0 0 3px rgba(226,45,109,0.25)"
-                          : "3px 3px 0 0 #1C202B",
+                          ? "0 0 0 2px rgba(148, 163, 184, 0.15)"
+                          : "0 1px 2px rgba(28, 32, 43, 0.04)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: "20px",
+                        fontSize: "18px",
                         color: "#1C202B",
                         transition: "all 150ms ease",
                       }}
@@ -1258,12 +1413,6 @@ export default function ProjectsSection() {
                   const val = e.target.value.replace(/\D/g, "");
                   setPinInput(val);
                   setPinError(false);
-                  if (val === "1971") {
-                    setIsUnlocked(true);
-                    setIsPinPromptOpen(false);
-                    setPinError(false);
-                    setIsWorkflowOpen(true);
-                  }
                 }}
                 autoFocus
                 style={{
@@ -1281,7 +1430,7 @@ export default function ProjectsSection() {
                 </p>
               ) : (
                 <p style={{ color: "#64748B", fontSize: "12px", margin: 0 }}>
-                  Click boxes and enter 4 digits to unlock
+                  Enter the 4-digit access PIN
                 </p>
               )}
 
@@ -1361,7 +1510,9 @@ export default function ProjectsSection() {
           >
             <img
               src={
-                activeProject?.id === "acas-dhristi"
+                activeProject?.id === "agrocare"
+                  ? "/AgroCare-architecture.png"
+                  : activeProject?.id === "acas-dhristi"
                   ? "/Acas_Workflow.png"
                   : activeProject?.id === "nutriminds"
                   ? "/Nutriminds.png"
@@ -1372,7 +1523,9 @@ export default function ProjectsSection() {
                   : "/Banana_Weevil_Portfolio.png"
               }
               alt={
-                activeProject?.id === "acas-dhristi"
+                activeProject?.id === "agrocare"
+                  ? "AgroCare precision farming architecture diagram"
+                  : activeProject?.id === "acas-dhristi"
                   ? "ACAS Dhristi Workflow Diagram"
                   : activeProject?.id === "nutriminds"
                   ? "NutriMinds AI Workflow Diagram"
@@ -1745,6 +1898,21 @@ export default function ProjectsSection() {
           color: var(--color-body);
           margin: 0;
         }
+
+        .agrocare-photo-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 10px;
+        }
+
+        .agrocare-photo-grid img {
+          width: 100%;
+          height: 150px;
+          object-fit: cover;
+          border: 2px solid #1C202B;
+          border-radius: 4px;
+          background: #FFFFFF;
+        }
         
         .modal-list {
           list-style: none;
@@ -1921,6 +2089,12 @@ export default function ProjectsSection() {
           .modal-details-grid {
             grid-template-columns: 1fr;
             gap: 16px;
+          }
+          .agrocare-photo-grid {
+            grid-template-columns: 1fr;
+          }
+          .agrocare-photo-grid img {
+            height: 220px;
           }
           .modal-footer {
             flex-direction: column;
