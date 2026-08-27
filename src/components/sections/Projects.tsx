@@ -321,11 +321,10 @@ export default function ProjectsSection() {
       <div className="container section-content">
 
         {/* Header */}
-        <div className="section-header section-header-center" style={{ maxWidth: "620px", margin: "0 auto 72px" }}>
+        <div className="section-header section-header-center" style={{ maxWidth: "680px", margin: "0 auto 72px" }}>
           <h2 className="reveal stagger-2">What I&apos;ve Built</h2>
-          <p className="leading reveal stagger-3" style={{ margin: "0 auto", color: "var(--color-body)" }}>
-            Practical AI engineered to run anywhere — from hospital servers to
-            a Raspberry Pi in a banana plantation.
+          <p className="leading reveal stagger-3" style={{ margin: "0 auto", color: "var(--color-body)", fontSize: "16px", lineHeight: "1.6" }}>
+            Not stopping in the classroom — taking concepts from theory and engineering them into real-world deployed solutions.
           </p>
         </div>
 
@@ -1587,11 +1586,22 @@ export default function ProjectsSection() {
           display: flex;
           flex-direction: column;
           box-shadow: 10px 10px 0 0 #1C202B;
-          transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 150ms;
+          transition: opacity 550ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                      transform 500ms cubic-bezier(0.22, 1, 0.36, 1),
+                      box-shadow 150ms ease;
           overflow: hidden;
+          will-change: transform, opacity;
+        }
+        .project-dashed-card.reveal {
+          opacity: 0;
+          transform: translateY(36px) scale(0.96);
+        }
+        .project-dashed-card.reveal.visible {
+          opacity: 1;
+          transform: translateY(0) scale(1);
         }
         .project-dashed-card:hover {
-          transform: translateY(-4px);
+          transform: translateY(-6px) scale(1.015) !important;
           box-shadow: 14px 14px 0 0 #1C202B;
         }
         .project-dashed-card.pink-card {

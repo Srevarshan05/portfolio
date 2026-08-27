@@ -724,58 +724,75 @@ export default function ExperienceSection() {
           transform: translateY(-4px);
           box-shadow: 14px 14px 0 0 #1C202B;
         }
+        /* ── Cards List: Compact Horizontal Layout ── */
         .exp-cards-list {
-          display: grid !important;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 32px !important;
-          align-items: stretch;
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 36px !important;
+          max-width: 1060px;
+          margin: 0 auto;
         }
+
+        .sketch-card {
+          background: #FFFFFF;
+          border: 3.5px solid #1C202B;
+          border-radius: 12px;
+          box-shadow: 8px 8px 0 0 #1C202B;
+          padding: 26px 28px;
+          position: relative;
+          display: grid;
+          grid-template-columns: 1.35fr 1fr;
+          gap: 28px;
+          align-items: center;
+          transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 150ms;
+          z-index: 2;
+        }
+        .sketch-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 12px 12px 0 0 #1C202B;
+        }
+
         .experience-card-copy {
           display: flex;
           flex-direction: column;
-          flex-grow: 1;
+          gap: 12px;
           min-width: 0;
-          padding: 0 24px 24px;
         }
         .experience-eyebrow {
-          position: absolute;
-          top: 14px;
-          left: 14px;
-          z-index: 5;
-          display: flex;
+          display: inline-flex;
           align-items: center;
-          gap: 8px;
+          gap: 7px;
           font-family: 'Open Sans', sans-serif;
           font-size: 11px;
           font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
-          background: #FFFFFF;
-          border: 2px solid #1C202B;
-          border-radius: 2px;
-          padding: 6px 12px;
+          letter-spacing: 0.8px;
+          background: #F4F6FC;
+          border: 1.5px solid #1C202B;
+          border-radius: 4px;
+          padding: 4px 10px;
+          width: fit-content;
         }
         .experience-title-row {
-          display: grid;
-          grid-template-columns: auto minmax(0, 1fr);
+          display: flex;
           align-items: center;
-          gap: 24px;
-          margin: 0 -24px 24px;
-          padding: 58px 24px 28px;
-          min-height: 180px;
-          background: #F4F6FF;
-          border-bottom: 4px solid #1C202B;
+          gap: 16px;
+          padding: 0;
+          margin: 0;
+          background: transparent;
+          border: none;
+          min-height: auto;
         }
         .experience-title-copy {
           min-width: 0;
         }
         .experience-role-title {
           font-family: 'Open Sans', sans-serif;
-          font-size: clamp(23px, 2vw, 31px);
+          font-size: clamp(19px, 1.8vw, 24px);
           font-weight: 900;
           color: #1C202B;
-          letter-spacing: 0.2px;
-          line-height: 1.16;
+          letter-spacing: -0.2px;
+          line-height: 1.2;
           margin: 0;
           text-transform: none;
         }
@@ -784,71 +801,69 @@ export default function ExperienceSection() {
           font-weight: 900;
         }
         .experience-meta {
-          margin-top: 8px;
+          margin-top: 4px;
           font-family: 'Open Sans', sans-serif;
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 700;
           color: var(--color-body-subtle);
-          letter-spacing: 0.1px;
+          letter-spacing: 0.2px;
         }
         .experience-description {
           font-family: 'Open Sans', sans-serif;
-          font-size: 14px;
-          line-height: 1.6;
-          color: #2F3645;
-          min-height: 90px;
-          margin: 0 0 20px;
+          font-size: 13.5px;
+          line-height: 1.55;
+          color: #374151;
+          margin: 0;
+          min-height: auto;
         }
         .experience-description::after {
-          content: "";
-          display: block;
-          border-top: 2px dashed rgba(28, 32, 43, 0.15);
-          margin-top: 20px;
-          width: 100%;
+          display: none;
         }
         .experience-skill-list {
           display: flex;
-          gap: 8px;
+          gap: 6px;
           flex-wrap: wrap;
-          margin-top: 20px;
+          margin-top: 2px;
         }
         .experience-skill-pill {
           background: #1C202B;
           color: #FFFFFF;
-          border: 2px solid #1C202B;
-          box-shadow: 3px 3px 0 0 #B7C4ED;
-          padding: 8px 12px;
+          border: 1.5px solid #1C202B;
+          box-shadow: 2px 2px 0 0 #B7C4ED;
+          padding: 4px 9px;
           font-family: 'Open Sans', sans-serif;
           font-size: 10.5px;
           font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 0.55px;
+          letter-spacing: 0.4px;
           line-height: 1;
           border-radius: 4px;
         }
         .sketch-right-col {
-          padding: 0 24px 24px;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
         }
 
         .sketch-highlights-box {
           background: #FFFDF6;
-          border: 3px solid #1C202B;
-          border-radius: 6px;
-          box-shadow: 5px 5px 0 0 var(--accent);
-          padding: 18px;
+          border: 2.5px solid #1C202B;
+          border-radius: 8px;
+          box-shadow: 4px 4px 0 0 var(--accent);
+          padding: 16px 18px;
           display: flex;
           flex-direction: column;
-          gap: 12px;
-          min-height: 190px;
+          gap: 10px;
         }
         .sketch-highlights-title {
           font-family: 'Bangers', cursive;
-          font-size: 24px;
+          font-size: 20px;
           color: #1C202B;
           letter-spacing: 0.6px;
           text-transform: uppercase;
-          border-bottom: 2px dashed rgba(28, 32, 43, 0.55);
-          padding-bottom: 8px;
+          border-bottom: 1.5px dashed rgba(28, 32, 43, 0.4);
+          padding-bottom: 6px;
         }
         .sketch-highlights-list {
           list-style: none;
@@ -856,53 +871,54 @@ export default function ExperienceSection() {
           margin: 0;
           display: flex;
           flex-direction: column;
-          gap: 11px;
+          gap: 8px;
         }
         .sketch-highlights-item {
           font-family: 'Open Sans', sans-serif;
-          font-size: 13.5px;
+          font-size: 12.5px;
           font-weight: 700;
           color: var(--color-body);
           display: flex;
           align-items: flex-start;
-          gap: 9px;
-          line-height: 1.45;
+          gap: 8px;
+          line-height: 1.4;
         }
 
         .sketch-image-wrapper {
-          border: 3px solid #1C202B;
-          border-radius: 6px;
-          box-shadow: 5px 5px 0 0 var(--accent);
+          border: 2.5px solid #1C202B;
+          border-radius: 8px;
+          box-shadow: 4px 4px 0 0 var(--accent);
           overflow: hidden;
           position: relative;
         }
 
         .sketch-btn {
-          width: 100%;
+          width: fit-content;
           background: #1C202B;
           color: #FFFFFF;
-          border: 3px solid #1C202B;
-          border-radius: 4px;
-          box-shadow: 5px 5px 0 0 #FFB020;
+          border: 2.5px solid #1C202B;
+          border-radius: 6px;
+          box-shadow: 3.5px 3.5px 0 0 #FFB020;
           font-family: 'Open Sans', sans-serif;
-          font-size: 13px;
+          font-size: 11.5px;
           font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 1.5px;
+          letter-spacing: 1px;
           cursor: pointer;
-          padding: 14px 20px;
-          display: flex;
+          padding: 9px 16px;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
           gap: 6px;
+          margin-top: 4px;
           transition: transform 100ms, box-shadow 100ms;
         }
         .sketch-btn:hover {
           transform: translate(-2px, -2px);
-          box-shadow: 7px 7px 0 0 #FFB020;
+          box-shadow: 5px 5px 0 0 #FFB020;
         }
         .sketch-btn:active {
-          transform: translate(2px, 2px);
+          transform: translate(1px, 1px);
           box-shadow: 1px 1px 0 0 #FFB020;
         }
 
@@ -1037,40 +1053,37 @@ export default function ExperienceSection() {
           box-shadow: 2px 2px 0 0 #B7C4ED;
         }
 
-        @media (max-width: 1023px) {
-          .exp-cards-list {
-            grid-template-columns: 1fr !important;
-            max-width: 680px;
-            margin: 0 auto;
-          }
+        @media (max-width: 960px) {
           .sketch-card {
-            border-radius: 14px;
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+            padding: 20px !important;
+          }
+          .sketch-btn {
+            width: 100% !important;
           }
           .exp-header-grid {
             grid-template-columns: 1fr !important;
             gap: 20px !important;
-            margin-bottom: 48px !important;
+            margin-bottom: 40px !important;
           }
         }
-        @media (max-width: 767px) {
-          .exp-cards-list {
-            max-width: none;
-          }
+        @media (max-width: 600px) {
           .sketch-card {
-            border-radius: 12px;
+            border-radius: 10px;
             box-shadow: 6px 6px 0 0 #1C202B;
+            padding: 16px !important;
           }
           .experience-title-row {
-            grid-template-columns: 1fr;
-            gap: 14px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+          }
+          .experience-role-title {
+            font-size: 18px;
           }
           .exp-header-grid {
-            grid-template-columns: 1fr !important;
-            gap: 16px !important;
-            margin-bottom: 36px !important;
-          }
-          .exp-cards-list {
-            gap: 32px !important;
+            margin-bottom: 28px !important;
           }
         }
       `}</style>

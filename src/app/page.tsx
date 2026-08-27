@@ -5,6 +5,7 @@ import { useEffect, useState, useCallback } from "react";
 import HeroSection        from "@/components/sections/Hero";
 import ExperienceSection  from "@/components/sections/Experience";
 import ProjectsSection    from "@/components/sections/Projects";
+import CodingProfilesSection from "@/components/sections/CodingProfiles";
 import ConsoleSection     from "@/components/sections/Console";
 import AchievementsSection from "@/components/sections/Achievements";
 import GallerySection      from "@/components/sections/Gallery";
@@ -49,6 +50,7 @@ export default function Home() {
         <SkillsSection />
         <ExperienceSection />
         <ProjectsSection />
+        <CodingProfilesSection />
         <ConsoleSection />
         <AchievementsSection />
         <ConnectSection />
