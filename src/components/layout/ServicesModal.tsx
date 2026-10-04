@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import emailjs from "@emailjs/browser";
+import { useDialog } from "@/lib/useDialog";
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 type Screen = "booking" | "confirmed";
@@ -20,57 +20,27 @@ const TIME_SLOTS = [
 ];
 
 const TOPICS = [
-  "AI Solutions & Chatbots",
-  "Modern Website Development",
-  "Business Automation",
-  "Custom AI Integration",
-  "Smart Billing & POS",
-  "AI Strategy & Consulting",
-  "Other / General Inquiry",
+  "AI / ML Project",
+  "Software Development",
+  "AI Automation",
+  "Research & Collaboration",
+  "Freelance / Consulting",
+  "Other",
 ];
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function buildCalendar(year: number, month: number) {
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const daysInPrev = new Date(year, month, 0).getDate();
   const cells: { day: number; month: "prev" | "cur" | "next" }[] = [];
-
-  for (let i = firstDay - 1; i >= 0; i--) {
-    cells.push({ day: daysInPrev - i, month: "prev" });
-  }
-  for (let d = 1; d <= daysInMonth; d++) {
-    cells.push({ day: d, month: "cur" });
-  }
+  for (let i = firstDay - 1; i >= 0; i--) cells.push({ day: daysInPrev - i, month: "prev" });
+  for (let d = 1; d <= daysInMonth; d++) cells.push({ day: d, month: "cur" });
   let next = 1;
-  while (cells.length % 7 !== 0) {
-    cells.push({ day: next++, month: "next" });
-  }
+  while (cells.length % 7 !== 0) cells.push({ day: next++, month: "next" });
   return cells;
 }
-
-/* ─── Services list (left panel) ────────────────────────────────────── */
-const SERVICES_LEFT = [
-  {
-    icon: "/icons/Gen-Ai.png",
-    title: "AI-Powered Solutions",
-    desc: "Custom AI solutions, chatbots, and automation that solve real problems.",
-  },
-  {
-    icon: "/icons/website.png",
-    title: "Modern Web Development",
-    desc: "Fast, responsive and scalable websites built for performance.",
-  },
-  {
-    icon: "/icons/automation.png",
-    title: "Business Automation",
-    desc: "Streamline workflows and save time with intelligent automation.",
-  },
-  {
-    icon: "/icons/Consult.png",
-    title: "Consulting & Strategy",
-    desc: "From idea to execution — get the right AI strategy for your business.",
-  },
-];
 
 /* ─── Main Component ─────────────────────────────────────────────────── */
 export default function ServicesModal() {
@@ -82,9 +52,12 @@ export default function ServicesModal() {
   const [topic, setTopic]       = useState("");
   const [note, setNote]         = useState("");
   const [sending, setSending]   = useState(false);
+  const [errors, setErrors]     = useState<Record<string, string>>({});
+  const [sendError, setSendError] = useState("");
 
   /* Calendar state */
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const [calYear, setCalYear]   = useState(today.getFullYear());
   const [calMonth, setCalMonth] = useState(today.getMonth());
   const [selDay, setSelDay]     = useState(today.getDate());
@@ -93,799 +66,442 @@ export default function ServicesModal() {
   const cells = buildCalendar(calYear, calMonth);
 
   useEffect(() => {
-    // If ?book=1 is in the URL (coming from Services page), open immediately
-    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("book") === "1") {
-      setVisible(true);
-      // Clean the URL param without reload
+    // ?book=1 (from the Services page) opens immediately
+    if (new URLSearchParams(window.location.search).get("book") === "1") {
       const url = new URL(window.location.href);
       url.searchParams.delete("book");
       window.history.replaceState({}, "", url.toString());
-      return;
+      const t = setTimeout(() => setVisible(true), 0);
+      return () => clearTimeout(t);
     }
-    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("sv-modal-v20")) return;
+    try { if (sessionStorage.getItem("sv-modal-v20")) return; } catch { /* storage blocked */ }
     const t = setTimeout(() => setVisible(true), 3000);
     return () => clearTimeout(t);
   }, []);
 
   const close = () => {
     setVisible(false);
-    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("sv-modal-v20", "1");
+    try { sessionStorage.setItem("sv-modal-v20", "1"); } catch { /* storage blocked */ }
+  };
+  const panelRef = useDialog<HTMLDivElement>(visible, close);
+
+  const selectedDateStr = selDay
+    ? new Date(calYear, calMonth, selDay).toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
+    : "";
+
+  const validate = () => {
+    const e: Record<string, string> = {};
+    if (!name.trim()) e.name = "Add your name.";
+    if (!email.trim()) e.email = "Add your email so I can reply.";
+    else if (!EMAIL_RE.test(email.trim())) e.email = "That email doesn't look right.";
+    if (!phone.trim()) e.phone = "Add a phone number for the call.";
+    else if (phone.replace(/\D/g, "").length < 7) e.phone = "That number looks too short.";
+    if (!selDay) e.date = "Pick a date for the call.";
+    return e;
   };
 
-  const selectedDateStr = new Date(calYear, calMonth, selDay).toLocaleDateString("en-IN", {
-    weekday: "long", year: "numeric", month: "long", day: "numeric",
-  });
-
   const handleConfirm = async () => {
-    const finalName  = name.trim()  || "Guest Client";
-    const finalEmail = email.trim() || "srevarshan9600622@gmail.com";
-    const finalPhone = phone.trim() || "Not provided";
-    const finalTopic = topic || "General Inquiry";
-    const finalNote  = note.trim()  || "No additional notes";
-
+    const found = validate();
+    setErrors(found);
+    if (Object.keys(found).length) {
+      const first = ["name", "email", "phone"].find((k) => found[k]);
+      if (first) document.getElementById(`bk-${first}`)?.focus();
+      return;
+    }
     setSending(true);
-
-    const mailSubject = `🔥 NEW DISCOVERY CALL BOOKING: ${finalName}`;
-
-    // Service 1: FormSubmit API (styled table)
+    setSendError("");
     try {
-      await fetch("https://formsubmit.co/ajax/srevarshan9600622@gmail.com", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify({
-          _subject: mailSubject,
-          _template: "table",
-          _captcha: "false",
-          "Client Name": finalName,
-          "Email Address": finalEmail,
-          "Phone Number": finalPhone,
-          "Topic": finalTopic,
-          "Project Notes": finalNote,
-          "Scheduled Date": selectedDateStr,
-          "Scheduled Time Slot": selTime,
-        }),
-      });
-    } catch (e) { console.warn("FormSubmit dispatch:", e); }
-
-    // Service 2: API route
-    try {
-      await fetch("/api/contact", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: finalName, email: finalEmail, phone: finalPhone,
-          date: selectedDateStr, time: selTime,
-          subject: mailSubject,
-          topic: finalTopic, note: finalNote,
+          name: name.trim(), email: email.trim(), phone: phone.trim(),
+          date: selectedDateStr, time: `${selTime} IST`,
+          subject: `New call booking: ${name.trim()} (${topic || "General"})`,
+          topic: topic || "Not specified", note: note.trim() || "No details provided",
         }),
       });
-    } catch (e) { console.warn("API route dispatch:", e); }
-
-    // Service 3: EmailJS
-    try {
-      const svcId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || "service_portfolio";
-      const tplId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || "template_booking";
-      const pubKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || "public_key";
-      await emailjs.send(svcId, tplId, {
-        to_email: "srevarshan9600622@gmail.com",
-        from_name: finalName, from_email: finalEmail,
-        phone_number: finalPhone, booking_date: selectedDateStr, booking_time: selTime,
-      }, pubKey);
-    } catch (e) { console.log("EmailJS dispatch:", e); }
-
-    // Save locally
-    try {
-      if (typeof localStorage !== "undefined") {
-        const prev = JSON.parse(localStorage.getItem("sv-bookings") || "[]");
-        prev.push({ name: finalName, email: finalEmail, phone: finalPhone, date: selectedDateStr, time: selTime, timestamp: new Date().toISOString() });
-        localStorage.setItem("sv-bookings", JSON.stringify(prev));
-      }
-    } catch (e) {}
-
-    setSending(false);
-    setScreen("confirmed");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.delivered === false) throw new Error("not delivered");
+      setScreen("confirmed");
+    } catch {
+      setSendError("The booking didn't go through. Please try again, or email srevarshan9600622@gmail.com directly.");
+    } finally {
+      setSending(false);
+    }
   };
 
   if (!visible) return null;
 
   const prevMonth = () => {
-    if (calMonth === 0) { setCalYear(y => y - 1); setCalMonth(11); }
-    else setCalMonth(m => m - 1);
+    if (calYear === today.getFullYear() && calMonth === today.getMonth()) return;   // no past months
+    if (calMonth === 0) { setCalYear((y) => y - 1); setCalMonth(11); } else setCalMonth((m) => m - 1);
     setSelDay(0);
   };
   const nextMonth = () => {
-    if (calMonth === 11) { setCalYear(y => y + 1); setCalMonth(0); }
-    else setCalMonth(m => m + 1);
+    if (calMonth === 11) { setCalYear((y) => y + 1); setCalMonth(0); } else setCalMonth((m) => m + 1);
     setSelDay(0);
   };
+  const atCurrentMonth = calYear === today.getFullYear() && calMonth === today.getMonth();
 
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;700&display=swap');
+    <div className="bk-backdrop" onClick={(e) => { if (e.target === e.currentTarget) close(); }}>
+      <div ref={panelRef} className="bk-modal" role="dialog" aria-modal="true" aria-labelledby="bk-title" tabIndex={-1}>
+        <button type="button" className="bk-close" onClick={close} aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="square" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+        </button>
 
-        @keyframes sv-fade-in   { from { opacity:0 } to { opacity:1 } }
-        @keyframes sv-slide-up  { from { opacity:0; transform:translateY(24px) scale(0.97) } to { opacity:1; transform:none } }
-        @keyframes sv-pop-check { 0%{transform:scale(0.3);opacity:0} 60%{transform:scale(1.2)} 100%{transform:scale(1);opacity:1} }
-        @keyframes sv-confetti  { 0%{opacity:1;transform:translateY(0) rotate(0deg)} 100%{opacity:0;transform:translateY(100px) rotate(720deg)} }
-        @keyframes sv-spin      { to { transform:rotate(360deg) } }
-
-        /* ── Backdrop ─────────────────────────────────────────────── */
-        .bk-backdrop {
-          position: fixed; inset: 0; z-index: 9999;
-          background: rgba(10,12,20,0.75);
-          backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-          display: flex; align-items: center; justify-content: center;
-          padding: 12px;
-          animation: sv-fade-in 0.25s ease;
-        }
-
-        /* ── Modal Shell ──────────────────────────────────────────── */
-        .bk-modal {
-          position: relative;
-          width: 100%; max-width: 1060px;
-          max-height: 92vh;
-          background: #ffffff;
-          border-radius: 24px;
-          box-shadow: 0 40px 100px rgba(0,0,0,0.45);
-          overflow: hidden;
-          display: flex;
-          animation: sv-slide-up 0.35s cubic-bezier(0.22,1,0.36,1);
-        }
-
-        /* ── Close Button ─────────────────────────────────────────── */
-        .bk-close {
-          position: absolute; top: 18px; right: 18px; z-index: 20;
-          width: 36px; height: 36px; border-radius: 50%;
-          background: #f3f4f6; border: none; cursor: pointer;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 18px; color: #111827; font-weight: 900;
-          transition: background 150ms, transform 150ms;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-        }
-        .bk-close:hover { background: #E22D6D; color: #fff; transform: rotate(90deg); }
-
-        /* ── Left Panel ───────────────────────────────────────────── */
-        .bk-left {
-          width: 310px; flex-shrink: 0;
-          background: #f8f9fb;
-          border-right: 1.5px solid #f0f0f0;
-          display: flex; flex-direction: column;
-          overflow-y: auto;
-        }
-
-        .bk-profile-photo {
-          width: 100%;
-          background: #ffffff;
-          display: flex; align-items: center; justify-content: center;
-          overflow: hidden;
-          min-height: 200px;
-          position: relative;
-        }
-        .bk-profile-photo img {
-          width: 100%; height: 240px;
-          object-fit: cover; object-position: top center;
-          display: block;
-        }
-
-        .bk-bio {
-          padding: 20px 22px 16px;
-          border-bottom: 1px solid #ececec;
-        }
-        .bk-hey {
-          font-family: 'Geist', sans-serif;
-          font-size: 13px; color: #6b7280; margin-bottom: 4px; display: block;
-        }
-        .bk-name {
-          font-family: 'Geist', sans-serif; font-weight: 600;
-          font-size: 26px; letter-spacing: -0.035em; color: #111827;
-          margin: 0 0 4px; text-transform: none;
-        }
-        .bk-title-tag {
-          font-family: 'Geist', sans-serif;
-          font-size: 12.5px; font-weight: 700; color: #E22D6D;
-          margin: 0;
-        }
-
-        .bk-services-list {
-          padding: 16px 22px;
-          display: flex; flex-direction: column; gap: 12px;
-          flex: 1;
-        }
-        .bk-svc-row {
-          display: flex; align-items: flex-start; gap: 12px;
-        }
-        .bk-svc-icon {
-          width: 36px; height: 36px; border-radius: 10px;
-          background: #fff; border: 1.5px solid #f0f0f0;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 17px; flex-shrink: 0;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.07);
-        }
-        .bk-svc-title {
-          font-family: 'Geist', sans-serif;
-          font-size: 13px; font-weight: 700; color: #111827;
-          margin: 0 0 2px;
-        }
-        .bk-svc-desc {
-          font-family: 'Geist', sans-serif;
-          font-size: 11.5px; color: #6b7280; margin: 0; line-height: 1.4;
-        }
-
-        .bk-bottom-banner {
-          margin: 16px 22px 22px;
-          background: #fff0f4; border: 1.5px solid #ffd6e4;
-          border-radius: 14px; padding: 14px 16px;
-          display: flex; align-items: center; gap: 12px;
-        }
-        .bk-banner-icon { font-size: 24px; flex-shrink: 0; }
-        .bk-banner-text {
-          font-family: 'Geist', sans-serif;
-          font-size: 12px; color: #374151; line-height: 1.5; margin: 0;
-        }
-        .bk-banner-text strong { color: #E22D6D; display: block; }
-
-        /* ── Right Panel ──────────────────────────────────────────── */
-        .bk-right {
-          flex: 1;
-          overflow-y: auto; overflow-x: hidden;
-          display: flex; flex-direction: column;
-          scrollbar-width: thin; scrollbar-color: #e5e7eb transparent;
-        }
-        .bk-right::-webkit-scrollbar { width: 4px; }
-        .bk-right::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
-
-        /* ── Right Header ─────────────────────────────────────────── */
-        .bk-right-header {
-          padding: 28px 32px 20px;
-          border-bottom: 1px solid #f0f0f0;
-          display: flex; align-items: center; gap: 18px;
-        }
-        .bk-header-icon {
-          width: 54px; height: 54px; border-radius: 16px;
-          background: #fff0f4; border: 2px solid #ffd6e4;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 26px; flex-shrink: 0;
-        }
-        .bk-header-title {
-          font-family: 'Geist', sans-serif; font-weight: 600;
-          font-size: 32px; letter-spacing: -0.035em; color: #111827;
-          margin: 0; text-transform: none; line-height: 1;
-        }
-        .bk-header-sub {
-          font-family: 'Geist', sans-serif;
-          font-size: 13px; color: #6b7280; margin: 4px 0 0;
-        }
-
-        /* ── Right Body ───────────────────────────────────────────── */
-        .bk-right-body {
-          padding: 24px 32px 20px;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 28px;
-          flex: 1;
-        }
-
-        /* ── Section Headers ─────────────────────────────────────── */
-        .bk-section-title {
-          font-family: 'Geist', sans-serif;
-          font-size: 11px; font-weight: 800; text-transform: uppercase;
-          letter-spacing: 1.5px; color: #E22D6D;
-          border-left: 3px solid #E22D6D; padding-left: 10px;
-          margin: 0 0 16px;
-        }
-
-        /* ── Form Fields ─────────────────────────────────────────── */
-        .bk-form-col { display: flex; flex-direction: column; gap: 14px; }
-        .bk-field { display: flex; flex-direction: column; gap: 5px; }
-        .bk-label {
-          font-family: 'Geist', sans-serif;
-          font-size: 12.5px; font-weight: 700; color: #374151;
-        }
-        .bk-input-wrap {
-          position: relative;
-        }
-        .bk-input-icon {
-          position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
-          font-size: 14px; color: #9ca3af; pointer-events: none;
-        }
-        .bk-input {
-          width: 100%; box-sizing: border-box;
-          background: #f9fafb; border: 1.5px solid #e5e7eb;
-          border-radius: 10px; padding: 10px 14px 10px 38px;
-          font-family: 'Geist', sans-serif; font-size: 13.5px; color: #111827;
-          outline: none; transition: border-color 150ms, box-shadow 150ms;
-        }
-        .bk-input::placeholder { color: #9ca3af; }
-        .bk-input:focus { border-color: #E22D6D; box-shadow: 0 0 0 3px rgba(226,45,109,0.1); background: #fff; }
-        .bk-select {
-          width: 100%; box-sizing: border-box;
-          background: #f9fafb; border: 1.5px solid #e5e7eb;
-          border-radius: 10px; padding: 10px 14px 10px 38px;
-          font-family: 'Geist', sans-serif; font-size: 13.5px; color: #111827;
-          outline: none; cursor: pointer; appearance: none;
-          transition: border-color 150ms;
-        }
-        .bk-select:focus { border-color: #E22D6D; }
-
-        .bk-textarea-wrap { position: relative; }
-        .bk-textarea-icon {
-          position: absolute; left: 13px; top: 12px;
-          font-size: 14px; color: #9ca3af;
-        }
-        .bk-textarea {
-          width: 100%; box-sizing: border-box; resize: none;
-          background: #f9fafb; border: 1.5px solid #e5e7eb;
-          border-radius: 10px; padding: 10px 14px 28px 38px;
-          font-family: 'Geist', sans-serif; font-size: 13.5px; color: #111827;
-          outline: none; min-height: 90px;
-          transition: border-color 150ms;
-        }
-        .bk-textarea::placeholder { color: #9ca3af; }
-        .bk-textarea:focus { border-color: #E22D6D; background: #fff; }
-        .bk-char-count {
-          position: absolute; bottom: 8px; right: 12px;
-          font-size: 11px; color: #9ca3af;
-          font-family: 'Geist', sans-serif;
-        }
-
-        .bk-privacy-box {
-          background: #f0fdf4; border: 1.5px solid #bbf7d0;
-          border-radius: 12px; padding: 12px 14px;
-          display: flex; align-items: flex-start; gap: 10px;
-          margin-top: 2px;
-        }
-        .bk-privacy-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
-        .bk-privacy-text {
-          font-family: 'Geist', sans-serif;
-          font-size: 12px; color: #374151; line-height: 1.5; margin: 0;
-        }
-        .bk-privacy-text strong { color: #059669; display: block; }
-
-        /* ── Calendar ──────────────────────────────────────────────── */
-        .bk-cal-col { display: flex; flex-direction: column; gap: 0; }
-        .bk-cal-header {
-          display: flex; align-items: center; justify-content: space-between;
-          margin-bottom: 14px;
-        }
-        .bk-cal-nav-btn {
-          width: 28px; height: 28px; border-radius: 8px;
-          background: #f3f4f6; border: 1px solid #e5e7eb;
-          cursor: pointer; display: flex; align-items: center; justify-content: center;
-          font-size: 13px; color: #374151; transition: all 130ms;
-        }
-        .bk-cal-nav-btn:hover { background: #E22D6D; color: #fff; border-color: #E22D6D; }
-        .bk-cal-month {
-          font-family: 'Geist', sans-serif;
-          font-size: 14px; font-weight: 700; color: #111827;
-        }
-        .bk-cal-grid {
-          display: grid; grid-template-columns: repeat(7, 1fr);
-          gap: 2px;
-        }
-        .bk-cal-day-hdr {
-          font-family: 'Geist', sans-serif;
-          font-size: 10px; font-weight: 700; color: #9ca3af;
-          text-align: center; padding: 4px 0 6px;
-          text-transform: uppercase;
-        }
-        .bk-cal-cell {
-          font-family: 'Geist', sans-serif;
-          font-size: 13px; color: #374151;
-          text-align: center; padding: 7px 4px;
-          border-radius: 8px; cursor: pointer;
-          transition: all 130ms;
-        }
-        .bk-cal-cell.other-month { color: #d1d5db; cursor: default; }
-        .bk-cal-cell.today { color: #E22D6D; font-weight: 700; }
-        .bk-cal-cell:not(.other-month):not(.selected):hover {
-          background: #fff0f4; color: #E22D6D;
-        }
-        .bk-cal-cell.selected {
-          background: #E22D6D; color: #fff; font-weight: 700;
-          box-shadow: 0 2px 10px rgba(226,45,109,0.4);
-        }
-
-        /* ── Time Slots ────────────────────────────────────────────── */
-        .bk-time-section { margin-top: 18px; }
-        .bk-time-label {
-          font-family: 'Geist', sans-serif;
-          font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 10px;
-        }
-        .bk-time-grid {
-          display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
-        }
-        .bk-time-btn {
-          background: #f9fafb; border: 1.5px solid #e5e7eb;
-          border-radius: 10px; padding: 8px 4px;
-          font-family: 'Geist', sans-serif; font-size: 12px; font-weight: 700;
-          color: #374151; cursor: pointer; text-align: center;
-          transition: all 130ms;
-        }
-        .bk-time-btn:hover { background: #fff0f4; border-color: #E22D6D; color: #E22D6D; }
-        .bk-time-btn.selected {
-          background: #E22D6D; border-color: #E22D6D; color: #fff;
-          box-shadow: 0 2px 10px rgba(226,45,109,0.4);
-        }
-
-        /* ── Bottom Action Bar ─────────────────────────────────────── */
-        .bk-footer {
-          padding: 18px 32px;
-          border-top: 1px solid #f0f0f0;
-          display: flex; align-items: center; justify-content: space-between;
-          gap: 16px; background: #fff;
-        }
-        .bk-footer-hint {
-          display: flex; align-items: center; gap: 12px;
-        }
-        .bk-hint-icon {
-          width: 40px; height: 40px; border-radius: 12px;
-          background: #fff0f4; border: 1.5px solid #ffd6e4;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 20px; flex-shrink: 0;
-        }
-        .bk-hint-text {
-          font-family: 'Geist', sans-serif;
-          font-size: 12.5px; color: #6b7280; margin: 0; line-height: 1.5;
-        }
-        .bk-hint-text strong { color: #111827; display: block; }
-        .bk-confirm-btn {
-          background: linear-gradient(135deg, #E22D6D 0%, #c0185a 100%);
-          border: none; border-radius: 14px;
-          padding: 14px 30px;
-          font-family: 'Geist', sans-serif; font-weight: 600; font-size: 19px;
-          letter-spacing: -0.035em; text-transform: none; color: #ffffff;
-          cursor: pointer;
-          display: flex; align-items: center; gap: 12px;
-          box-shadow: 0 6px 24px rgba(226,45,109,0.45);
-          transition: transform 150ms, box-shadow 150ms;
-          white-space: nowrap;
-        }
-        .bk-confirm-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(226,45,109,0.6); }
-        .bk-confirm-btn:active { transform: none; }
-        .bk-confirm-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
-        .bk-btn-icon { font-size: 20px; }
-        .bk-spinner {
-          width: 16px; height: 16px;
-          border: 2.5px solid rgba(255,255,255,0.5);
-          border-top-color: #fff; border-radius: 50%;
-          animation: sv-spin 0.6s linear infinite;
-        }
-
-        /* ── Confirmed Screen ──────────────────────────────────────── */
-        .bk-confirmed-wrap {
-          flex: 1; display: flex; flex-direction: column;
-          align-items: center; justify-content: center;
-          padding: 48px 32px; text-align: center;
-          position: relative; gap: 16px;
-          animation: sv-slide-up 0.4s ease;
-        }
-        .bk-confetti-row {
-          display: flex; gap: 10px; position: absolute; top: 24px; pointer-events: none;
-        }
-        .bk-confetti-dot {
-          width: 10px; height: 10px; border-radius: 50%;
-          animation: sv-confetti 1.2s ease-out forwards;
-        }
-        .bk-check-circle {
-          width: 84px; height: 84px; border-radius: 50%;
-          background: linear-gradient(135deg, #059669 0%, #047857 100%);
-          border: 3px solid #fff;
-          box-shadow: 0 0 40px rgba(5,150,105,0.5);
-          display: flex; align-items: center; justify-content: center;
-          font-size: 44px; color: #fff;
-          animation: sv-pop-check 0.5s cubic-bezier(0.22,1,0.36,1);
-        }
-        .bk-confirmed-title {
-          font-family: 'Geist', sans-serif; font-weight: 600;
-          font-size: 38px; letter-spacing: -0.035em; color: #111827; margin: 0;
-        }
-        .bk-confirmed-sub {
-          font-family: 'Geist', sans-serif;
-          font-size: 14.5px; color: #6b7280;
-          max-width: 360px; line-height: 1.6; margin: 0;
-        }
-        .bk-confirmed-sub span { color: #E22D6D; font-weight: 700; }
-        .bk-close-btn {
-          background: linear-gradient(135deg, #E22D6D 0%, #c0185a 100%);
-          border: none; border-radius: 12px;
-          padding: 12px 32px;
-          font-family: 'Geist', sans-serif; font-weight: 600; font-size: 18px;
-          letter-spacing: -0.035em; color: #fff; cursor: pointer;
-          box-shadow: 0 6px 20px rgba(226,45,109,0.4);
-          transition: all 150ms;
-        }
-        .bk-close-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(226,45,109,0.55); }
-
-        /* ── RESPONSIVE ────────────────────────────────────────────── */
-        @media (max-width: 860px) {
-          .bk-backdrop { padding: 8px; }
-          .bk-modal {
-            flex-direction: column;
-            max-height: 92vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
-            border-radius: 20px;
-          }
-          .bk-close {
-            position: sticky;
-            top: 12px;
-            right: 12px;
-            z-index: 100;
-            align-self: flex-end;
-            margin-bottom: -36px;
-            margin-right: 12px;
-          }
-          .bk-left {
-            width: 100%;
-            flex-shrink: 0;
-            overflow: visible;
-            border-right: none;
-            border-bottom: 1.5px solid #f0f0f0;
-          }
-          .bk-profile-photo {
-            width: 100%;
-            height: 180px;
-            min-height: unset;
-          }
-          .bk-profile-photo img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            object-position: top center;
-          }
-          .bk-bio {
-            padding: 16px 20px;
-            border-bottom: 1px solid #ececec;
-            border-right: none;
-          }
-          .bk-services-list {
-            display: flex;
-            flex-direction: column;
-            padding: 14px 20px;
-            gap: 10px;
-          }
-          .bk-bottom-banner {
-            margin: 0 20px 20px;
-          }
-          .bk-right {
-            width: 100%;
-            overflow: visible;
-            flex: none;
-          }
-          .bk-right-header {
-            padding: 20px 20px 14px;
-          }
-          .bk-right-body {
-            grid-template-columns: 1fr;
-            gap: 20px;
-            padding: 16px 20px;
-          }
-          .bk-footer {
-            flex-direction: column;
-            align-items: stretch;
-            padding: 16px 20px 28px;
-          }
-          .bk-confirm-btn {
-            justify-content: center;
-            font-size: 17px;
-            width: 100%;
-          }
-          .bk-time-grid {
-            grid-template-columns: repeat(2, 1fr);
-          }
-        }
-      `}</style>
-
-      <div className="bk-backdrop" onClick={(e) => { if (e.target === e.currentTarget) close(); }}>
-        <div className="bk-modal">
-
-          {/* ── Close Button ──────────────────────────── */}
-          <button className="bk-close" onClick={close} aria-label="Close">✕</button>
-
-          {/* ════════════════════════════════════════════
-              LEFT PANEL
-          ════════════════════════════════════════════ */}
-          <div className="bk-left">
-            {/* Profile Photo */}
-            <div className="bk-profile-photo">
-              <img src="/icons/new-model-card.png" alt="Sre Varshan" />
-            </div>
-
-            {/* Bio */}
-            <div className="bk-bio">
-              <span className="bk-hey">Hey there! 👋</span>
-              <h2 className="bk-name">I&apos;M SRE VARSHAN</h2>
-              <p className="bk-title-tag">Applied AI &amp; GenAI Engineer</p>
-            </div>
-
-            {/* Services List */}
-            <div className="bk-services-list">
-              {SERVICES_LEFT.map((s) => (
-                <div className="bk-svc-row" key={s.title}>
-                  <div className="bk-svc-icon">
-                    <img src={s.icon} alt={s.title} width={24} height={24} style={{objectFit:"contain"}} />
-                  </div>
-                  <div>
-                    <p className="bk-svc-title">{s.title}</p>
-                    <p className="bk-svc-desc">{s.desc}</p>
-                  </div>
-                </div>
-              ))}
+        {/* ── Header: sky strip ── */}
+        <header className="bk-head">
+          <img className="bk-cloud bk-cloud-a" src="/pixel/cloud-sky-2.png" alt="" aria-hidden="true" width={224} height={120} />
+          <img className="bk-cloud bk-cloud-b" src="/pixel/cloud-sky-3.png" alt="" aria-hidden="true" width={368} height={168} />
+          <div className="bk-head-row">
+            <img className="bk-avatar" src="/icons/new-model-card.png" alt="" aria-hidden="true" width={56} height={56} />
+            <div>
+              <p className="bk-mono bk-kicker">Sre Varshan · Applied AI &amp; GenAI Engineer</p>
+              <h2 id="bk-title" className="bk-title">Let&apos;s connect</h2>
             </div>
           </div>
+          <p className="bk-sub">Have a project, idea, or opportunity in mind? Let&apos;s discuss how we can work together.</p>
+        </header>
 
-          {/* ════════════════════════════════════════════
-              RIGHT PANEL
-          ════════════════════════════════════════════ */}
-          <div className="bk-right">
+        {screen === "booking" ? (
+          <>
+            <div className="bk-body">
+              {/* ── Left: details ── */}
+              <div className="bk-col">
+                <p className="bk-mono bk-section"><i style={{ background: "#1E88E5" }} />Your details</p>
 
-            {screen === "booking" && (
-              <>
-                {/* Header */}
-                <div className="bk-right-header">
-                  <div className="bk-header-icon">
-                    <img src="/icons/mobile.png" alt="Book a Call" width={32} height={32} style={{objectFit:"contain"}} />
+                <div className="bk-field">
+                  <label htmlFor="bk-name" className="bk-label">Your Name *</label>
+                  <input id="bk-name" className="bk-input" autoComplete="name" placeholder="Your full name" value={name}
+                    aria-invalid={!!errors.name} onChange={(e) => { setName(e.target.value); setErrors((p) => ({ ...p, name: "" })); }} />
+                  {errors.name && <p className="bk-error">{errors.name}</p>}
+                </div>
+                <div className="bk-field-pair">
+                  <div className="bk-field">
+                    <label htmlFor="bk-email" className="bk-label">Email Address *</label>
+                    <input id="bk-email" className="bk-input" type="email" inputMode="email" autoComplete="email" placeholder="you@company.com" value={email}
+                      aria-invalid={!!errors.email} onChange={(e) => { setEmail(e.target.value); setErrors((p) => ({ ...p, email: "" })); }} />
+                    {errors.email && <p className="bk-error">{errors.email}</p>}
                   </div>
-                  <div>
-                    <h3 className="bk-header-title">BOOK A CALL</h3>
-                    <p className="bk-header-sub">Let&apos;s discuss your project and explore how I can help you.</p>
+                  <div className="bk-field">
+                    <label htmlFor="bk-phone" className="bk-label">Phone Number *</label>
+                    <input id="bk-phone" className="bk-input" type="tel" inputMode="tel" autoComplete="tel" placeholder="+91 98765 43210" value={phone}
+                      aria-invalid={!!errors.phone} onChange={(e) => { setPhone(e.target.value); setErrors((p) => ({ ...p, phone: "" })); }} />
+                    {errors.phone && <p className="bk-error">{errors.phone}</p>}
                   </div>
                 </div>
 
-                {/* Body Grid */}
-                <div className="bk-right-body">
-
-                  {/* Left Col — Your Details */}
-                  <div className="bk-form-col">
-                    <p className="bk-section-title">YOUR DETAILS</p>
-
-                    <div className="bk-field">
-                      <label className="bk-label">Your Name *</label>
-                      <div className="bk-input-wrap">
-                        <span className="bk-input-icon">👤</span>
-                        <input className="bk-input" placeholder="Enter your name" value={name} onChange={e => setName(e.target.value)} />
-                      </div>
-                    </div>
-
-                    <div className="bk-field">
-                      <label className="bk-label">Email Address *</label>
-                      <div className="bk-input-wrap">
-                        <span className="bk-input-icon">✉️</span>
-                        <input className="bk-input" type="email" placeholder="Enter your email" value={email} onChange={e => setEmail(e.target.value)} />
-                      </div>
-                    </div>
-
-                    <div className="bk-field">
-                      <label className="bk-label">Phone Number *</label>
-                      <div className="bk-input-wrap">
-                        <span className="bk-input-icon">📞</span>
-                        <input className="bk-input" placeholder="Enter your phone number" value={phone} onChange={e => setPhone(e.target.value)} />
-                      </div>
-                    </div>
-
-                    <div className="bk-field">
-                      <label className="bk-label">What would you like to discuss?</label>
-                      <div className="bk-input-wrap">
-                        <span className="bk-input-icon">💬</span>
-                        <select className="bk-select" value={topic} onChange={e => setTopic(e.target.value)}>
-                          <option value="">Select a topic</option>
-                          {TOPICS.map(t => <option key={t} value={t}>{t}</option>)}
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="bk-field">
-                      <label className="bk-label">Tell me more about your project (optional)</label>
-                      <div className="bk-textarea-wrap">
-                        <span className="bk-textarea-icon">✏️</span>
-                        <textarea
-                          className="bk-textarea"
-                          placeholder="Briefly describe your project or idea..."
-                          maxLength={300}
-                          value={note}
-                          onChange={e => setNote(e.target.value)}
-                        />
-                        <span className="bk-char-count">{note.length}/300</span>
-                      </div>
-                    </div>
-
-
-                  </div>
-
-                  {/* Right Col — Calendar & Time */}
-                  <div className="bk-cal-col">
-                    <p className="bk-section-title">PICK A DATE &amp; TIME</p>
-
-                    {/* Calendar */}
-                    <div className="bk-cal-header">
-                      <button className="bk-cal-nav-btn" onClick={prevMonth}>‹</button>
-                      <span className="bk-cal-month">{MONTHS[calMonth]} {calYear}</span>
-                      <button className="bk-cal-nav-btn" onClick={nextMonth}>›</button>
-                    </div>
-
-                    <div className="bk-cal-grid">
-                      {DAYS_SHORT.map(d => (
-                        <div className="bk-cal-day-hdr" key={d}>{d}</div>
-                      ))}
-                      {cells.map((c, i) => {
-                        const isOther   = c.month !== "cur";
-                        const isToday   = c.month === "cur" && c.day === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear();
-                        const isSel     = c.month === "cur" && c.day === selDay;
-                        let cls = "bk-cal-cell";
-                        if (isOther) cls += " other-month";
-                        else if (isSel) cls += " selected";
-                        else if (isToday) cls += " today";
-                        return (
-                          <div
-                            key={i}
-                            className={cls}
-                            onClick={() => { if (!isOther) setSelDay(c.day); }}
-                          >
-                            {c.day}
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Time Slots */}
-                    <div className="bk-time-section">
-                      <p className="bk-time-label">Available Time (IST)</p>
-                      <div className="bk-time-grid">
-                        {TIME_SLOTS.map(t => (
-                          <button
-                            key={t}
-                            className={`bk-time-btn${selTime === t ? " selected" : ""}`}
-                            onClick={() => setSelTime(t)}
-                          >
-                            {t}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* Footer */}
-                <div className="bk-footer">
-                  <div className="bk-footer-hint">
-                    <div className="bk-hint-icon">🎧</div>
-                    <p className="bk-hint-text">
-                      <strong>Not sure about the requirement?</strong>
-                      Book a free discovery call and lets talk!
-                    </p>
-                  </div>
-                  <button className="bk-confirm-btn" onClick={handleConfirm} disabled={sending}>
-                    {sending ? <><div className="bk-spinner" /><span>Booking...</span></> : <span>CONFIRM BOOKING →</span>}
-                  </button>
-                </div>
-              </>
-            )}
-
-            {/* ── Confirmed Screen ──────────────────── */}
-            {screen === "confirmed" && (
-              <div className="bk-confirmed-wrap">
-                <div className="bk-confetti-row">
-                  {["#E22D6D","#FFB020","#2DC8E2","#059669","#8E2DE2","#FF7043","#E22D6D","#FFB020"].map((c, i) => (
-                    <span key={i} className="bk-confetti-dot" style={{ background: c, animationDelay: `${i * 90}ms` }} />
+                <p className="bk-mono bk-section"><i style={{ background: "#F2A33A" }} />What can I help you with?</p>
+                <div className="bk-chips" role="radiogroup" aria-label="What can I help you with?">
+                  {TOPICS.map((t) => (
+                    <button key={t} type="button" role="radio" aria-checked={topic === t}
+                      className={`bk-chip ${topic === t ? "is-on" : ""}`} onClick={() => setTopic(topic === t ? "" : t)}>
+                      {t}
+                    </button>
                   ))}
                 </div>
-                <div className="bk-check-circle">✓</div>
-                <h3 className="bk-confirmed-title">SLOT BOOKED! 🎉</h3>
-                <p className="bk-confirmed-sub">
-                  Thanks <span>{name || "there"}</span>! Your call is locked in for{" "}
-                  <span>{selectedDateStr} at {selTime}</span>.
-                  An email notification has been sent to <span>srevarshan9600622@gmail.com</span>!
-                </p>
-                <button className="bk-close-btn" onClick={close}>CLOSE ✕</button>
-              </div>
-            )}
-          </div>
 
-        </div>
+                <p className="bk-mono bk-section"><i style={{ background: "#E4572E" }} />Tell me about your project</p>
+                <div className="bk-field">
+                  <label htmlFor="bk-note" className="sr-only">Tell me about your project</label>
+                  <textarea id="bk-note" className="bk-input bk-textarea" maxLength={300}
+                    placeholder="Briefly describe your project, idea, or opportunity..." value={note} onChange={(e) => setNote(e.target.value)} />
+                  <span className="bk-mono bk-count">{note.length}/300</span>
+                </div>
+              </div>
+
+              {/* ── Right: date & time ── */}
+              <div className="bk-col">
+                <p className="bk-mono bk-section"><i style={{ background: "#2BB04A" }} />Select a date &amp; time</p>
+                <div className="bk-cal">
+                  <div className="bk-cal-head">
+                    <button type="button" className="bk-cal-nav" onClick={prevMonth} disabled={atCurrentMonth} aria-label="Previous month">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" aria-hidden="true"><path d="m15 6-6 6 6 6" /></svg>
+                    </button>
+                    <span className="bk-cal-month">{MONTHS[calMonth]} {calYear}</span>
+                    <button type="button" className="bk-cal-nav" onClick={nextMonth} aria-label="Next month">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>
+                    </button>
+                  </div>
+                  <div className="bk-cal-grid">
+                    {DAYS_SHORT.map((d) => <span className="bk-mono bk-cal-dow" key={d}>{d.slice(0, 2)}</span>)}
+                    {cells.map((c, i) => {
+                      if (c.month !== "cur") return <span key={i} className="bk-cal-cell is-out">{c.day}</span>;
+                      const date = new Date(calYear, calMonth, c.day);
+                      const past = date < today;
+                      const isToday = date.getTime() === today.getTime();
+                      return (
+                        <button key={i} type="button" disabled={past}
+                          className={`bk-cal-cell ${selDay === c.day ? "is-sel" : ""} ${isToday ? "is-today" : ""}`}
+                          aria-pressed={selDay === c.day} aria-label={date.toDateString()}
+                          onClick={() => { setSelDay(c.day); setErrors((p) => ({ ...p, date: "" })); }}>
+                          {c.day}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                {errors.date && <p className="bk-error">{errors.date}</p>}
+
+                <p className="bk-label bk-time-label">Available Time (IST)</p>
+                <div className="bk-times" role="radiogroup" aria-label="Available Time (IST)">
+                  {TIME_SLOTS.map((t) => (
+                    <button key={t} type="button" role="radio" aria-checked={selTime === t}
+                      className={`bk-time ${selTime === t ? "is-on" : ""}`} onClick={() => setSelTime(t)}>
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <footer className="bk-foot">
+              <p className="bk-summary">
+                {selDay ? <><span className="bk-mono">Your slot</span> {selectedDateStr} · {selTime} IST</> : <span className="bk-mono">Pick a date to continue</span>}
+              </p>
+              {sendError && <p className="bk-error bk-send-error" role="alert">{sendError}</p>}
+              <div className="bk-actions">
+                <button type="button" className="bk-btn bk-btn-outline" onClick={close}>Maybe later</button>
+                <button type="button" className="bk-btn bk-btn-green" onClick={handleConfirm} disabled={sending}>
+                  {sending ? "Booking…" : "Confirm booking"}
+                  {!sending && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>}
+                </button>
+              </div>
+            </footer>
+          </>
+        ) : (
+          <div className="bk-done" role="status">
+            <span className="bk-done-icon" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="square"><path d="m5 12 5 5 9-10" /></svg>
+            </span>
+            <h3 className="bk-done-title">Your call is booked</h3>
+            <p className="bk-done-text">
+              Thanks, {name.trim()}. I&apos;ve got your request for <strong>{selectedDateStr} at {selTime} IST</strong> and
+              will confirm by email at <strong>{email.trim()}</strong>.
+            </p>
+            <button type="button" className="bk-btn bk-btn-green" onClick={close}>Done</button>
+          </div>
+        )}
       </div>
-    </>
+
+      <style>{`
+        .bk-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 99998;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          background: rgba(20, 20, 20, 0.55);
+          backdrop-filter: blur(4px);
+          animation: bkFade 200ms ease-out;
+        }
+        @keyframes bkFade { from { opacity: 0; } to { opacity: 1; } }
+        .bk-modal {
+          position: relative;
+          width: min(1000px, 100%);
+          max-height: calc(100vh - 40px);
+          overflow-y: auto;
+          background: #FFFFFF;
+          border: 1px solid #E6E3DD;
+          box-shadow: 0 30px 60px -30px rgba(20, 20, 20, 0.5);
+          font-family: 'Geist', system-ui, sans-serif;
+          color: #141414;
+          outline: none;
+          animation: bkIn 320ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes bkIn { from { opacity: 0; transform: translateY(18px) scale(0.98); } to { opacity: 1; transform: none; } }
+        .bk-mono { font-family: 'Geist Mono', ui-monospace, monospace; text-transform: uppercase; letter-spacing: 0.14em; }
+        .bk-close {
+          position: absolute;
+          top: 14px;
+          right: 14px;
+          z-index: 3;
+          width: 40px;
+          height: 40px;
+          display: grid;
+          place-items: center;
+          background: #FFFFFF;
+          border: 1px solid #E6E3DD;
+          border-radius: 4px;
+          color: #141414;
+          cursor: pointer;
+        }
+        .bk-close:hover { background: #F6F4F0; }
+
+        /* Header */
+        .bk-head {
+          position: relative;
+          overflow: hidden;
+          padding: 28px 32px 24px;
+          background: linear-gradient(to bottom, #DDF0FC 0%, #EEF7FD 55%, #FFFFFF 100%);
+          border-bottom: 1px solid #E6E3DD;
+        }
+        .bk-cloud { position: absolute; height: auto; image-rendering: pixelated; pointer-events: none; }
+        .bk-cloud-a { width: 112px; top: 22px; right: 220px; }
+        .bk-cloud-b { width: 184px; top: 70px; right: 40px; }
+        .bk-head > :not(img) { position: relative; z-index: 1; }
+        .bk-head-row { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+        .bk-avatar { width: 56px; height: 56px; object-fit: cover; object-position: top; background: #FFFFFF; border: 1px solid #E6E3DD; }
+        .bk-kicker { margin: 0 0 4px; font-size: 11.5px; color: #1F7A4C; }
+        .bk-title { margin: 0; font-size: clamp(30px, 4vw, 42px); font-weight: 600; letter-spacing: -0.04em; line-height: 1.05; color: #141414; text-transform: none; }
+        .bk-sub { margin: 0; max-width: 56ch; font-size: 16px; line-height: 1.55; color: #4D4D4D; }
+
+        /* Body */
+        .bk-body { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+        .bk-col { padding: 24px 32px 8px; display: flex; flex-direction: column; }
+        .bk-col + .bk-col { border-left: 1px solid #E6E3DD; }
+        .bk-section { display: flex; align-items: center; gap: 8px; margin: 0 0 14px; font-size: 12px; font-weight: 500; color: #333; }
+        .bk-section i { width: 9px; height: 9px; }
+        .bk-col > .bk-section:not(:first-child) { margin-top: 22px; }
+        .bk-field { position: relative; display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; min-width: 0; }
+        .bk-field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .bk-label { font-size: 13.5px; font-weight: 500; color: #333; margin: 0; }
+        .bk-input {
+          width: 100%;
+          min-height: 44px;
+          padding: 10px 13px;
+          background: #FFFFFF;
+          border: 1px solid #D9D5CE;
+          border-radius: 4px;
+          font: 400 15px 'Geist', system-ui, sans-serif;
+          color: #141414;
+          transition: border-color 150ms, box-shadow 150ms;
+        }
+        .bk-input::placeholder { color: #8F8F8F; }
+        .bk-input:focus { outline: none; border-color: #1F7A4C; box-shadow: 0 0 0 3px rgba(31, 122, 76, 0.16); }
+        .bk-input[aria-invalid="true"] { border-color: #B11F55; }
+        .bk-textarea { min-height: 104px; resize: none; line-height: 1.55; }
+        .bk-count { position: absolute; right: 10px; bottom: 8px; font-size: 10.5px; color: #8F8F8F; }
+        .bk-error { margin: 0; font-size: 12.5px; font-weight: 500; color: #B11F55; }
+
+        .bk-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .bk-chip {
+          min-height: 38px;
+          padding: 8px 12px;
+          background: #FFFFFF;
+          border: 1px solid #D9D5CE;
+          border-radius: 4px;
+          font: 500 14px 'Geist', system-ui, sans-serif;
+          color: #141414;
+          cursor: pointer;
+          transition: background 140ms, border-color 140ms, color 140ms;
+        }
+        .bk-chip:hover { background: #F6F4F0; }
+        .bk-chip.is-on { background: #EAF6EF; border-color: #1F7A4C; color: #17603B; }
+
+        /* Calendar */
+        .bk-cal { border: 1px solid #E6E3DD; }
+        .bk-cal-head { display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px solid #E6E3DD; }
+        .bk-cal-month { font-size: 15.5px; font-weight: 600; letter-spacing: -0.01em; }
+        .bk-cal-nav {
+          width: 36px;
+          height: 36px;
+          display: grid;
+          place-items: center;
+          background: #FFFFFF;
+          border: 1px solid #E6E3DD;
+          border-radius: 4px;
+          color: #141414;
+          cursor: pointer;
+        }
+        .bk-cal-nav:hover:not(:disabled) { background: #F6F4F0; }
+        .bk-cal-nav:disabled { opacity: 0.35; cursor: not-allowed; }
+        .bk-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; padding: 8px; }
+        .bk-cal-dow { text-align: center; font-size: 10.5px; color: #6E6E6E; padding: 4px 0 6px; }
+        .bk-cal-cell {
+          height: 36px;
+          display: grid;
+          place-items: center;
+          background: transparent;
+          border: 0;
+          border-radius: 4px;
+          font: 500 14px 'Geist', system-ui, sans-serif;
+          color: #141414;
+          cursor: pointer;
+        }
+        button.bk-cal-cell:hover:not(:disabled) { background: #F1EFEA; }
+        .bk-cal-cell.is-out { color: #C9C5BD; cursor: default; }
+        .bk-cal-cell:disabled { color: #C9C5BD; cursor: not-allowed; text-decoration: line-through; }
+        .bk-cal-cell.is-today { box-shadow: inset 0 0 0 1px #1F7A4C; }
+        .bk-cal-cell.is-sel { background: #1F7A4C; color: #FFFFFF; box-shadow: none; }
+        .bk-time-label { margin: 18px 0 10px; }
+        .bk-times { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .bk-time {
+          min-height: 40px;
+          background: #FFFFFF;
+          border: 1px solid #D9D5CE;
+          border-radius: 4px;
+          font: 500 14px 'Geist Mono', ui-monospace, monospace;
+          color: #141414;
+          cursor: pointer;
+          transition: background 140ms, border-color 140ms, color 140ms;
+        }
+        .bk-time:hover { background: #F6F4F0; }
+        .bk-time.is-on { background: #1F7A4C; border-color: #17603B; color: #FFFFFF; }
+
+        /* Footer */
+        .bk-foot {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 12px 20px;
+          margin-top: 16px;
+          padding: 18px 32px 22px;
+          border-top: 1px solid #E6E3DD;
+          background: #FAF9F7;
+        }
+        .bk-summary { margin: 0; font-size: 14.5px; color: #333; }
+        .bk-summary .bk-mono { font-size: 11.5px; color: #1F7A4C; margin-right: 8px; }
+        .bk-send-error { flex-basis: 100%; order: 3; }
+        .bk-actions { display: flex; gap: 10px; }
+        .bk-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          min-height: 46px;
+          padding: 10px 20px;
+          border-radius: 4px;
+          font: 600 15px 'Geist', system-ui, sans-serif;
+          letter-spacing: -0.01em;
+          cursor: pointer;
+          transition: background 160ms, transform 120ms;
+        }
+        .bk-btn:active:not(:disabled) { transform: translateY(1px); }
+        .bk-btn-green { background: #1F7A4C; color: #FFFFFF; border: 1px solid #17603B; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18); }
+        .bk-btn-green:hover:not(:disabled) { background: #17603B; }
+        .bk-btn-green:disabled { background: #9DC7AF; border-color: #9DC7AF; cursor: progress; }
+        .bk-btn-outline { background: #FFFFFF; color: #141414; border: 1px solid #CFCBC3; }
+        .bk-btn-outline:hover { background: #F6F4F0; }
+
+        /* Done */
+        .bk-done { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 48px 32px 52px; }
+        .bk-done-icon { width: 56px; height: 56px; display: grid; place-items: center; margin-bottom: 18px; background: #EAF6EF; border: 1px solid #A7D7BC; color: #1F7A4C; }
+        .bk-done-title { margin: 0 0 8px; font-size: 26px; font-weight: 600; letter-spacing: -0.03em; text-transform: none; }
+        .bk-done-text { margin: 0 0 24px; max-width: 46ch; font-size: 15.5px; line-height: 1.6; color: #4D4D4D; }
+        .bk-done-text strong { color: #141414; font-weight: 600; }
+
+        @media (max-width: 820px) {
+          .bk-backdrop { padding: 0; align-items: stretch; }
+          .bk-modal { max-height: 100vh; height: 100%; border: 0; }
+          .bk-body { grid-template-columns: 1fr; }
+          .bk-col { padding: 20px 18px 4px; }
+          .bk-col + .bk-col { border-left: 0; border-top: 1px solid #E6E3DD; }
+          .bk-head { padding: 22px 18px 20px; }
+          .bk-head-row { padding-right: 48px; }
+          .bk-cloud-a { right: 120px; }
+          .bk-cloud-b { right: -40px; }
+          .bk-field-pair { grid-template-columns: 1fr; gap: 0; }
+          .bk-foot { padding: 16px 18px 22px; }
+          .bk-actions { width: 100%; }
+          .bk-btn { flex: 1; }
+        }
+      `}</style>
+    </div>
   );
 }
