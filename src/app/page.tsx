@@ -18,7 +18,6 @@ import Footer              from "@/components/layout/Footer";
 import TopNav            from "@/components/layout/TopNav";
 import CommandPalette    from "@/components/layout/CommandPalette";
 import ServicesModal     from "@/components/layout/ServicesModal";
-import { ScrollProgress } from "@/components/motion";
 
 export default function Home() {
   const [cmdOpen, setCmdOpen] = useState(false);
@@ -37,7 +36,6 @@ export default function Home() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <ScrollProgress />
       <a href="#main" className="skip-link">Skip to content</a>
 
       {/* ── Services popup modal (shown after 3s) ── */}

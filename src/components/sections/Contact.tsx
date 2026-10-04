@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { EASE_OUT, Reveal, Stagger, StaggerItem, TetrisText } from "@/components/motion";
+import { profileById } from "@/lib/profiles";
 
 const TO_EMAIL = "srevarshan9600622@gmail.com";
 const DRAFT_KEY = "sv-contact-draft";
@@ -10,6 +13,56 @@ type FieldErrors = Partial<Record<keyof Fields, string>>;
 type SendState = "idle" | "sending" | "sent" | "failed";
 
 const EMPTY: Fields = { name: "", email: "", subject: "", message: "" };
+
+const CHANNELS = ["linkedin", "github", "youtube"].map(profileById);
+const CHANNEL_TINT: Record<string, string> = { linkedin: "#3D8FE0", github: "#FFFFFF", youtube: "#FF3B3B" };
+const CAPABILITIES = ["LLMs", "VLMs", "OCR", "Edge AI", "RAG", "AI Agents", "Full-Stack AI", "NVIDIA Jetson"];
+
+/* Tetromino cells on a 4x2 grid */
+const SHAPES: Record<string, [number, number][]> = {
+  I: [[0, 0], [1, 0], [2, 0], [3, 0]],
+  O: [[0, 0], [1, 0], [0, 1], [1, 1]],
+  T: [[0, 0], [1, 0], [2, 0], [1, 1]],
+  L: [[0, 0], [0, 1], [1, 1], [2, 1]],
+  S: [[1, 0], [2, 0], [0, 1], [1, 1]],
+};
+const BLOCKS = [
+  { shape: "T", left: 4, size: 14, dur: 19, delay: -2, color: "#E22D6D", spin: 1 },
+  { shape: "I", left: 14, size: 10, dur: 26, delay: -14, color: "#2DC8E2", spin: -1 },
+  { shape: "O", left: 27, size: 12, dur: 22, delay: -7, color: "#FFB020", spin: 1 },
+  { shape: "L", left: 41, size: 9, dur: 30, delay: -20, color: "#A23DDB", spin: -1 },
+  { shape: "S", left: 55, size: 13, dur: 21, delay: -11, color: "#2BB04A", spin: 1 },
+  { shape: "T", left: 68, size: 10, dur: 27, delay: -4, color: "#2DC8E2", spin: -1 },
+  { shape: "I", left: 79, size: 12, dur: 24, delay: -17, color: "#E22D6D", spin: 1 },
+  { shape: "O", left: 90, size: 9, dur: 29, delay: -9, color: "#A23DDB", spin: -1 },
+  { shape: "L", left: 96, size: 11, dur: 23, delay: -24, color: "#FFB020", spin: 1 },
+];
+
+function FallingBlocks() {
+  return (
+    <div className="fx-blocks" aria-hidden="true">
+      {BLOCKS.map((b, i) => (
+        <svg
+          key={i}
+          className="fx-block"
+          width={b.size * 4 + 6}
+          height={b.size * 2 + 6}
+          viewBox={`-3 -3 ${b.size * 4 + 6} ${b.size * 2 + 6}`}
+          style={{
+            left: `${b.left}%`,
+            animationDuration: `${b.dur}s`,
+            animationDelay: `${b.delay}s`,
+            ["--spin" as string]: `${b.spin * 180}deg`,
+          }}
+        >
+          {SHAPES[b.shape].map(([x, y], j) => (
+            <rect key={j} x={x * b.size} y={y * b.size} width={b.size - 1.5} height={b.size - 1.5} fill={b.color} />
+          ))}
+        </svg>
+      ))}
+    </div>
+  );
+}
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function validate(f: Fields): FieldErrors {
@@ -40,6 +93,20 @@ export default function ContactSection() {
   const [minimized, setMinimized] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Window leans toward the cursor, and holds still while someone is typing
+  const [focusWithin, setFocusWithin] = useState(false);
+  const px = useMotionValue(0);
+  const py = useMotionValue(0);
+  const rotateY = useSpring(useTransform(px, [-0.5, 0.5], [-6, 6]), { stiffness: 140, damping: 18 });
+  const rotateX = useSpring(useTransform(py, [-0.5, 0.5], [5, -5]), { stiffness: 140, damping: 18 });
+  const onTilt = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (focusWithin || e.pointerType !== "mouse") return;
+    const r = e.currentTarget.getBoundingClientRect();
+    px.set((e.clientX - r.left) / r.width - 0.5);
+    py.set((e.clientY - r.top) / r.height - 0.5);
+  };
+  const resetTilt = () => { px.set(0); py.set(0); };
 
   // AI draft
   const [aiOpen, setAiOpen] = useState(false);
@@ -269,26 +336,72 @@ export default function ContactSection() {
     typing ? "Draft ready — click any field to skip the animation." : "";
 
   return (
-    <section id="contact" className="ct-section" aria-labelledby="contact-title">
-      <div className="ct-grain" aria-hidden="true" />
+    <section id="contact" className="fx-section" aria-labelledby="contact-title">
+      <FallingBlocks />
 
-      <div className="ct-inner">
-        <header className="ct-header">
-          <h2 id="contact-title" className="ct-title">Let&apos;s Build Something Great!</h2>
-          <p className="ct-lead">
+      <div className="fx-inner">
+        <header className="fx-head">
+          <h2 id="contact-title" className="fx-title" aria-label="Let's Build Something Great!">
+            <TetrisText className="fx-line" text="Let's Build" step={0.04} />
+            <TetrisText className="fx-line fx-line-2" text="Something Great!" delay={0.3} step={0.035} />
+          </h2>
+          <Reveal as="p" kind="up" delay={0.7} className="fx-lead">
             Hiring, collaborating, or have a problem worth solving with AI? Write to me here,
             or describe what you need and let AI draft the email for you.
-          </p>
-          <p className="ct-direct">
-            <span>Prefer your own inbox?</span>
-            <a href={`mailto:${TO_EMAIL}`} className="ct-direct-link">{TO_EMAIL}</a>
-            <button type="button" className="ct-copy" onClick={copyEmail} aria-live="polite">
-              {copied ? "Copied" : "Copy"}
-            </button>
-          </p>
+          </Reveal>
         </header>
 
-        <div className="ct-stage">
+        <div className={`fx-grid ${expanded ? "is-wide" : ""}`}>
+          <aside className="fx-channels" aria-label="Other ways to reach me">
+            <Stagger as="ul" className="fx-ch-list" gap={0.09} delay={0.2}>
+              <StaggerItem as="li" className="fx-ch fx-ch-mail">
+                <span className="fx-ch-icon" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2" /><path d="m3 6 9 7 9-7" /></svg>
+                </span>
+                <span className="fx-ch-text">
+                  <span className="fx-ch-name">Email</span>
+                  <a className="fx-ch-value" href={`mailto:${TO_EMAIL}`}>{TO_EMAIL}</a>
+                </span>
+                <button type="button" className="fx-copy" onClick={copyEmail}>
+                  <span aria-live="polite">{copied ? "Copied" : "Copy"}</span>
+                </button>
+              </StaggerItem>
+              {CHANNELS.map((c) => (
+                <StaggerItem as="li" key={c.id} className="fx-ch">
+                  <a className="fx-ch-link" href={c.url} target="_blank" rel="noopener noreferrer" style={{ ["--ch" as string]: CHANNEL_TINT[c.id] }}>
+                    <span className="fx-ch-icon" aria-hidden="true">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d={c.svgPath} /></svg>
+                    </span>
+                    <span className="fx-ch-text">
+                      <span className="fx-ch-name">{c.name}</span>
+                      <span className="fx-ch-value">{c.handle}</span>
+                    </span>
+                    <svg className="fx-ch-go" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg>
+                    <span className="sr-only">(opens in a new tab)</span>
+                  </a>
+                </StaggerItem>
+              ))}
+            </Stagger>
+            <Reveal as="p" kind="blur" delay={0.6} className="fx-based">
+              <span className="fx-based-dot" aria-hidden="true" /> Based in Tiruchirappalli, India
+            </Reveal>
+          </aside>
+
+          <motion.div
+            className="fx-stage"
+            initial={{ opacity: 0, y: 90, rotateX: 28, transformPerspective: 1400 }}
+            whileInView={{ opacity: 1, y: 0, rotateX: 0, transformPerspective: 1400 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 1.1, ease: EASE_OUT, delay: 0.15 }}
+          >
+          <motion.div
+            className="fx-tilt"
+            style={{ rotateX, rotateY, transformPerspective: 1200 }}
+            onPointerMove={onTilt}
+            onPointerLeave={resetTilt}
+            onFocusCapture={() => { setFocusWithin(true); resetTilt(); }}
+            onBlurCapture={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocusWithin(false); }}
+          >
           <div className={`ct-window ${minimized ? "is-min" : ""} ${expanded ? "is-wide" : ""}`}>
             {/* Title bar — every control works */}
             <div className="ct-bar">
@@ -312,21 +425,49 @@ export default function ContactSection() {
               </div>
             </div>
 
-            {!minimized && (sendState === "sent" ? (
-              <div className="ct-sent" role="status">
-                <svg className="ct-plane" width="96" height="96" viewBox="0 0 96 96" fill="none" aria-hidden="true">
-                  <path className="ct-plane-trail" d="M6 78c14-2 22-10 30-20" stroke="#94A3CC" strokeWidth="3" strokeLinecap="round" strokeDasharray="4 7" />
-                  <path className="ct-plane-body" d="M30 52 88 14 66 82 50 62 30 52Z" fill="#FFFFFF" stroke="#1C202B" strokeWidth="4" strokeLinejoin="round" />
-                  <path d="M88 14 50 62v18l10-13" stroke="#1C202B" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" />
+            {!minimized && (
+            <AnimatePresence mode="wait" initial={false}>
+            {sendState === "sent" ? (
+              <motion.div
+                key="sent"
+                className="ct-sent"
+                role="status"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <svg className="ct-plane" width="140" height="110" viewBox="0 0 140 110" fill="none" aria-hidden="true">
+                  <motion.path
+                    d="M4 104c26-4 36-22 52-40"
+                    stroke="#94A3CC" strokeWidth="3" strokeLinecap="round" strokeDasharray="5 8"
+                    initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.25 }}
+                  />
+                  <motion.g
+                    initial={{ x: -70, y: 50, rotate: -22, opacity: 0 }}
+                    animate={{ x: 0, y: 0, rotate: 0, opacity: 1 }}
+                    transition={{ type: "spring", stiffness: 160, damping: 14, delay: 0.15 }}
+                  >
+                    <path d="M50 66 128 14 100 104 78 78 50 66Z" fill="#FFFFFF" stroke="#1C202B" strokeWidth="4" strokeLinejoin="round" />
+                    <path d="M128 14 78 78v24l14-17" stroke="#1C202B" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" />
+                  </motion.g>
                 </svg>
                 <h3 className="ct-sent-title">Message sent!</h3>
                 <p className="ct-sent-text">Thanks for reaching out. Your message is in my inbox and I&apos;ll reply to the email you gave.</p>
                 <button type="button" className="ct-btn ct-btn-ghost" onClick={() => setSendState("idle")}>
                   Write another message
                 </button>
-              </div>
+              </motion.div>
             ) : (
-              <>
+              <motion.div
+                key="compose"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, rotateX: 72, y: -70, scale: 0.78, transition: { duration: 0.5, ease: [0.7, 0, 0.84, 0] } }}
+                transition={{ duration: 0.45, ease: EASE_OUT }}
+                style={{ transformOrigin: "50% 0%", transformPerspective: 1000 }}
+              >
                 <form id="compose-form" className="ct-form" onSubmit={send} onKeyDown={onFormKeyDown} noValidate aria-busy={busy}>
                   <div className="ct-row">
                     <span className="ct-label" id="contact-to-label">To</span>
@@ -460,109 +601,197 @@ export default function ContactSection() {
                   </div>
                   <span className="ct-kbd" aria-hidden="true">Ctrl + Enter to send</span>
                 </div>
-              </>
-            ))}
+              </motion.div>
+            )}
+            </AnimatePresence>
+            )}
 
             <p className="sr-only" role="status" aria-live="polite">{status}</p>
           </div>
 
-          <img
-            className="ct-sketch"
-            src="/sketch-leaning.webp"
-            alt=""
-            aria-hidden="true"
-            width={392}
-            height={952}
-            loading="lazy"
-            decoding="async"
-          />
+          </motion.div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Capability band — the finale's closing beat */}
+      <div className="fx-marquee" aria-hidden="true">
+        <div className="fx-marquee-track">
+          {[0, 1].map((copy) => (
+            <span key={copy} className="fx-marquee-set">
+              {CAPABILITIES.map((c) => (
+                <span key={c} className="fx-marquee-item">
+                  {c}<span className="fx-marquee-block" />
+                </span>
+              ))}
+            </span>
+          ))}
         </div>
       </div>
 
       <style>{`
-        .ct-section {
+        .fx-section {
           position: relative;
-          overflow: hidden;
+          overflow: clip;
+          isolation: isolate;
           background: #07080B;
           color: #FFFFFF;
-          padding: 112px 40px 0;
+          padding: 140px 40px 56px;
+        }
+        .fx-section::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          z-index: -2;
+          background: radial-gradient(ellipse 55% 45% at 72% 58%, rgba(226, 45, 109, 0.16), transparent 70%);
+        }
+
+        /* Falling tetrominoes — slow, behind everything */
+        .fx-blocks { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+        .fx-block {
+          position: absolute;
+          top: -80px;
+          opacity: 0.2;
+          animation-name: fxFall;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+        }
+        @keyframes fxFall {
+          from { transform: translateY(0) rotate(0deg); }
+          to   { transform: translateY(1700px) rotate(var(--spin)); }
+        }
+
+        .fx-inner { max-width: 1240px; margin: 0 auto; }
+
+        /* ── Headline ── */
+        .fx-head { margin-bottom: 64px; }
+        .fx-title {
+          display: flex;
+          flex-direction: column;
+          margin: 0 0 24px;
+          font-size: clamp(56px, 9.6vw, 156px);
+          line-height: 0.88;
+          letter-spacing: 1.5px;
+          color: #FFFFFF;
+          transform: skewX(-6deg);
+          transform-origin: left bottom;
+        }
+        .fx-line { display: block; text-shadow: 5px 5px 0 #1C202B; }
+        .fx-line-2 { color: var(--brand); text-shadow: 5px 5px 0 #FFFFFF; padding-left: 0.6em; }
+        .fx-lead { margin: 0; max-width: 52ch; font-size: 19px; line-height: 1.6; color: #C8D4FF; }
+
+        /* ── Grid ── */
+        .fx-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+          gap: 64px;
+          align-items: start;
+        }
+        .fx-grid.is-wide .fx-channels { display: none; }
+        .fx-grid.is-wide { grid-template-columns: 1fr; }
+
+        /* Channels */
+        .fx-ch-list { list-style: none; border-top: 1px solid #262B38; }
+        .fx-ch { border-bottom: 1px solid #262B38; }
+        .fx-ch-mail, .fx-ch-link {
+          position: relative;
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          padding: 22px 6px;
           isolation: isolate;
         }
-        .ct-grain {
+        .fx-ch-link { color: #FFFFFF; text-decoration: none; }
+        .fx-ch-link::before {
+          content: "";
           position: absolute;
           inset: 0;
           z-index: -1;
-          background-image:
-            radial-gradient(ellipse 60% 50% at 30% 40%, rgba(226, 45, 109, 0.10), transparent 70%),
-            linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
-          background-size: auto, 48px 48px, 48px 48px;
+          background: #FFFFFF;
+          transform: scaleX(0);
+          transform-origin: left center;
+          transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .ct-inner { max-width: 1180px; margin: 0 auto; }
-
-        /* ── Header ── */
-        .ct-header { max-width: 760px; margin-bottom: 44px; }
-        .ct-title {
-          font-size: clamp(44px, 6.4vw, 84px);
-          letter-spacing: 1.5px;
-          line-height: 0.95;
-          color: #FFFFFF;
-          margin: 0 0 20px;
-          transform: skewX(-5deg);
-          transform-origin: left bottom;
-          text-shadow: 4px 4px 0 var(--brand);
-          text-wrap: balance;
-        }
-        .ct-lead {
-          font-size: 18px;
-          line-height: 1.6;
-          color: #C8D4FF;
-          max-width: 56ch;
-          margin: 0 0 18px;
-        }
-        .ct-direct {
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          gap: 8px 12px;
-          font-size: 14px;
-          color: #94A3CC;
-          margin: 0;
-        }
-        .ct-direct-link {
-          color: #FFFFFF;
-          font-weight: 700;
-          text-decoration-color: var(--brand);
-          text-decoration-thickness: 2px;
-          word-break: break-all;
-        }
-        .ct-direct-link:hover { color: var(--brand-soft); }
-        .ct-copy {
-          background: transparent;
-          color: #DFE7FF;
-          border: 1.5px solid #333949;
-          border-radius: 4px;
-          padding: 4px 10px;
-          min-height: 32px;
-          font: 700 12px 'Open Sans', sans-serif;
-          letter-spacing: 0.4px;
-          cursor: pointer;
-          transition: border-color 150ms, color 150ms;
-        }
-        .ct-copy:hover { border-color: #94A3CC; color: #FFFFFF; }
-
-        /* ── Stage: compose window + sketch ── */
-        .ct-stage {
-          position: relative;
+        .fx-ch-link:hover::before, .fx-ch-link:focus-visible::before { transform: scaleX(1); }
+        .fx-ch-link:hover, .fx-ch-link:focus-visible { color: #07080B; }
+        .fx-ch-icon {
+          width: 48px;
+          height: 48px;
+          flex-shrink: 0;
           display: grid;
-          grid-template-columns: minmax(0, 680px) minmax(0, 1fr);
-          align-items: end;
-          gap: 24px;
+          place-items: center;
+          border: 2px solid #333949;
+          border-radius: 8px;
+          color: var(--ch, var(--brand));
+          transition: border-color 300ms, background 300ms;
         }
+        .fx-ch-mail .fx-ch-icon { color: var(--brand); }
+        .fx-ch-link:hover .fx-ch-icon { border-color: #07080B; background: #07080B; }
+        .fx-ch-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+        .fx-ch-name {
+          font-family: 'Bangers', cursive;
+          font-size: 28px;
+          letter-spacing: 1px;
+          line-height: 1;
+          text-transform: uppercase;
+        }
+        .fx-ch-value {
+          font-size: 14px;
+          font-weight: 600;
+          color: #94A3CC;
+          overflow-wrap: anywhere;
+          transition: color 300ms;
+        }
+        a.fx-ch-value { color: #DFE7FF; text-decoration-color: var(--brand); text-decoration-thickness: 2px; }
+        a.fx-ch-value:hover { color: #FFFFFF; }
+        .fx-ch-link:hover .fx-ch-value { color: #2F3645; }
+        .fx-ch-go { flex-shrink: 0; transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1); }
+        .fx-ch-link:hover .fx-ch-go { transform: translate(4px, -4px) scale(1.15); }
+        .fx-copy {
+          flex-shrink: 0;
+          min-height: 40px;
+          padding: 8px 14px;
+          background: transparent;
+          color: #FFFFFF;
+          border: 2px solid #4A5468;
+          border-radius: 6px;
+          font: 800 12px 'Open Sans', sans-serif;
+          letter-spacing: 0.6px;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: border-color 160ms, background 160ms, color 160ms;
+        }
+        .fx-copy:hover { border-color: #FFFFFF; background: #FFFFFF; color: #07080B; }
+        .fx-based {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin: 26px 0 0;
+          font-size: 14px;
+          font-weight: 600;
+          color: #94A3CC;
+        }
+        .fx-based-dot {
+          width: 10px;
+          height: 10px;
+          background: #2BB04A;
+          border-radius: 50%;
+          box-shadow: 0 0 0 0 rgba(43, 176, 74, 0.6);
+          animation: fxPulse 2.4s ease-out infinite;
+        }
+        @keyframes fxPulse {
+          0%   { box-shadow: 0 0 0 0 rgba(43, 176, 74, 0.55); }
+          70%  { box-shadow: 0 0 0 12px rgba(43, 176, 74, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(43, 176, 74, 0); }
+        }
+
+        /* Stage */
+        .fx-stage { position: relative; }
+        .fx-tilt { transform-style: preserve-3d; will-change: transform; }
+
         .ct-window {
           position: relative;
           z-index: 2;
-          margin-bottom: 96px;
           background: #FFFFFF;
           color: #1C202B;
           border: 3px solid #1C202B;
@@ -817,38 +1046,57 @@ export default function ContactSection() {
         .ct-sent-title { font-size: 40px; letter-spacing: 0.6px; color: #1C202B; margin: 0 0 8px; }
         .ct-sent-text { font-size: 15px; color: #4A5468; max-width: 40ch; margin: 0 0 24px; }
 
-        /* Sketch — leans on the right, looking at the window */
-        .ct-sketch {
-          justify-self: end;
-          align-self: end;
-          display: block;
-          width: auto;
-          height: min(620px, 62vw);
-          max-width: 100%;
-          object-fit: contain;
-          object-position: right bottom;
-          pointer-events: none;
-          user-select: none;
-          opacity: 0.94;
+
+        /* Capability band */
+        .fx-marquee {
+          margin-top: 120px;
+          border-top: 2px solid #1C202B;
+          background: var(--brand);
+          overflow: hidden;
+          width: 112%;
+          margin-left: -6%;
+          transform: rotate(-1.5deg);
+          transform-origin: center;
         }
+        .fx-marquee-track {
+          display: flex;
+          width: max-content;
+          animation: fxMarquee 34s linear infinite;
+        }
+        .fx-marquee:hover .fx-marquee-track { animation-play-state: paused; }
+        .fx-marquee-set { display: flex; }
+        .fx-marquee-item {
+          display: inline-flex;
+          align-items: center;
+          gap: 36px;
+          padding: 18px 0 14px 36px;
+          font-family: 'Bangers', cursive;
+          font-size: clamp(34px, 4.6vw, 64px);
+          letter-spacing: 1.5px;
+          line-height: 1;
+          text-transform: uppercase;
+          color: #07080B;
+          white-space: nowrap;
+        }
+        .fx-marquee-block { width: 18px; height: 18px; background: #07080B; transform: rotate(45deg); }
+        @keyframes fxMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
         /* ── Responsive ── */
         @media (max-width: 1023px) {
-          .ct-section { padding: 88px 32px 0; }
-          .ct-stage { grid-template-columns: minmax(0, 1fr) 180px; }
-          .ct-sketch { height: 440px; }
+          .fx-section { padding: 112px 32px 48px; }
+          .fx-grid { grid-template-columns: 1fr; gap: 48px; }
+          .fx-channels { order: 2; }
           .ct-only-desktop { display: none !important; }
-          .ct-window.is-wide { grid-column: auto; }
+          .fx-grid.is-wide .fx-channels { display: block; }
         }
         @media (max-width: 767px) {
-          .ct-section { padding: 72px 16px 0; }
-          .ct-header { margin-bottom: 32px; }
-          .ct-title { text-shadow: 3px 3px 0 var(--brand); }
-          .ct-lead { font-size: 16px; }
-          .ct-stage { grid-template-columns: 1fr; }
-          .ct-window { margin-bottom: 0; box-shadow: 6px 6px 0 0 var(--brand); }
+          .fx-section { padding: 96px 16px 40px; }
+          .fx-head { margin-bottom: 40px; }
+          .fx-line { text-shadow: 3px 3px 0 #1C202B; }
+          .fx-line-2 { text-shadow: 3px 3px 0 #FFFFFF; padding-left: 0.3em; }
+          .fx-lead { font-size: 16px; }
+          .ct-window { box-shadow: 6px 6px 0 0 var(--brand); }
           .ct-window.is-min { max-width: none; }
-          .ct-sketch { height: 260px; justify-self: end; margin-top: -8px; margin-right: -8px; }
           .ct-row { padding: 6px 14px; gap: 10px; }
           .ct-label { flex-basis: 52px; }
           .ct-error { padding-left: 14px; }
@@ -857,6 +1105,8 @@ export default function ContactSection() {
           .ct-ai-row { flex-direction: column; }
           .ct-kbd { display: none; }
           .ct-recipient-email { font-size: 12px; }
+          .fx-ch-name { font-size: 24px; }
+          .fx-marquee { margin-top: 80px; }
         }
       `}</style>
     </section>

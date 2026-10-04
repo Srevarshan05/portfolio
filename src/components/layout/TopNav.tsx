@@ -58,11 +58,14 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
   const containerStyle: React.CSSProperties = {
     position: "fixed",
     top: scrolled ? "12px" : "20px",
-    left: "50%",
-    transform: "translateX(-50%)",
+    // Centred with auto margins: left:50% capped the pill at half the viewport and clipped its last link
+    left: 0,
+    right: 0,
+    marginLeft: "auto",
+    marginRight: "auto",
     width: isMobile
       ? (mobileOpen ? "calc(100% - 32px)" : "142px")
-      : "auto",
+      : "fit-content",
     maxWidth: isMobile ? (mobileOpen ? "480px" : "142px") : "calc(100% - 32px)",
     height: isMobile
       ? "auto"

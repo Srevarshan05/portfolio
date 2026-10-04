@@ -120,7 +120,7 @@ body {
   font-weight: 400;
   color: var(--color-body);
   background: var(--section-light);
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -879,7 +879,7 @@ main:focus { outline: none; }
    RESPONSIVE — GLOBAL OVERFLOW GUARD
    ============================================================ */
 html, body {
-  overflow-x: hidden;
+  overflow-x: clip; /* clip, not hidden: hidden turns body into a scroll container and breaks position: sticky */
   max-width: 100vw;
 }
 

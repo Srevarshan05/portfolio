@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useScrollReveal } from "@/lib/useScrollReveal";
+import { AnimatePresence, motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useDialog } from "@/lib/useDialog";
+import { CountUp, EASE_OUT, Reveal, Stagger, StaggerItem, TetrisText } from "@/components/motion";
 
 interface ReportSection {
   title: string;
@@ -28,12 +29,10 @@ interface Role {
   skills: string[];
   linkText: string;
   linkUrl: string;
-  thumbnail: string | null;
-  thumbnailLabel: string | null;
   highlights: string[];
   /** Headline outcome, quoted from the report below */
   impact: Impact;
-  /** Which report section lists the engineering work, rendered as the "What I built" list */
+  /** Which report section lists the engineering work */
   builtSection: string;
   workflowImage: string | null;
   modalTitle: string;
@@ -67,8 +66,6 @@ const ROLES: Role[] = [
     ],
     linkText: "Public Product Site",
     linkUrl: "https://enroll.pmslogix.com/",
-    thumbnail: null,
-    thumbnailLabel: null,
     highlights: [
       "Enterprise Healthcare SaaS Focus",
       "Intelligent Document Processing (OCR)",
@@ -130,8 +127,6 @@ const ROLES: Role[] = [
     ],
     linkText: "LinkedIn Demo Video",
     linkUrl: "https://www.linkedin.com/posts/srevarshan05_microsoftinternship-ai-iot-activity-7338604105734516738-nhXW?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEKT0FcBMM9w3S7gM-7uREe1XD9wlLa3REs",
-    thumbnail: "/thumbs/ai-nose-prototype.webp",
-    thumbnailLabel: "Hardware Prototype",
     highlights: [
       "Hardware: ESP32 Microcontroller",
       "Sensors: MQ3 & MQ9 Gas Sensors",
@@ -168,17 +163,21 @@ const ROLES: Role[] = [
     ]
   }
 ];
+/** Accent tints that hold contrast on the dark ground */
+const ACCENT_TEXT: Record<string, string> = {
+  emedlogix: "#D29BF5",
+  microsoft: "#7FE1F2",
+};
 
-/** "Title: body" bullets → [title, body] */
+/** "Title: body" → [title, body] */
 function splitBullet(bullet: string): [string | null, string] {
   const i = bullet.indexOf(":");
   return i === -1 ? [null, bullet] : [bullet.slice(0, i), bullet.slice(i + 1).trim()];
 }
 
-function builtTitles(r: Role): string[] {
-  const section = r.fullReportSections.find((s) => s.title === r.builtSection);
-  if (!section || !Array.isArray(section.content)) return [];
-  return section.content.map((b) => splitBullet(b)[0]).filter((t): t is string => Boolean(t));
+function parseImpact(value: string) {
+  const m = value.match(/^(\D*)(\d+)(\D*)$/);
+  return m ? { prefix: m[1], num: Number(m[2]), suffix: m[3] } : null;
 }
 
 function Arrow() {
@@ -189,430 +188,355 @@ function Arrow() {
   );
 }
 
-function RoleCase({ r, index, onOpenWorkflow }: { r: Role; index: number; onOpenWorkflow: (src: string, alt: string) => void }) {
+function Chapter({ r, onWorkflow }: { r: Role; onWorkflow: (src: string, alt: string) => void }) {
+  const chapterRef = useRef<HTMLElement>(null);
+  const storyRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+
+  // Rail fills as the story is read
+  const { scrollYProgress: storyProgress } = useScroll({ target: storyRef, offset: ["start 72%", "end 72%"] });
+  const fill = useSpring(storyProgress, { stiffness: 140, damping: 26, restDelta: 0.001 });
+  const headTop = useTransform(fill, (v) => `${v * 100}%`);
+
+  // Giant outlined company name drifts across behind the chapter
+  const { scrollYProgress: chapterProgress } = useScroll({ target: chapterRef, offset: ["start end", "end start"] });
+  const bandX = useTransform(chapterProgress, [0, 1], ["6%", "-42%"]);
+
+  const builtSection = r.fullReportSections.find((s) => s.title === r.builtSection);
+  const built = Array.isArray(builtSection?.content) ? builtSection.content.map(splitBullet) : [];
+  const prose = r.fullReportSections.filter((s) => !Array.isArray(s.content));
+  const context = prose[0];
+  const outcome = prose.length > 1 ? prose[prose.length - 1] : null;
+  const impact = parseImpact(r.impact.value);
   const reportId = `${r.id}-report`;
-  const built = builtTitles(r);
 
   return (
-    <li className={`xp-entry reveal stagger-${index + 1}`} style={{ ["--accent" as string]: r.accent }}>
-      {/* ── Timeline rail: when / where / who ── */}
-      <div className="xp-rail">
-        <span className="xp-node" aria-hidden="true" />
-        <p className="xp-period">{r.period}</p>
-        <p className="xp-rail-meta">
-          <span className="xp-type">{r.type}</span>
-          <span>{r.location}</span>
-        </p>
-        <div className="xp-logo-tile">
-          <img src={r.logo} alt={`${r.company} logo`} width={r.logoWidth} height={48} loading="lazy" decoding="async" />
+    <article
+      ref={chapterRef}
+      id={r.id}
+      className="xs-chapter"
+      aria-labelledby={`${r.id}-role`}
+      style={{ ["--accent" as string]: r.accent, ["--accent-text" as string]: ACCENT_TEXT[r.id] ?? r.accent }}
+    >
+      <motion.div className="xs-band" style={{ x: bandX }} aria-hidden="true">
+        {r.company}&nbsp;&nbsp;{r.company}
+      </motion.div>
+
+      {/* ── Pinned identity ── */}
+      <div className="xs-pin-col">
+        <div className="xs-pin">
+          <Reveal kind="left" as="p" className="xs-when">
+            <span className="xs-node" aria-hidden="true" />
+            {r.period}
+            <span className="xs-sep" aria-hidden="true">/</span>
+            <span className="xs-loc">{r.location}</span>
+          </Reveal>
+          <Reveal kind="drop" delay={0.1} as="span" className="xs-type">{r.type}</Reveal>
+
+          <TetrisText as="h3" id={`${r.id}-role`} className="xs-role" text={r.role} delay={0.15} />
+
+          <Reveal kind="up" delay={0.35} className="xs-company">
+            <span className="xs-logo">
+              <img src={r.logo} alt={`${r.company} logo`} width={r.logoWidth} height={44} loading="lazy" decoding="async" />
+            </span>
+            <span className="xs-at">@ {r.company}</span>
+          </Reveal>
+
+          <div className="xs-impact">
+            {impact ? (
+              <CountUp className="xs-impact-num" value={impact.num} prefix={impact.prefix} suffix={impact.suffix} />
+            ) : (
+              <span className="xs-impact-num">{r.impact.value}</span>
+            )}
+            <Reveal kind="blur" delay={0.3} as="p" className="xs-impact-label">{r.impact.label}</Reveal>
+          </div>
+
+          <Stagger as="ul" className="xs-hl" gap={0.07} delay={0.2}>
+            {r.highlights.map((hl) => (
+              <StaggerItem as="li" key={hl}>{hl}</StaggerItem>
+            ))}
+          </Stagger>
         </div>
       </div>
 
-      {/* ── The case ── */}
-      <article id={r.id} className="xp-card" aria-labelledby={`${r.id}-title`}>
-        <span className="xp-tetro xp-tetro-l" aria-hidden="true">
-          <svg width="30" height="42" viewBox="0 0 30 42">
-            <rect x="1" y="1" width="12" height="12" fill="var(--brand)" stroke="#1C202B" strokeWidth="2.5" />
-            <rect x="1" y="15" width="12" height="12" fill="var(--brand)" stroke="#1C202B" strokeWidth="2.5" />
-            <rect x="1" y="29" width="12" height="12" fill="var(--brand)" stroke="#1C202B" strokeWidth="2.5" />
-            <rect x="15" y="29" width="12" height="12" fill="var(--brand)" stroke="#1C202B" strokeWidth="2.5" />
-          </svg>
-        </span>
-
-        <header className="xp-card-head">
-          <h3 id={`${r.id}-title`} className="xp-role">{r.role}</h3>
-          <p className="xp-company">@ {r.company}</p>
-        </header>
-
-        <div className="xp-card-grid">
-          <div className="xp-main">
-            <p className="xp-desc">{r.description}</p>
-
-            <div className="xp-impact">
-              <span className="xp-impact-value">{r.impact.value}</span>
-              <span className="xp-impact-label">{r.impact.label}</span>
-            </div>
-
-            {built.length > 0 && (
-              <div className="xp-built">
-                <h4 className="xp-sub">What I built</h4>
-                <ul className="xp-built-list">
-                  {built.map((t) => (
-                    <li key={t}>{t}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-
-          <aside className="xp-side" aria-label={`${r.company} highlights`}>
-            {r.thumbnail && (
-              <figure className="xp-figure">
-                <img src={r.thumbnail} alt={`${r.company} ${r.thumbnailLabel ?? "photo"}`} width={640} height={420} loading="lazy" decoding="async" />
-                {r.thumbnailLabel && <figcaption>{r.thumbnailLabel}</figcaption>}
-              </figure>
-            )}
-            <div className="xp-highlights">
-              <h4 className="xp-sub">Key Highlights</h4>
-              <ul>
-                {r.highlights.map((hl) => {
-                  const [k, v] = splitBullet(hl);
-                  return (
-                    <li key={hl}>
-                      {k ? (<><span className="xp-hl-key">{k}</span><span>{v}</span></>) : <span>{v}</span>}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          </aside>
+      {/* ── The story, read top to bottom ── */}
+      <div ref={storyRef} className="xs-story">
+        <div className="xs-rail" aria-hidden="true">
+          <motion.div className="xs-rail-fill" style={{ scaleY: fill }} />
+          <motion.span className="xs-rail-head" style={{ top: headTop }} />
         </div>
 
-        <ul className="xp-skills" aria-label="Skills and technologies">
-          {r.skills.map((s) => <li key={s}>{s}</li>)}
-        </ul>
+        <Reveal className="xs-step">
+          <h4 className="xs-step-title">The brief</h4>
+          <p className="xs-brief">{r.description}</p>
+        </Reveal>
 
-        <div className="xp-actions">
+        {built.length > 0 && (
+          <div className="xs-step">
+            <Reveal><h4 className="xs-step-title">What I built</h4></Reveal>
+            <Stagger as="ol" className="xs-built" gap={0.11} amount={0.08}>
+              {built.map(([title, body]) => (
+                <StaggerItem as="li" kind="right" key={body} className="xs-built-item">
+                  <span className="xs-built-block" aria-hidden="true" />
+                  <div>
+                    {title && <h5>{title}</h5>}
+                    <p>{body}</p>
+                  </div>
+                </StaggerItem>
+              ))}
+            </Stagger>
+          </div>
+        )}
+
+        <div className="xs-step">
+          <Reveal><h4 className="xs-step-title">Stack</h4></Reveal>
+          <Stagger as="ul" className="xs-stack" gap={0.045}>
+            {r.skills.map((s) => (
+              <StaggerItem as="li" kind="pop" key={s}>{s}</StaggerItem>
+            ))}
+          </Stagger>
+        </div>
+
+        {outcome && (
+          <Reveal className="xs-step">
+            <h4 className="xs-step-title">Outcome</h4>
+            <p className="xs-outcome">{outcome.content as string}</p>
+          </Reveal>
+        )}
+
+        <Reveal className="xs-actions">
           <button
             type="button"
-            className="xp-btn xp-btn-primary"
+            className="xs-btn xs-btn-ghost"
             aria-expanded={open}
             aria-controls={reportId}
-            onClick={() => setOpen((o) => !o)}
+            onClick={() => setOpen((v) => !v)}
           >
-            {open ? "Hide detailed report" : "Read detailed report"}
-            <svg className="xp-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            {open ? "Hide full report" : "Read the full report"}
+            <motion.svg animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.3, ease: EASE_OUT }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="m6 9 6 6 6-6" />
-            </svg>
+            </motion.svg>
           </button>
           {r.workflowImage && (
             <button
               type="button"
-              className="xp-btn xp-btn-secondary"
-              onClick={() => onOpenWorkflow(r.workflowImage!, "AI Nose Environmental Odor Detection System Workflow")}
+              className="xs-btn xs-btn-ghost"
+              onClick={() => onWorkflow(r.workflowImage!, "AI Nose Environmental Odor Detection System Workflow")}
             >
               See Internship Workflow
             </button>
           )}
-          <a href={r.linkUrl} target="_blank" rel="noopener noreferrer" className="xp-btn xp-btn-link">
+          <a href={r.linkUrl} target="_blank" rel="noopener noreferrer" className="xs-btn xs-btn-solid">
             {r.linkText} <Arrow />
             <span className="sr-only">(opens in a new tab)</span>
           </a>
-        </div>
+        </Reveal>
 
-        {/* ── Full report: expands in place, no modal ── */}
-        <div id={reportId} className={`xp-report ${open ? "is-open" : ""}`} hidden={!open}>
-          <div className="xp-report-inner">
-            <h4 className="xp-report-title">{r.modalTitle}</h4>
-            <p className="xp-report-intro">{r.introduction}</p>
-            <div className="xp-report-sections">
-              {r.fullReportSections.map((section) => (
-                <section key={section.title} className={`xp-report-section ${Array.isArray(section.content) ? "is-list" : ""}`}>
-                  <h5>{section.title}</h5>
-                  {Array.isArray(section.content) ? (
-                    <ul>
-                      {section.content.map((bullet) => {
-                        const [k, v] = splitBullet(bullet);
-                        return (
-                          <li key={bullet}>
-                            {k ? (<><strong>{k}:</strong> {v}</>) : v}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  ) : (
-                    <p>{section.content}</p>
-                  )}
-                </section>
-              ))}
-            </div>
-          </div>
-        </div>
-      </article>
-    </li>
+        <AnimatePresence initial={false}>
+          {open && (
+            <motion.div
+              id={reportId}
+              className="xs-report"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.55, ease: EASE_OUT }}
+            >
+              <div className="xs-report-inner">
+                <h5 className="xs-report-title">{r.modalTitle}</h5>
+                <p>{r.introduction}</p>
+                {context && (
+                  <>
+                    <h6>{context.title}</h6>
+                    <p>{context.content as string}</p>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </article>
   );
 }
 
 export default function ExperienceSection() {
-  const sectionRef = useRef<HTMLElement>(null);
-  useScrollReveal(sectionRef as React.RefObject<HTMLElement>);
-
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const closeLightbox = () => setLightbox(null);
   const lightboxRef = useDialog<HTMLDivElement>(lightbox !== null, closeLightbox);
 
   return (
-    <section id="experience" className="section xp-section" ref={sectionRef} aria-labelledby="experience-title">
-      {/* Hand-drawn squiggle edges, kept from the sketchbook system */}
-      <svg className="xp-edge xp-edge-top" viewBox="0 0 1200 16" preserveAspectRatio="none" fill="none" stroke="#1C202B" strokeWidth="4" aria-hidden="true">
-        <path d="M0,8 Q50,0 100,8 T200,8 T300,8 T400,8 T500,8 T600,8 T700,8 T800,8 T900,8 T1000,8 T1100,8 T1200,8" />
-      </svg>
-      <svg className="xp-edge xp-edge-bottom" viewBox="0 0 1200 16" preserveAspectRatio="none" fill="none" stroke="#1C202B" strokeWidth="4" aria-hidden="true">
-        <path d="M0,8 Q50,16 100,8 T200,8 T300,8 T400,8 T500,8 T600,8 T700,8 T800,8 T900,8 T1000,8 T1100,8 T1200,8" />
-      </svg>
+    <section id="experience" className="xs-section" aria-labelledby="experience-title">
+      <header className="xs-header">
+        <TetrisText as="h2" id="experience-title" className="xs-title" text="Real Work, Real Impact." />
+        <Reveal kind="up" delay={0.5} as="p" className="xs-lead">
+          Every role I&apos;ve taken has been about building something
+          that genuinely works for real people — not just demos.
+        </Reveal>
+      </header>
 
-      <div className="container section-content">
-        <header className="xp-header">
-          <div className="reveal reveal-left">
-          <h2 id="experience-title" className="xp-title">
-            Real Work, Real Impact.
-            <svg className="xp-title-underline" width="240" height="12" viewBox="0 0 240 12" fill="none" aria-hidden="true">
-              <path d="M5 8C50 3.5 120 2.5 235 8" stroke="#FFB020" strokeWidth="4" strokeLinecap="round" />
-              <path d="M15 10C70 5.5 140 4.5 220 10" stroke="#FFB020" strokeWidth="2.5" strokeLinecap="round" />
-            </svg>
-          </h2>
-          </div>
-          <p className="xp-lead reveal reveal-right">
-            Every role I&apos;ve taken has been about building something
-            that genuinely works for real people — not just demos.
-          </p>
-        </header>
+      {ROLES.map((r) => (
+        <Chapter key={r.id} r={r} onWorkflow={(src, alt) => setLightbox({ src, alt })} />
+      ))}
 
-        <ol className="xp-timeline">
-          {ROLES.map((r, i) => (
-            <RoleCase key={r.id} r={r} index={i} onOpenWorkflow={(src, alt) => setLightbox({ src, alt })} />
-          ))}
-        </ol>
-      </div>
-
-      {/* Workflow diagram lightbox — image viewing is the one place a dialog earns its keep */}
-      {lightbox && (
-        <div className="xp-lightbox" onClick={closeLightbox}>
-          <div
-            ref={lightboxRef}
-            className="xp-lightbox-panel"
-            role="dialog"
-            aria-modal="true"
-            aria-label={lightbox.alt}
-            tabIndex={-1}
-            onClick={(e) => e.stopPropagation()}
+      <AnimatePresence>
+        {lightbox && (
+          <motion.div
+            className="xs-lightbox"
+            onClick={closeLightbox}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
           >
-            <img src={lightbox.src} alt={lightbox.alt} />
-            <button type="button" className="xp-lightbox-close" onClick={closeLightbox} aria-label="Close workflow diagram">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
-            </button>
-          </div>
-        </div>
-      )}
+            <motion.div
+              ref={lightboxRef}
+              className="xs-lightbox-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-label={lightbox.alt}
+              tabIndex={-1}
+              onClick={(e) => e.stopPropagation()}
+              initial={{ scale: 0.9, y: 30 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.94, y: 20 }}
+              transition={{ type: "spring", stiffness: 320, damping: 28 }}
+            >
+              <img src={lightbox.src} alt={lightbox.alt} />
+              <button type="button" className="xs-lightbox-close" onClick={closeLightbox} aria-label="Close workflow diagram">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style>{`
-        .xp-section {
-          background-color: #FFFFFF;
-          background-image:
-            linear-gradient(rgba(28, 32, 43, 0.035) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(28, 32, 43, 0.035) 1px, transparent 1px);
-          background-size: 24px 24px;
+        .xs-section {
+          position: relative;
+          overflow: clip;
+          background: #0D1016;
+          color: #FFFFFF;
+          padding: 140px 40px 120px;
           isolation: isolate;
         }
-        .xp-edge { position: absolute; left: 0; width: 100%; height: 16px; pointer-events: none; z-index: 10; }
-        .xp-edge-top { top: 0; }
-        .xp-edge-bottom { bottom: 0; }
 
         /* ── Header ── */
-        .xp-header {
+        .xs-header {
+          max-width: 1240px;
+          margin: 0 auto 24px;
           display: grid;
-          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
           gap: 48px;
           align-items: end;
-          margin-bottom: 72px;
         }
-        .xp-title {
-          font-size: clamp(40px, 5vw, 56px);
+        .xs-title {
+          font-size: clamp(54px, 8vw, 124px);
+          line-height: 0.9;
           letter-spacing: 1px;
+          color: #FFFFFF;
           margin: 0;
           transform: skewX(-6deg);
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
+          transform-origin: left bottom;
+          text-shadow: 5px 5px 0 var(--brand);
         }
-        .xp-title-underline { max-width: 100%; height: auto; }
-        .xp-lead {
-          font-size: 17px;
-          line-height: 1.6;
-          max-width: 48ch;
-          color: var(--color-body);
-        }
+        .xs-lead { font-size: 18px; line-height: 1.6; color: #B7C4ED; max-width: 42ch; margin: 0 0 10px; }
 
-        /* ── Timeline ── */
-        .xp-timeline {
-          list-style: none;
-          max-width: 1120px;
+        /* ── Chapter ── */
+        .xs-chapter {
+          position: relative;
+          max-width: 1240px;
           margin: 0 auto;
-          position: relative;
-          display: flex;
-          flex-direction: column;
-          gap: 56px;
-        }
-        .xp-timeline::before {
-          content: "";
-          position: absolute;
-          top: 10px;
-          bottom: 40px;
-          left: 11px;
-          border-left: 3px dashed rgba(28, 32, 43, 0.28);
-        }
-        .xp-entry {
+          padding: 120px 0 110px;
           display: grid;
-          grid-template-columns: 220px minmax(0, 1fr);
-          gap: 40px;
-          position: relative;
+          grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+          gap: 80px;
+          scroll-margin-top: var(--nav-h);
+        }
+        .xs-chapter + .xs-chapter { border-top: 2px dashed #232838; }
+        .xs-band {
+          position: absolute;
+          top: 34px;
+          left: 0;
+          z-index: -1;
+          white-space: nowrap;
+          font-family: 'Bangers', cursive;
+          font-size: clamp(150px, 22vw, 340px);
+          line-height: 1;
+          letter-spacing: 4px;
+          text-transform: uppercase;
+          color: transparent;
+          -webkit-text-stroke: 2px rgba(255, 255, 255, 0.065);
+          pointer-events: none;
+          user-select: none;
         }
 
-        .xp-rail {
-          position: sticky;
-          top: calc(var(--nav-h) + 24px);
-          align-self: start;
-          padding-left: 40px;
+        .xs-pin { position: sticky; top: calc(var(--nav-h) + 44px); }
+        .xs-when {
           display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-        .xp-node {
-          position: absolute;
-          left: 0;
-          top: 4px;
-          width: 25px;
-          height: 25px;
-          background: var(--accent);
-          border: 3px solid #1C202B;
-          box-shadow: 3px 3px 0 0 #1C202B;
-        }
-        .xp-period {
-          font-family: 'Bangers', cursive;
-          font-size: 26px;
-          letter-spacing: 0.5px;
-          line-height: 1.05;
-          color: #1C202B;
-          margin: 0;
-        }
-        .xp-rail-meta {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 6px 10px;
           align-items: center;
-          font-size: 13px;
-          font-weight: 700;
-          color: var(--color-body-subtle);
+          flex-wrap: wrap;
+          gap: 10px;
           margin: 0;
-        }
-        .xp-type {
-          background: #1C202B;
-          color: #FFFFFF;
-          padding: 3px 8px;
-          font-size: 11px;
-          font-weight: 800;
+          font-family: 'Bangers', cursive;
+          font-size: 24px;
           letter-spacing: 0.6px;
+          color: var(--accent-text);
+        }
+        .xs-node { width: 16px; height: 16px; background: var(--accent); flex-shrink: 0; }
+        .xs-sep { color: #4A5468; }
+        .xs-loc { color: #94A3CC; }
+        .xs-type {
+          display: inline-block;
+          margin: 14px 0 20px;
+          background: #FFFFFF;
+          color: #0D1016;
+          padding: 4px 10px;
+          font: 800 11px 'Open Sans', sans-serif;
+          letter-spacing: 1px;
           text-transform: uppercase;
           border-radius: 3px;
         }
-        .xp-logo-tile {
-          margin-top: 6px;
-          background: #FFFFFF;
-          border: 2.5px solid #1C202B;
-          border-radius: 8px;
-          box-shadow: 4px 4px 0 0 var(--accent);
-          padding: 12px 14px;
-          width: fit-content;
-          max-width: 100%;
-        }
-        .xp-logo-tile img {
-          display: block;
-          height: 44px;
-          width: auto;
-          max-width: 100%;
-          object-fit: contain;
-        }
-
-        /* ── Case card ── */
-        .xp-card {
-          position: relative;
-          background: #FFFFFF;
-          border: 3.5px solid #1C202B;
-          border-radius: 12px;
-          box-shadow: 8px 8px 0 0 #1C202B;
-          padding: 32px 34px 28px;
-          scroll-margin-top: calc(var(--nav-h) + 24px);
-        }
-        .xp-tetro { position: absolute; pointer-events: none; z-index: 2; }
-        .xp-tetro-l { top: -16px; right: 28px; }
-
-        .xp-card-head { margin-bottom: 18px; }
-        .xp-role {
-          font-family: 'Open Sans', sans-serif;
-          font-size: clamp(22px, 2.3vw, 30px);
-          font-weight: 800;
-          text-transform: none;
-          letter-spacing: -0.4px;
-          line-height: 1.15;
-          margin: 0 0 4px;
-          color: #1C202B;
-          text-wrap: balance;
-        }
-        .xp-company {
-          font-family: 'Bangers', cursive;
-          font-size: 22px;
-          letter-spacing: 0.6px;
-          color: #1C202B;
-          margin: 0;
-          display: inline-block;
-          background: linear-gradient(transparent 58%, color-mix(in srgb, var(--accent) 38%, transparent) 58%);
-          padding: 0 4px;
-        }
-
-        .xp-card-grid {
-          display: grid;
-          grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
-          gap: 32px;
-          align-items: start;
-        }
-        .xp-main { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
-        .xp-desc { font-size: 15.5px; line-height: 1.65; color: var(--color-body); margin: 0; max-width: 62ch; }
-
-        .xp-impact {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          padding: 14px 18px;
-          background: #FFFDF6;
-          border: 2.5px solid #1C202B;
-          border-radius: 8px;
-        }
-        .xp-impact-value {
-          font-family: 'Bangers', cursive;
-          font-size: 46px;
-          line-height: 1;
+        .xs-role {
+          font-size: clamp(40px, 4.6vw, 68px);
+          line-height: 0.95;
           letter-spacing: 0.5px;
-          color: #1C202B;
-          flex-shrink: 0;
-          text-shadow: 3px 3px 0 var(--accent);
+          color: #FFFFFF;
+          margin: 0 0 22px;
         }
-        .xp-impact-label { font-size: 14px; font-weight: 700; line-height: 1.45; color: #1C202B; }
+        .xs-company { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
+        .xs-logo {
+          display: inline-flex;
+          background: #FFFFFF;
+          border-radius: 8px;
+          padding: 8px 12px;
+          box-shadow: 4px 4px 0 0 var(--accent);
+        }
+        .xs-logo img { display: block; height: 32px; width: auto; max-width: 170px; object-fit: contain; }
+        .xs-at { font-family: 'Bangers', cursive; font-size: 26px; letter-spacing: 0.6px; color: var(--accent-text); }
 
-        .xp-sub {
-          font-family: 'Open Sans', sans-serif;
-          font-size: 12px;
-          font-weight: 800;
-          letter-spacing: 1.2px;
-          text-transform: uppercase;
-          color: var(--color-body-subtle);
-          margin: 0 0 10px;
+        .xs-impact { margin-top: 40px; padding-top: 30px; border-top: 2px dashed #2A3040; }
+        .xs-impact-num {
+          display: block;
+          font-family: 'Bangers', cursive;
+          font-size: clamp(100px, 10.5vw, 168px);
+          line-height: 0.85;
+          letter-spacing: 1px;
+          color: #FFFFFF;
+          text-shadow: 6px 6px 0 var(--accent);
+          font-variant-numeric: tabular-nums;
         }
-        .xp-built-list {
-          list-style: none;
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 8px 20px;
-        }
-        .xp-built-list li {
+        .xs-impact-label { margin: 14px 0 0; max-width: 30ch; font-size: 16px; font-weight: 600; line-height: 1.5; color: #C8D4FF; }
+
+        .xs-hl { list-style: none; margin: 34px 0 0; display: grid; gap: 11px; }
+        .xs-hl li {
           position: relative;
-          padding-left: 20px;
+          padding-left: 22px;
           font-size: 14px;
           font-weight: 700;
           line-height: 1.4;
-          color: #1C202B;
+          color: #DFE7FF;
         }
-        .xp-built-list li::before {
+        .xs-hl li::before {
           content: "";
           position: absolute;
           left: 0;
@@ -620,180 +544,119 @@ export default function ExperienceSection() {
           width: 9px;
           height: 9px;
           background: var(--accent);
-          border: 2px solid #1C202B;
         }
 
-        .xp-side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-        .xp-figure {
-          position: relative;
-          margin: 0;
-          border: 2.5px solid #1C202B;
-          border-radius: 8px;
-          overflow: hidden;
-          box-shadow: 4px 4px 0 0 var(--accent);
-        }
-        .xp-figure img { display: block; width: 100%; height: 200px; object-fit: cover; }
-        .xp-figure figcaption {
+        /* ── Story ── */
+        .xs-story { position: relative; padding-left: 60px; display: flex; flex-direction: column; gap: 64px; }
+        .xs-rail { position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; background: #232838; }
+        .xs-rail-fill { position: absolute; inset: 0; background: var(--accent); transform-origin: 50% 0%; }
+        .xs-rail-head {
           position: absolute;
-          left: 10px;
-          bottom: 10px;
-          background: #FFB020;
-          border: 2px solid #1C202B;
-          color: #1C202B;
-          padding: 3px 8px;
-          font-size: 11px;
-          font-weight: 800;
-          text-transform: uppercase;
-          letter-spacing: 0.4px;
-          border-radius: 4px;
+          left: 50%;
+          width: 17px;
+          height: 17px;
+          margin: -8px 0 0 -8.5px;
+          background: var(--accent);
+          border: 3px solid #0D1016;
+          box-shadow: 0 0 0 2px var(--accent);
         }
-        .xp-highlights {
-          background: #FFFDF6;
-          border: 2.5px solid #1C202B;
-          border-radius: 8px;
-          padding: 16px 18px;
+        .xs-step-title {
+          font-size: 32px;
+          letter-spacing: 1px;
+          color: #FFFFFF;
+          margin: 0 0 20px;
         }
-        .xp-highlights ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-        .xp-highlights li {
-          display: flex;
-          flex-direction: column;
-          gap: 1px;
-          font-size: 14px;
-          font-weight: 700;
-          line-height: 1.35;
-          color: #1C202B;
-          padding-bottom: 10px;
-          border-bottom: 1.5px dashed rgba(28, 32, 43, 0.18);
-        }
-        .xp-highlights li:last-child { padding-bottom: 0; border-bottom: 0; }
-        .xp-hl-key {
-          font-size: 11px;
-          font-weight: 800;
-          letter-spacing: 0.8px;
-          text-transform: uppercase;
-          color: var(--color-body-subtle);
-        }
+        .xs-brief { margin: 0; max-width: 50ch; font-size: clamp(19px, 1.7vw, 23px); line-height: 1.55; color: #EEF2FF; }
 
-        .xp-skills {
-          list-style: none;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          margin: 26px 0 0;
-          padding-top: 22px;
-          border-top: 2px dashed rgba(28, 32, 43, 0.15);
+        .xs-built { list-style: none; border-top: 1px dashed #2A3040; }
+        .xs-built-item {
+          display: grid;
+          grid-template-columns: 14px minmax(0, 1fr);
+          gap: 20px;
+          padding: 22px 0;
+          border-bottom: 1px dashed #2A3040;
         }
-        .xp-skills li {
-          background: #F4F6FF;
-          color: #1C202B;
-          border: 1.5px solid #1C202B;
-          padding: 5px 10px;
-          font-size: 12px;
-          font-weight: 700;
-          line-height: 1.2;
-          border-radius: 4px;
+        .xs-built-block { width: 14px; height: 14px; margin-top: 5px; background: var(--accent); }
+        .xs-built-item h5 {
+          font-family: 'Open Sans', sans-serif;
+          font-size: 18px;
+          font-weight: 800;
+          letter-spacing: -0.2px;
+          line-height: 1.3;
+          text-transform: none;
+          color: #FFFFFF;
+          margin: 0 0 6px;
         }
+        .xs-built-item p { margin: 0; max-width: 62ch; font-size: 15.5px; line-height: 1.65; color: #A9B4D0; }
 
-        .xp-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; align-items: center; }
-        .xp-btn {
+        .xs-stack { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; }
+        .xs-stack li {
+          background: #141821;
+          color: #DFE7FF;
+          border: 1.5px solid #333949;
+          padding: 7px 13px;
+          border-radius: 4px;
+          font-size: 13px;
+          font-weight: 700;
+          transition: background 180ms, color 180ms, border-color 180ms;
+        }
+        .xs-stack li:hover { background: var(--accent); border-color: var(--accent); color: #0D1016; }
+
+        .xs-outcome { margin: 0; max-width: 64ch; font-size: 16px; line-height: 1.75; color: #C8D4FF; white-space: pre-line; }
+
+        .xs-actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+        .xs-btn {
           display: inline-flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
-          min-height: 44px;
-          padding: 10px 18px;
-          font-family: 'Open Sans', sans-serif;
-          font-size: 13px;
-          font-weight: 800;
+          min-height: 46px;
+          padding: 10px 20px;
+          border-radius: 6px;
+          font: 800 13px 'Open Sans', sans-serif;
           letter-spacing: 0.6px;
           text-transform: uppercase;
           text-decoration: none;
-          border-radius: 6px;
           cursor: pointer;
-          transition: transform 100ms ease-out, box-shadow 100ms ease-out, background-color 150ms;
+          transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 140ms cubic-bezier(0.16, 1, 0.3, 1), background 160ms, color 160ms;
         }
-        .xp-btn-primary { background: #1C202B; color: #FFFFFF; border: 2.5px solid #1C202B; box-shadow: 4px 4px 0 0 #FFB020; }
-        .xp-btn-secondary { background: #FFFFFF; color: #1C202B; border: 2.5px solid #1C202B; box-shadow: 4px 4px 0 0 #B7C4ED; }
-        .xp-btn-primary:hover, .xp-btn-secondary:hover { transform: translate(-2px, -2px); }
-        .xp-btn-primary:hover { box-shadow: 6px 6px 0 0 #FFB020; }
-        .xp-btn-secondary:hover { box-shadow: 6px 6px 0 0 #B7C4ED; }
-        .xp-btn-primary:active, .xp-btn-secondary:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 0 #1C202B; }
-        .xp-btn-link { color: #1C202B; border: 2.5px solid transparent; padding-left: 6px; padding-right: 6px; text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; }
-        .xp-btn-link:hover { color: var(--brand-strong); }
-        .xp-chev { transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1); }
-        .xp-btn[aria-expanded="true"] .xp-chev { transform: rotate(180deg); }
+        .xs-btn-solid { background: #FFFFFF; color: #0D1016; border: 2px solid #FFFFFF; box-shadow: 4px 4px 0 0 var(--accent); }
+        .xs-btn-solid:hover { color: #0D1016; transform: translate(-2px, -2px); box-shadow: 6px 6px 0 0 var(--accent); }
+        .xs-btn-ghost { background: transparent; color: #FFFFFF; border: 2px solid #4A5468; }
+        .xs-btn-ghost:hover { border-color: #FFFFFF; }
+        .xs-btn:active { transform: translate(2px, 2px); box-shadow: none; }
 
-        /* ── Inline report ── */
-        .xp-report { margin-top: 26px; }
-        .xp-report.is-open .xp-report-inner { animation: xpReportIn 360ms cubic-bezier(0.22, 1, 0.36, 1); }
-        @keyframes xpReportIn {
-          from { opacity: 0; transform: translateY(-8px); clip-path: inset(0 0 100% 0); }
-          to   { opacity: 1; transform: none; clip-path: inset(0 0 0 0); }
-        }
-        .xp-report-inner {
-          background: #FFFDF6;
-          border: 2.5px solid #1C202B;
+        .xs-report { overflow: hidden; margin-top: -32px; }
+        .xs-report-inner {
+          background: #121620;
+          border: 1.5px solid #2A3040;
           border-radius: 10px;
           padding: 28px 30px;
         }
-        .xp-report-title {
-          font-size: 28px;
-          letter-spacing: 0.6px;
-          margin: 0 0 14px;
-          color: #1C202B;
-        }
-        .xp-report-intro {
-          font-size: 16px;
-          font-weight: 600;
-          line-height: 1.65;
-          color: #1C202B;
-          max-width: 72ch;
-          margin: 0 0 26px;
-          padding-bottom: 22px;
-          border-bottom: 2px dashed rgba(28, 32, 43, 0.15);
-        }
-        .xp-report-sections { display: flex; flex-direction: column; gap: 28px; }
-        .xp-report-section h5 {
-          font-family: 'Open Sans', sans-serif;
-          font-size: 13px;
-          font-weight: 800;
+        .xs-report-title { font-size: 26px; letter-spacing: 0.6px; color: #FFFFFF; margin: 0 0 14px; }
+        .xs-report-inner h6 {
+          font: 800 13px 'Open Sans', sans-serif;
           letter-spacing: 1px;
           text-transform: uppercase;
-          color: #1C202B;
-          margin: 0 0 10px;
+          color: #FFFFFF;
+          margin: 24px 0 8px;
         }
-        .xp-report-section p { font-size: 15px; line-height: 1.7; white-space: pre-line; margin: 0; max-width: 70ch; }
-        .xp-report-section ul {
-          list-style: none;
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 14px 36px;
-        }
-        .xp-report-section li {
-          font-size: 14.5px;
-          line-height: 1.65;
-          color: var(--color-body);
-          padding-left: 16px;
-          border-left: 1px solid rgba(28, 32, 43, 0.2);
-        }
-        .xp-report-section li strong { color: #1C202B; }
+        .xs-report-inner p { margin: 0; max-width: 70ch; font-size: 15.5px; line-height: 1.7; color: #B7C4ED; white-space: pre-line; }
 
         /* ── Lightbox ── */
-        .xp-lightbox {
+        .xs-lightbox {
           position: fixed;
           inset: 0;
           z-index: 99999;
-          background: rgba(15, 18, 24, 0.88);
+          background: rgba(9, 11, 15, 0.9);
           display: flex;
           align-items: center;
           justify-content: center;
           padding: 24px;
           cursor: zoom-out;
-          animation: xpFade 180ms ease-out;
         }
-        @keyframes xpFade { from { opacity: 0; } to { opacity: 1; } }
-        .xp-lightbox-panel { position: relative; max-width: 1100px; width: 100%; cursor: default; outline: none; }
-        .xp-lightbox-panel img {
+        .xs-lightbox-panel { position: relative; max-width: 1100px; width: 100%; cursor: default; outline: none; }
+        .xs-lightbox-panel img {
           display: block;
           max-width: 100%;
           max-height: 86vh;
@@ -801,10 +664,9 @@ export default function ExperienceSection() {
           object-fit: contain;
           background: #FFFFFF;
           border: 4px solid #1C202B;
-          box-shadow: 10px 10px 0 0 #000;
           border-radius: 4px;
         }
-        .xp-lightbox-close {
+        .xs-lightbox-close {
           position: absolute;
           top: -18px;
           right: -10px;
@@ -814,7 +676,6 @@ export default function ExperienceSection() {
           background: var(--brand);
           color: #FFFFFF;
           border: 3px solid #1C202B;
-          box-shadow: 3px 3px 0 0 #1C202B;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -823,32 +684,22 @@ export default function ExperienceSection() {
 
         /* ── Responsive ── */
         @media (max-width: 1023px) {
-          .xp-entry { grid-template-columns: 1fr; gap: 18px; }
-          .xp-rail {
-            position: relative;
-            top: 0;
-            flex-direction: row;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 10px 16px;
-          }
-          .xp-rail .xp-logo-tile { margin-top: 0; padding: 8px 10px; }
-          .xp-rail .xp-logo-tile img { height: 32px; }
-          .xp-card-grid { grid-template-columns: 1fr; gap: 24px; }
+          .xs-section { padding: 112px 32px 96px; }
+          .xs-chapter { grid-template-columns: 1fr; gap: 48px; padding: 88px 0 80px; }
+          .xs-pin { position: relative; top: 0; }
+          .xs-band { font-size: 38vw; top: 24px; }
         }
         @media (max-width: 767px) {
-          .xp-header { grid-template-columns: 1fr; gap: 16px; margin-bottom: 44px; }
-          .xp-timeline { gap: 44px; }
-          .xp-timeline::before { left: 9px; }
-          .xp-rail { padding-left: 34px; }
-          .xp-node { width: 21px; height: 21px; }
-          .xp-period { font-size: 22px; }
-          .xp-card { padding: 24px 18px 20px; box-shadow: 5px 5px 0 0 #1C202B; border-width: 3px; }
-          .xp-impact { flex-direction: column; align-items: flex-start; gap: 6px; }
-          .xp-built-list, .xp-report-section ul { grid-template-columns: 1fr; }
-          .xp-report-inner { padding: 20px 16px; }
-          .xp-actions { flex-direction: column; align-items: stretch; }
-          .xp-btn-link { justify-content: flex-start; }
+          .xs-section { padding: 96px 20px 80px; }
+          .xs-header { grid-template-columns: 1fr; gap: 20px; }
+          .xs-title { text-shadow: 3px 3px 0 var(--brand); }
+          .xs-chapter { padding: 72px 0 64px; gap: 40px; }
+          .xs-impact-num { font-size: clamp(84px, 26vw, 120px); text-shadow: 4px 4px 0 var(--accent); }
+          .xs-story { padding-left: 30px; gap: 52px; }
+          .xs-step-title { font-size: 28px; }
+          .xs-built-item { gap: 14px; }
+          .xs-actions { flex-direction: column; align-items: stretch; }
+          .xs-report-inner { padding: 20px 16px; }
         }
       `}</style>
     </section>
