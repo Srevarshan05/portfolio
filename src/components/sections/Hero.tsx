@@ -24,7 +24,9 @@ export default function HeroSection() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 
   return (
-    <section id="home">
+    <section id="home" aria-labelledby="hero-title">
+      {/* The name and title live inside the hand-drawn hero artwork; this gives them to search engines and screen readers */}
+      <h1 id="hero-title" className="sr-only">Sre Varshan — Applied AI Engineer, building the next generation of intelligence</h1>
 
       {/* ── Full page interactive 3D Lanyard Canvas ── */}
       <div 

@@ -1,1095 +1,862 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useScrollReveal } from "@/lib/useScrollReveal";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+const TO_EMAIL = "srevarshan9600622@gmail.com";
+const DRAFT_KEY = "sv-contact-draft";
+
+type Fields = { name: string; email: string; subject: string; message: string };
+type FieldErrors = Partial<Record<keyof Fields, string>>;
+type SendState = "idle" | "sending" | "sent" | "failed";
+
+const EMPTY: Fields = { name: "", email: "", subject: "", message: "" };
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+function validate(f: Fields): FieldErrors {
+  const errors: FieldErrors = {};
+  if (!f.email.trim()) errors.email = "Add your email so I can reply.";
+  else if (!EMAIL_RE.test(f.email.trim())) errors.email = "That email doesn't look right — check for typos.";
+  if (!f.name.trim()) errors.name = "Add your name.";
+  if (!f.message.trim()) errors.message = "Write a message, or use AI draft below.";
+  else if (f.message.trim().length < 10) errors.message = "Add a little more detail (at least 10 characters).";
+  return errors;
+}
+
+function mailtoHref(f: Fields) {
+  const subject = f.subject.trim() || "Portfolio Inquiry";
+  const body = `${f.message}\n\n— ${f.name}${f.email ? ` (${f.email})` : ""}`;
+  return `mailto:${TO_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function prefersReducedMotion() {
+  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
 
 export default function ContactSection() {
-  const sectionRef = useRef<HTMLElement>(null);
-  useScrollReveal(sectionRef as React.RefObject<HTMLElement>);
+  const [fields, setFields] = useState<Fields>(EMPTY);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [sendState, setSendState] = useState<SendState>("idle");
+  const [sendError, setSendError] = useState("");
+  const [minimized, setMinimized] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
-  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  
-  // AI Draft State
+  // AI draft
   const [aiOpen, setAiOpen] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [drafting, setDrafting] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [typing, setTyping] = useState(false);
+  const [preDraft, setPreDraft] = useState<Pick<Fields, "subject" | "message"> | null>(null);
 
-  // AI Autofill Animation States/Refs
-  const [isAutofilling, setIsAutofilling] = useState(false);
-  const autofillTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const fullTargetRef = useRef({ subject: "", message: "" });
-
-  // Ref for textarea auto-resizing
+  const typingTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const typingTarget = useRef<Pick<Fields, "subject" | "message">>({ subject: "", message: "" });
+  const abortRef = useRef<AbortController | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const aiInputRef = useRef<HTMLInputElement>(null);
+  const restored = useRef(false);
 
-  // Keep track of the form data before clearing it so the user can "Undo"
-  const prevFormRef = useRef({ name: "", email: "", subject: "", message: "" });
-
-  const stopAutofillAndComplete = () => {
-    if (autofillTimerRef.current) {
-      clearInterval(autofillTimerRef.current);
-      autofillTimerRef.current = null;
-    }
-    if (isAutofilling) {
-      setForm((prev) => ({
-        ...prev,
-        subject: fullTargetRef.current.subject,
-        message: fullTargetRef.current.message,
-      }));
-      setIsAutofilling(false);
-    }
-  };
-
-  const handle = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (isAutofilling) {
-      stopAutofillAndComplete();
-    }
-    setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
-  };
-
-  const handleInputMouseDown = () => {
-    if (isAutofilling) {
-      stopAutofillAndComplete();
-    }
-  };
-
-  // Clear interval on unmount
+  /* ── Draft persistence: a reload never loses what someone wrote ── */
   useEffect(() => {
-    return () => {
-      if (autofillTimerRef.current) {
-        clearInterval(autofillTimerRef.current);
-      }
-    };
+    let saved: Fields | null = null;
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (raw) saved = { ...EMPTY, ...JSON.parse(raw) };
+    } catch { /* storage unavailable — start empty */ }
+    restored.current = true;
+    if (!saved) return;
+    const draftToRestore = saved;
+    const frame = requestAnimationFrame(() => setFields(draftToRestore));
+    return () => cancelAnimationFrame(frame);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isAutofilling) {
-      stopAutofillAndComplete();
+  useEffect(() => {
+    if (!restored.current) return;
+    try {
+      const hasContent = Object.values(fields).some((v) => v.trim());
+      if (hasContent) localStorage.setItem(DRAFT_KEY, JSON.stringify(fields));
+      else localStorage.removeItem(DRAFT_KEY);
+    } catch { /* ignore */ }
+  }, [fields]);
+
+  /* ── Auto-grow message body ── */
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 520)}px`;
+  }, [fields.message, minimized, expanded]);
+
+  useEffect(() => () => {
+    if (typingTimer.current) clearInterval(typingTimer.current);
+    abortRef.current?.abort();
+  }, []);
+
+  useEffect(() => {
+    if (aiOpen) aiInputRef.current?.focus();
+  }, [aiOpen]);
+
+  /* ── Typing animation: fields are read-only while it runs; any interaction completes it ── */
+  const finishTyping = useCallback(() => {
+    if (typingTimer.current) {
+      clearInterval(typingTimer.current);
+      typingTimer.current = null;
     }
-    if (!form.email || !form.message) {
-      setToastMessage("Please enter your email and message.");
-      setShowToast(true);
+    setFields((prev) => ({ ...prev, ...typingTarget.current }));
+    setTyping(false);
+  }, []);
+
+  const typeIn = useCallback((target: Pick<Fields, "subject" | "message">) => {
+    typingTarget.current = target;
+    if (prefersReducedMotion()) {
+      setFields((prev) => ({ ...prev, ...target }));
+      return;
+    }
+    const subjectTokens = target.subject.split(/(\s+)/);
+    const messageTokens = target.message.split(/(\s+)/);
+    // Finish in roughly a second and a half no matter how long the draft is
+    const step = Math.max(1, Math.ceil(messageTokens.length / 70));
+    let s = 0;
+    let m = 0;
+    setTyping(true);
+    setFields((prev) => ({ ...prev, subject: "", message: "" }));
+    typingTimer.current = setInterval(() => {
+      s = Math.min(subjectTokens.length, s + step);
+      m = Math.min(messageTokens.length, m + step);
+      setFields((prev) => ({
+        ...prev,
+        subject: subjectTokens.slice(0, s).join(""),
+        message: messageTokens.slice(0, m).join(""),
+      }));
+      if (s >= subjectTokens.length && m >= messageTokens.length) finishTyping();
+    }, 22);
+  }, [finishTyping]);
+
+  const update = (key: keyof Fields) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (typing) return;
+    const value = e.target.value;
+    setFields((prev) => ({ ...prev, [key]: value }));
+    if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
+    if (sendState === "failed") setSendState("idle");
+  };
+
+  /* ── Send ── */
+  const send = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (typing) finishTyping();
+    if (sendState === "sending") return;
+
+    const current = typing ? { ...fields, ...typingTarget.current } : fields;
+    const found = validate(current);
+    setErrors(found);
+    if (Object.keys(found).length) {
+      const first = (["email", "name", "message"] as const).find((k) => found[k]);
+      if (first) document.getElementById(`contact-${first}`)?.focus();
       return;
     }
 
-    setStatus("sending");
-    prevFormRef.current = { ...form };
-
+    setSendState("sending");
+    setSendError("");
     try {
-      const response = await fetch("/api/contact", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          kind: "message",
+          name: current.name.trim(),
+          email: current.email.trim(),
+          subject: current.subject.trim(),
+          message: current.message.trim(),
+        }),
       });
-
-      if (response.ok) {
-        setStatus("success");
-        setForm({ name: "", email: "", subject: "", message: "" });
-        setToastMessage("Message sent.");
-        setShowToast(true);
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to deliver message");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.delivered === false) {
+        throw new Error(data.message || "The mail server didn't accept the message.");
       }
-    } catch (err: any) {
-      console.error("API Transmission failed, falling back to mailto:", err);
-      setStatus("error");
-      
-      // Fallback: Mailto link pre-filled
-      const subjectLine = form.subject || "Portfolio Inquiry";
-      const bodyText = `Name: ${form.name}\nEmail: ${form.email}\n\nMessage:\n${form.message}`;
-      const mailtoUrl = `mailto:srevarshan9600622@gmail.com?subject=${encodeURIComponent(subjectLine)}&body=${encodeURIComponent(bodyText)}`;
-      
-      // Open mailto link
-      window.open(mailtoUrl, "_blank");
-      
-      // Clear form and notify user of the fallback action
-      setForm({ name: "", email: "", subject: "", message: "" });
-      setToastMessage("Fallback: Pre-filled email client opened.");
-      setShowToast(true);
-    }
-  };
-
-  const handleAiDraft = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!aiPrompt) return;
-
-    setDrafting(true);
-    try {
-      const response = await fetch("/api/draft", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: aiPrompt }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setAiOpen(false);
-        setAiPrompt("");
-
-        const targetSubject = data.subject || form.subject;
-        const targetMessage = data.message || form.message;
-
-        fullTargetRef.current = { subject: targetSubject, message: targetMessage };
-
-        if (autofillTimerRef.current) {
-          clearInterval(autofillTimerRef.current);
-          autofillTimerRef.current = null;
-        }
-
-        setIsAutofilling(true);
-        setForm((prev) => ({ ...prev, subject: "", message: "" }));
-
-        const subjectWords = targetSubject.split(" ");
-        const messageWords = targetMessage.split(" ");
-
-        let currentSubject = "";
-        let currentMessage = "";
-        let subjectIndex = 0;
-        let messageIndex = 0;
-
-        const interval = setInterval(() => {
-          let updated = false;
-
-          if (subjectIndex < subjectWords.length) {
-            currentSubject += (subjectIndex === 0 ? "" : " ") + subjectWords[subjectIndex];
-            subjectIndex++;
-            updated = true;
-          }
-
-          if (messageIndex < messageWords.length) {
-            currentMessage += (messageIndex === 0 ? "" : " ") + messageWords[messageIndex];
-            messageIndex++;
-            updated = true;
-          }
-
-          setForm((prev) => ({
-            ...prev,
-            subject: currentSubject,
-            message: currentMessage,
-          }));
-
-          if (!updated) {
-            clearInterval(interval);
-            autofillTimerRef.current = null;
-            setIsAutofilling(false);
-          }
-        }, 20); // 20ms per word typing animation
-
-        autofillTimerRef.current = interval;
-
-        setToastMessage("AI Draft generated successfully.");
-        setShowToast(true);
-      } else {
-        throw new Error("AI Generation failed");
-      }
+      setSendState("sent");
+      setFields(EMPTY);
+      setPreDraft(null);
+      setAiOpen(false);
     } catch (err) {
-      console.error(err);
-      setToastMessage("AI Draft failed. Try again.");
-      setShowToast(true);
+      setSendState("failed");
+      setSendError(err instanceof Error ? err.message : "Something went wrong while sending.");
+    }
+  };
+
+  const onFormKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      e.preventDefault();
+      send();
+    }
+  };
+
+  /* ── AI draft (its own form — Enter here never sends the email) ── */
+  const draft = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const prompt = aiPrompt.trim();
+    if (!prompt || drafting) return;
+    if (typing) finishTyping();
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setDrafting(true);
+    setAiError("");
+    try {
+      const res = await fetch("/api/draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+        signal: controller.signal,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || (!data.subject && !data.message)) {
+        throw new Error(data.message || "The AI couldn't write a draft this time.");
+      }
+      setPreDraft({ subject: fields.subject, message: fields.message });
+      setAiPrompt("");
+      setAiOpen(false);
+      setErrors((prev) => ({ ...prev, message: undefined }));
+      typeIn({ subject: data.subject || fields.subject, message: data.message || fields.message });
+    } catch (err) {
+      if (controller.signal.aborted) return;
+      setAiError(err instanceof Error ? `${err.message} Try rephrasing, or write it yourself.` : "Draft failed. Try again.");
     } finally {
-      setDrafting(false);
+      if (abortRef.current === controller) {
+        abortRef.current = null;
+        setDrafting(false);
+      }
     }
   };
 
-  const handleUndo = () => {
-    setForm(prevFormRef.current);
-    setShowToast(false);
-    setStatus("idle");
+  const cancelDraft = () => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setDrafting(false);
   };
 
-  // Auto-dismiss toast
-  useEffect(() => {
-    if (showToast) {
-      const timer = setTimeout(() => {
-        setShowToast(false);
-      }, 8000);
-      return () => clearTimeout(timer);
-    }
-  }, [showToast]);
+  const undoDraft = () => {
+    if (!preDraft) return;
+    if (typing) finishTyping();
+    setFields((prev) => ({ ...prev, ...preDraft }));
+    setPreDraft(null);
+  };
 
-  // Auto-resize textarea when text content changes
-  useEffect(() => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = "auto";
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    }
-  }, [form.message]);
+  const discard = () => {
+    const hasContent = Object.values(fields).some((v) => v.trim());
+    if (hasContent && !window.confirm("Discard this draft?")) return;
+    if (typing) finishTyping();
+    cancelDraft();
+    setFields(EMPTY);
+    setErrors({});
+    setPreDraft(null);
+    setAiOpen(false);
+    setSendState("idle");
+  };
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(TO_EMAIL);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    } catch { /* clipboard blocked — the address is visible to copy by hand */ }
+  };
+
+  const busy = drafting || typing;
+  const status =
+    sendState === "sending" ? "Sending your message…" :
+    drafting ? "Writing a draft…" :
+    typing ? "Draft ready — click any field to skip the animation." : "";
 
   return (
-    <section id="contact" className="section" ref={sectionRef}>
-      {/* Visually Hidden Header for Screen Readers & SEO */}
-      <h2 className="sr-only">Contact Me</h2>
+    <section id="contact" className="ct-section" aria-labelledby="contact-title">
+      <div className="ct-grain" aria-hidden="true" />
 
-      <div className="contact-wrapper">
-        
-        {/* Container for the Gmail Compose Window - Normal Flow */}
-        <div className="gmail-compose-container">
-          {/* Gmail Compose Window Interface */}
-          <div className="gmail-compose-card reveal-scale">
-            
-            {/* Gmail Titlebar Header - Flex Container for inline items */}
-            <div className="gmail-header">
-              <div className="gmail-header-left">
-                <img
-                  src="/icons/gmail.png"
-                  alt="Gmail Logo"
-                  className="gmail-header-logo"
-                />
-                <span className="gmail-header-title">New Message</span>
-              </div>
-              <div className="gmail-header-right">
-                <span className="gmail-control-btn" title="Minimize">—</span>
-                <span className="gmail-control-btn" title="Exit Fullscreen">⛶</span>
-                <span className="gmail-control-btn" title="Close" onClick={() => setForm({ name: "", email: "", subject: "", message: "" })}>×</span>
+      <div className="ct-inner">
+        <header className="ct-header">
+          <h2 id="contact-title" className="ct-title">Let&apos;s Build Something Great!</h2>
+          <p className="ct-lead">
+            Hiring, collaborating, or have a problem worth solving with AI? Write to me here,
+            or describe what you need and let AI draft the email for you.
+          </p>
+          <p className="ct-direct">
+            <span>Prefer your own inbox?</span>
+            <a href={`mailto:${TO_EMAIL}`} className="ct-direct-link">{TO_EMAIL}</a>
+            <button type="button" className="ct-copy" onClick={copyEmail} aria-live="polite">
+              {copied ? "Copied" : "Copy"}
+            </button>
+          </p>
+        </header>
+
+        <div className="ct-stage">
+          <div className={`ct-window ${minimized ? "is-min" : ""} ${expanded ? "is-wide" : ""}`}>
+            {/* Title bar — every control works */}
+            <div className="ct-bar">
+              <span className="ct-bar-title">{sendState === "sent" ? "Message sent" : "New Message"}</span>
+              <div className="ct-bar-controls">
+                <button type="button" onClick={() => setMinimized((v) => !v)} aria-label={minimized ? "Restore message window" : "Minimize message window"} aria-pressed={minimized}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden="true">
+                    {minimized ? <path d="M6 15l6-6 6 6" /> : <path d="M5 18h14" />}
+                  </svg>
+                </button>
+                <button type="button" className="ct-only-desktop" onClick={() => { setExpanded((v) => !v); setMinimized(false); }} aria-label={expanded ? "Shrink message window" : "Expand message window"} aria-pressed={expanded}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    {expanded
+                      ? <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" />
+                      : <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />}
+                  </svg>
+                </button>
+                <button type="button" onClick={discard} aria-label="Discard draft">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+                </button>
               </div>
             </div>
 
-            {status === "success" ? (
-              <div className="gmail-success-screen">
-                <div className="gmail-lottie-container">
-                  <DotLottieReact
-                    src="https://lottie.host/4abe3093-fb75-43e0-9c1f-b617e9ea30ce/NndMnqNwnS.lottie"
-                    loop
-                    autoplay
-                    style={{ width: "100%", height: "100%" }}
-                  />
-                </div>
-                <h3 className="gmail-success-title">Message Sent!</h3>
-                <p className="gmail-success-text">
-                  Thank you for reaching out. Sre Varshan will get back to you shortly.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setStatus("idle")}
-                  className="gmail-success-btn"
-                >
-                  Send Another Message
+            {!minimized && (sendState === "sent" ? (
+              <div className="ct-sent" role="status">
+                <svg className="ct-plane" width="96" height="96" viewBox="0 0 96 96" fill="none" aria-hidden="true">
+                  <path className="ct-plane-trail" d="M6 78c14-2 22-10 30-20" stroke="#94A3CC" strokeWidth="3" strokeLinecap="round" strokeDasharray="4 7" />
+                  <path className="ct-plane-body" d="M30 52 88 14 66 82 50 62 30 52Z" fill="#FFFFFF" stroke="#1C202B" strokeWidth="4" strokeLinejoin="round" />
+                  <path d="M88 14 50 62v18l10-13" stroke="#1C202B" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" />
+                </svg>
+                <h3 className="ct-sent-title">Message sent!</h3>
+                <p className="ct-sent-text">Thanks for reaching out. Your message is in my inbox and I&apos;ll reply to the email you gave.</p>
+                <button type="button" className="ct-btn ct-btn-ghost" onClick={() => setSendState("idle")}>
+                  Write another message
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="gmail-body">
-                
-                {/* Row 1: To Recipient */}
-                <div className="gmail-field-row">
-                  <span className="gmail-field-label">To</span>
-                  <div className="gmail-recipient-pill">
-                    <span className="gmail-avatar">S</span>
-                    <span className="gmail-recipient-name">Sre Varshan</span>
-                    <span className="gmail-recipient-email">&lt;srevarshan9600622@gmail.com&gt;</span>
+              <>
+                <form id="compose-form" className="ct-form" onSubmit={send} onKeyDown={onFormKeyDown} noValidate aria-busy={busy}>
+                  <div className="ct-row">
+                    <span className="ct-label" id="contact-to-label">To</span>
+                    <span className="ct-recipient" aria-labelledby="contact-to-label">
+                      <span className="ct-avatar" aria-hidden="true">S</span>
+                      <span className="ct-recipient-name">Sre Varshan</span>
+                      <span className="ct-recipient-email">{TO_EMAIL}</span>
+                    </span>
                   </div>
-                </div>
 
-                {/* Row 2: From Sender Email */}
-                <div className="gmail-field-row">
-                  <label htmlFor="contact-email" className="gmail-field-label">From</label>
-                  <input
-                    type="email"
-                    id="contact-email"
-                    name="email"
-                    className="gmail-field-input"
-                    value={form.email}
-                    onChange={handle}
-                    required
-                  />
-                </div>
-
-                {/* Row 3: Sender Name */}
-                <div className="gmail-field-row">
-                  <label htmlFor="contact-name" className="gmail-field-label">Name</label>
-                  <input
-                    type="text"
-                    id="contact-name"
-                    name="name"
-                    className="gmail-field-input"
-                    value={form.name}
-                    onChange={handle}
-                    required
-                  />
-                </div>
-
-                {/* Row 4: Subject */}
-                <div className="gmail-field-row">
-                  <label htmlFor="contact-subject" className="gmail-field-label">Subject</label>
-                  {drafting ? (
-                    <div className="gmail-skeleton-subject shimmer"></div>
-                  ) : (
+                  <div className={`ct-row ${errors.email ? "has-error" : ""}`}>
+                    <label htmlFor="contact-email" className="ct-label">From</label>
                     <input
-                      type="text"
-                      id="contact-subject"
-                      name="subject"
-                      className={`gmail-field-input ${isAutofilling ? "autofilling" : ""}`}
-                      value={form.subject}
-                      onChange={handle}
-                      onMouseDown={handleInputMouseDown}
-                      required
+                      id="contact-email" name="email" type="email" inputMode="email" autoComplete="email"
+                      className="ct-input" placeholder="you@company.com"
+                      value={fields.email} onChange={update("email")}
+                      aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? "contact-email-error" : undefined}
+                      readOnly={typing} onPointerDown={typing ? finishTyping : undefined}
                     />
-                  )}
-                </div>
+                  </div>
+                  {errors.email && <p id="contact-email-error" className="ct-error">{errors.email}</p>}
 
-                {/* Row 5: Message Body - Auto Resizing Textarea */}
-                <div className="gmail-textarea-wrapper">
-                  {drafting ? (
-                    <div className="gmail-skeleton-message">
-                      <div className="gmail-skeleton-line shimmer" style={{ width: "90%" }}></div>
-                      <div className="gmail-skeleton-line shimmer" style={{ width: "75%" }}></div>
-                      <div className="gmail-skeleton-line shimmer" style={{ width: "85%" }}></div>
-                      <div className="gmail-skeleton-line shimmer" style={{ width: "60%" }}></div>
-                    </div>
-                  ) : (
+                  <div className={`ct-row ${errors.name ? "has-error" : ""}`}>
+                    <label htmlFor="contact-name" className="ct-label">Name</label>
+                    <input
+                      id="contact-name" name="name" type="text" autoComplete="name"
+                      className="ct-input" placeholder="Your name"
+                      value={fields.name} onChange={update("name")}
+                      aria-invalid={Boolean(errors.name)} aria-describedby={errors.name ? "contact-name-error" : undefined}
+                      readOnly={typing} onPointerDown={typing ? finishTyping : undefined}
+                    />
+                  </div>
+                  {errors.name && <p id="contact-name-error" className="ct-error">{errors.name}</p>}
+
+                  <div className="ct-row">
+                    <label htmlFor="contact-subject" className="ct-label">Subject</label>
+                    <input
+                      id="contact-subject" name="subject" type="text"
+                      className={`ct-input ${typing ? "is-typing" : ""} ${drafting ? "is-loading" : ""}`}
+                      placeholder="Portfolio Inquiry"
+                      value={fields.subject} onChange={update("subject")}
+                      readOnly={busy} onPointerDown={typing ? finishTyping : undefined}
+                      onKeyDown={typing ? finishTyping : undefined}
+                    />
+                  </div>
+
+                  <div className={`ct-body ${errors.message ? "has-error" : ""}`}>
+                    <label htmlFor="contact-message" className="sr-only">Message</label>
                     <textarea
                       ref={textareaRef}
-                      id="contact-message"
-                      name="message"
-                      className={`gmail-textarea ${isAutofilling ? "autofilling" : ""}`}
-                      value={form.message}
-                      onChange={handle}
-                      onMouseDown={handleInputMouseDown}
-                      required
+                      id="contact-message" name="message"
+                      className={`ct-textarea ${typing ? "is-typing" : ""}`}
+                      placeholder="What are you building, and how can I help?"
+                      value={fields.message} onChange={update("message")}
+                      aria-invalid={Boolean(errors.message)} aria-describedby={errors.message ? "contact-message-error" : undefined}
+                      readOnly={busy} onPointerDown={typing ? finishTyping : undefined}
+                      onKeyDown={typing ? finishTyping : undefined}
                     />
-                  )}
-                </div>
+                    {drafting && (
+                      <div className="ct-skeleton" aria-hidden="true">
+                        <span style={{ width: "92%" }} /><span style={{ width: "78%" }} /><span style={{ width: "86%" }} /><span style={{ width: "54%" }} />
+                      </div>
+                    )}
+                  </div>
+                  {errors.message && <p id="contact-message-error" className="ct-error ct-error-body">{errors.message}</p>}
+                </form>
 
-                {/* AI Draft input tray */}
                 {aiOpen && (
-                  <div className="gmail-ai-prompt-box">
-                    <div className="gmail-ai-row">
-                      <img
-                        src="/icons/doodle-stars.png"
-                        alt="AI Sparkles"
-                        style={{ width: "16px", height: "16px", objectFit: "contain" }}
-                      />
+                  <form className="ct-ai" onSubmit={draft}>
+                    <label htmlFor="contact-ai" className="ct-ai-label">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.6L19 9.5l-5.2 1.9L12 17l-1.8-5.6L5 9.5l5.2-1.9L12 2Zm7 12 .9 2.6 2.6.9-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9L19 14Z" /></svg>
+                      Describe your email
+                    </label>
+                    <div className="ct-ai-row">
                       <input
-                        type="text"
-                        className="gmail-ai-input"
+                        ref={aiInputRef}
+                        id="contact-ai"
+                        className="ct-ai-input"
                         value={aiPrompt}
+                        maxLength={500}
                         onChange={(e) => setAiPrompt(e.target.value)}
-                        placeholder="Prompt AI to draft email..."
+                        placeholder="e.g. Invite him to interview for an ML engineer role"
                         disabled={drafting}
+                        onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); setAiOpen(false); } }}
                       />
-                      <button
-                        type="button"
-                        onClick={handleAiDraft}
-                        disabled={drafting || !aiPrompt}
-                        className="gmail-ai-draft-btn"
-                      >
-                        {drafting ? "Drafting..." : "Create"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setAiOpen(false)}
-                        className="gmail-ai-close-btn"
-                        disabled={drafting}
-                      >
-                        ×
-                      </button>
+                      {drafting ? (
+                        <button type="button" className="ct-btn ct-btn-ghost ct-btn-sm" onClick={cancelDraft}>Cancel</button>
+                      ) : (
+                        <button type="submit" className="ct-btn ct-btn-ai ct-btn-sm" disabled={!aiPrompt.trim()}>Write draft</button>
+                      )}
+                    </div>
+                    {aiError && <p className="ct-error ct-error-ai" role="alert">{aiError}</p>}
+                    {(fields.subject || fields.message) && !drafting && (
+                      <p className="ct-ai-hint">The draft replaces the current subject and message. You can undo it afterwards.</p>
+                    )}
+                  </form>
+                )}
+
+                {sendState === "failed" && (
+                  <div className="ct-failed" role="alert">
+                    <p><strong>Your message didn&apos;t send.</strong> {sendError} Nothing was lost; your draft is still here.</p>
+                    <div className="ct-failed-actions">
+                      <button type="button" className="ct-btn ct-btn-ghost ct-btn-sm" onClick={() => send()}>Try again</button>
+                      <a className="ct-btn ct-btn-ghost ct-btn-sm" href={mailtoHref(fields)}>Open in my email app</a>
                     </div>
                   </div>
                 )}
 
-                {/* Row 6: Gmail-style Toolbar Footer */}
-                <div className="gmail-footer">
-                  <div className="gmail-footer-left">
-                    <button type="submit" className="gmail-send-btn" disabled={status === "sending"} id="contact-submit">
-                      {status === "sending" ? "Sending..." : "Send"}
-                      {status !== "sending" && (
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "rotate(45deg)", marginLeft: "6px" }}>
-                          <line x1="22" y1="2" x2="11" y2="13" />
-                          <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                <div className="ct-foot">
+                  <div className="ct-foot-left">
+                    <button type="submit" form="compose-form" className="ct-btn ct-btn-send" disabled={sendState === "sending"}>
+                      {sendState === "sending" ? "Sending…" : "Send"}
+                      {sendState !== "sending" && (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z" />
                         </svg>
                       )}
                     </button>
-
-                    {/* AI Email Draft Trigger Icon */}
                     <button
                       type="button"
-                      className={`toolbar-icon-btn ai-draft-toggle-btn ${aiOpen ? "active" : ""}`}
-                      title="Draft email with AI"
-                      onClick={() => setAiOpen(!aiOpen)}
+                      className={`ct-btn ct-btn-ghost ct-btn-sm ct-ai-toggle ${aiOpen ? "is-on" : ""}`}
+                      onClick={() => setAiOpen((v) => !v)}
+                      aria-expanded={aiOpen}
                     >
-                      <img
-                        src="/icons/doodle-stars.png"
-                        alt="AI Stars Icon"
-                        style={{ width: "18px", height: "18px", objectFit: "contain" }}
-                      />
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.6L19 9.5l-5.2 1.9L12 17l-1.8-5.6L5 9.5l5.2-1.9L12 2Zm7 12 .9 2.6 2.6.9-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9L19 14Z" /></svg>
+                      Draft with AI
                     </button>
+                    {preDraft && !drafting && (
+                      <button type="button" className="ct-link-btn" onClick={undoDraft}>Undo draft</button>
+                    )}
                   </div>
-
-                  <div className="gmail-footer-right">
-                    <button
-                      type="button"
-                      className="toolbar-icon-btn discard-btn"
-                      title="Discard draft"
-                      onClick={() => {
-                        setForm({ name: "", email: "", subject: "", message: "" });
-                        setAiOpen(false);
-                        setAiPrompt("");
-                      }}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></svg>
-                    </button>
-                  </div>
+                  <span className="ct-kbd" aria-hidden="true">Ctrl + Enter to send</span>
                 </div>
+              </>
+            ))}
 
-              </form>
-            )}
+            <p className="sr-only" role="status" aria-live="polite">{status}</p>
           </div>
+
+          <img
+            className="ct-sketch"
+            src="/sketch-leaning.webp"
+            alt=""
+            aria-hidden="true"
+            width={392}
+            height={952}
+            loading="lazy"
+            decoding="async"
+          />
         </div>
       </div>
 
-      {/* Floating Gmail Send Toast */}
-      {showToast && (
-        <div className="gmail-toast reveal">
-          <span className="gmail-toast-text">{toastMessage}</span>
-          {toastMessage === "Message sent." && (
-            <button onClick={handleUndo} className="gmail-toast-undo-btn">
-              Undo
-            </button>
-          )}
-          <button onClick={() => setShowToast(false)} className="gmail-toast-dismiss-btn" aria-label="Dismiss toast">
-            ×
-          </button>
-        </div>
-      )}
-
-      {/* Styling */}
       <style>{`
-        /* Visually hidden for screen readers */
-        .sr-only {
+        .ct-section {
+          position: relative;
+          overflow: hidden;
+          background: #07080B;
+          color: #FFFFFF;
+          padding: 112px 40px 0;
+          isolation: isolate;
+        }
+        .ct-grain {
           position: absolute;
-          width: 1px;
-          height: 1px;
-          padding: 0;
-          margin: -1px;
-          overflow: hidden;
-          clip: rect(0, 0, 0, 0);
-          white-space: nowrap;
-          border-width: 0;
+          inset: 0;
+          z-index: -1;
+          background-image:
+            radial-gradient(ellipse 60% 50% at 30% 40%, rgba(226, 45, 109, 0.10), transparent 70%),
+            linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+          background-size: auto, 48px 48px, 48px 48px;
         }
+        .ct-inner { max-width: 1180px; margin: 0 auto; }
 
-        #contact {
-          background-color: #000000;
-          background-image: url('/Contact-me-dark.png');
-          background-size: cover;
-          /* Locked background alignment to the top to prevent vertical cropping of doodles/text */
-          background-position: center top;
-          background-repeat: no-repeat;
-          position: relative;
-          width: 100%;
+        /* ── Header ── */
+        .ct-header { max-width: 760px; margin-bottom: 44px; }
+        .ct-title {
+          font-size: clamp(44px, 6.4vw, 84px);
+          letter-spacing: 1.5px;
+          line-height: 0.95;
+          color: #FFFFFF;
+          margin: 0 0 20px;
+          transform: skewX(-5deg);
+          transform-origin: left bottom;
+          text-shadow: 4px 4px 0 var(--brand);
+          text-wrap: balance;
         }
-
-        .contact-wrapper {
-          width: 100%;
-          height: 100%;
-          position: relative;
-        }
-
-        /* Gmail Compose Container - Centering Wrapper in Normal Flow */
-        .gmail-compose-container {
-          width: 100%;
-          display: flex;
-          justify-content: center;
-          align-items: flex-start;
-        }
-
-        /* Gmail Compose Dialog styling */
-        .gmail-compose-card {
-          background: #ffffff;
-          border: 3px solid #1C202B;
-          box-shadow: 8px 8px 0 0 #1C202B;
-          border-radius: 6px;
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-          width: 100%;
-          height: auto; /* Dynamic height */
-        }
-
-        .gmail-header {
-          background: #1C202B;
-          color: #ffffff;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 10px 16px;
-          user-select: none;
-        }
-
-        .gmail-header-left {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .gmail-header-logo {
-          width: 20px;
-          height: 16px;
-          object-fit: contain;
-          display: inline-block;
-        }
-
-        .gmail-header-title {
-          font-family: 'Open Sans', sans-serif;
-          font-size: 13px;
-          font-weight: 700;
-          letter-spacing: 0.5px;
-          line-height: 1;
-        }
-
-        .gmail-control-btn {
-          color: #94A3CC;
-          font-size: 14px;
-          font-weight: 700;
-          margin-left: 14px;
-          cursor: pointer;
-          transition: color 120ms;
-        }
-
-        .gmail-control-btn:hover {
-          color: #ffffff;
-        }
-
-        .gmail-body {
-          display: flex;
-          flex-direction: column;
-          flex: 1;
-          background: #ffffff;
-        }
-
-        .gmail-field-row {
-          display: flex;
-          align-items: center;
-          padding: 8px 16px;
-          border-bottom: 1.5px solid rgba(28, 32, 43, 0.08);
-          gap: 12px;
-          min-height: 44px;
-        }
-
-        .gmail-field-label {
-          font-family: 'Open Sans', sans-serif;
-          font-size: 13px;
-          color: #71717a;
-          font-weight: 600;
-          min-width: 48px;
-          user-select: none;
-        }
-
-        .gmail-field-input {
-          flex: 1;
-          border: none;
-          outline: none;
-          font-family: 'Open Sans', sans-serif;
-          font-size: 13px;
-          color: #1C202B;
-          background: transparent;
-          padding: 4px 0;
-        }
-
-        /* Recipient Capsule Pill */
-        .gmail-recipient-pill {
-          display: inline-flex;
-          align-items: center;
-          background: #f1f3f4;
-          border: 1.5px solid #dadce0;
-          border-radius: 16px;
-          padding: 3px 10px 3px 6px;
-          gap: 6px;
-          font-size: 12px;
-          user-select: none;
-        }
-
-        .gmail-avatar {
-          width: 18px;
-          height: 18px;
-          background: #1a73e8;
-          color: #ffffff;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 700;
-          font-size: 10px;
-        }
-
-        .gmail-recipient-name {
-          font-weight: 700;
-          color: #3c4043;
-          font-family: 'Open Sans', sans-serif;
-        }
-
-        .gmail-recipient-email {
-          color: #5f6368;
-          font-family: 'Open Sans', sans-serif;
-        }
-
-        /* AI Prompt Box */
-        .gmail-ai-prompt-box {
-          background: #f0f4f9;
-          border-top: 1.5px solid rgba(28, 32, 43, 0.08);
-          padding: 10px 16px;
-        }
-
-        .gmail-ai-row {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          width: 100%;
-          flex-wrap: wrap;
-        }
-
-        .gmail-ai-input {
-          flex: 1;
-          min-width: 150px;
-          background: #ffffff;
-          border: 1.5px solid #dadce0;
-          border-radius: 18px;
-          padding: 6px 14px;
-          font-family: 'Open Sans', sans-serif;
-          font-size: 12px;
-          color: #1C202B;
-          outline: none;
-          transition: border-color 150ms;
-        }
-
-        .gmail-ai-input:focus {
-          border-color: #1a73e8;
-        }
-
-        .gmail-ai-draft-btn {
-          background: #1a73e8;
-          color: #ffffff;
-          border: none;
-          border-radius: 18px;
-          padding: 6px 14px;
-          font-family: 'Open Sans', sans-serif;
-          font-weight: 700;
-          font-size: 11px;
-          cursor: pointer;
-          transition: background 150ms;
-        }
-
-        .gmail-ai-draft-btn:hover {
-          background: #1557b0;
-        }
-
-        .gmail-ai-draft-btn:disabled {
-          background: #dadce0;
-          color: #80868b;
-          cursor: not-allowed;
-        }
-
-        .gmail-ai-close-btn {
-          background: transparent;
-          border: none;
-          color: #5f6368;
+        .ct-lead {
           font-size: 18px;
-          font-weight: 700;
-          cursor: pointer;
-          padding: 0 4px;
-        }
-
-        .gmail-ai-close-btn:hover {
-          color: #202124;
-        }
-
-        /* Message Textarea Container */
-        .gmail-textarea-wrapper {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          min-height: 0;
-        }
-
-        .gmail-textarea {
-          width: 100%;
-          min-height: 120px;
-          border: none;
-          outline: none;
-          padding: 16px;
-          font-family: 'Open Sans', sans-serif;
-          font-size: 13px;
           line-height: 1.6;
-          color: #1C202B;
-          resize: none;
-          background: transparent;
-          overflow-y: hidden; /* Hide scrollbar since it dynamically resizes */
-          transition: background-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+          color: #C8D4FF;
+          max-width: 56ch;
+          margin: 0 0 18px;
         }
-
-        /* Autofill streaming animation styling */
-        @keyframes autofillGlow {
-          0%, 100% {
-            background-color: rgba(26, 115, 232, 0.03);
-            box-shadow: inset 0 0 8px rgba(26, 115, 232, 0.05);
-          }
-          50% {
-            background-color: rgba(26, 115, 232, 0.08);
-            box-shadow: inset 0 0 12px rgba(26, 115, 232, 0.15);
-          }
-        }
-
-        .gmail-field-input.autofilling {
-          animation: autofillGlow 1.2s ease-in-out infinite;
-          color: #1a73e8 !important;
-          font-weight: 500;
-          border-bottom: 1.5px solid rgba(26, 115, 232, 0.4) !important;
-        }
-
-        .gmail-textarea.autofilling {
-          animation: autofillGlow 1.2s ease-in-out infinite;
-          color: #1a73e8 !important;
-          font-weight: 500;
-          border-radius: 4px;
-        }
-
-        /* Skeleton Shimmer Loader styling */
-        .gmail-skeleton-subject {
-          height: 16px;
-          width: 50%;
-          max-width: 220px;
-          background: #e8eaed;
-          border-radius: 4px;
-          margin: 6px 0;
-        }
-
-        .gmail-skeleton-message {
-          padding: 16px;
+        .ct-direct {
           display: flex;
-          flex-direction: column;
-          gap: 12px;
-          width: 100%;
-          min-height: 140px;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 8px 12px;
+          font-size: 14px;
+          color: #94A3CC;
+          margin: 0;
         }
-
-        .gmail-skeleton-line {
-          height: 12px;
-          background: #e8eaed;
+        .ct-direct-link {
+          color: #FFFFFF;
+          font-weight: 700;
+          text-decoration-color: var(--brand);
+          text-decoration-thickness: 2px;
+          word-break: break-all;
+        }
+        .ct-direct-link:hover { color: var(--brand-soft); }
+        .ct-copy {
+          background: transparent;
+          color: #DFE7FF;
+          border: 1.5px solid #333949;
           border-radius: 4px;
-          width: 100%;
+          padding: 4px 10px;
+          min-height: 32px;
+          font: 700 12px 'Open Sans', sans-serif;
+          letter-spacing: 0.4px;
+          cursor: pointer;
+          transition: border-color 150ms, color 150ms;
         }
+        .ct-copy:hover { border-color: #94A3CC; color: #FFFFFF; }
 
-        /* Shimmer Animation effect */
-        .shimmer {
-          background: linear-gradient(
-            90deg,
-            #f1f3f4 25%,
-            #e8eaed 37%,
-            #f1f3f4 63%
-          );
-          background-size: 400% 100%;
-          animation: shimmerSweep 1.4s ease infinite;
+        /* ── Stage: compose window + sketch ── */
+        .ct-stage {
+          position: relative;
+          display: grid;
+          grid-template-columns: minmax(0, 680px) minmax(0, 1fr);
+          align-items: end;
+          gap: 24px;
         }
-
-        @keyframes shimmerSweep {
-          0% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
+        .ct-window {
+          position: relative;
+          z-index: 2;
+          margin-bottom: 96px;
+          background: #FFFFFF;
+          color: #1C202B;
+          border: 3px solid #1C202B;
+          border-radius: 8px;
+          box-shadow: 10px 10px 0 0 var(--brand);
+          overflow: hidden;
+          transition: box-shadow 200ms;
         }
+        .ct-window.is-wide { grid-column: 1 / -1; }
+        .ct-window.is-min { align-self: end; max-width: 360px; }
 
-        /* Toolbar Footer */
-        .gmail-footer {
+        .ct-bar {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 12px 16px;
-          border-top: 1.5px solid rgba(28, 32, 43, 0.08);
-          background: #ffffff;
-          user-select: none;
+          gap: 12px;
+          background: #1C202B;
+          color: #FFFFFF;
+          padding: 6px 8px 6px 18px;
+          min-height: 48px;
         }
-
-        .gmail-footer-left {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-
-        .gmail-send-btn {
-          background: #1a73e8;
-          color: #ffffff;
-          border: 1.5px solid #1a73e8;
-          border-radius: 20px;
-          padding: 8px 20px;
-          font-family: 'Open Sans', sans-serif;
-          font-weight: 700;
-          font-size: 13px;
-          cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          transition: background 150ms, border-color 150ms;
-        }
-
-        .gmail-send-btn:hover {
-          background: #1557b0;
-          border-color: #1557b0;
-        }
-
-        .gmail-send-btn:disabled {
-          background: #e8eaed;
-          color: #b0b4b9;
-          border-color: #e8eaed;
-          cursor: not-allowed;
-        }
-
-        .toolbar-icon-btn {
+        .ct-bar-title { font: 700 14px 'Open Sans', sans-serif; letter-spacing: 0.3px; }
+        .ct-bar-controls { display: flex; gap: 2px; }
+        .ct-bar-controls button {
+          width: 36px;
+          height: 36px;
+          display: grid;
+          place-items: center;
           background: transparent;
-          border: none;
-          color: #5f6368;
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          color: #B7C4ED;
+          border: 0;
+          border-radius: 6px;
           cursor: pointer;
           transition: background 120ms, color 120ms;
         }
+        .ct-bar-controls button:hover { background: #333949; color: #FFFFFF; }
 
-        .toolbar-icon-btn:hover {
-          background: #f1f3f4;
-          color: #202124;
-        }
-
-        .ai-draft-toggle-btn.active {
-          background: #e8f0fe;
-          color: #1a73e8;
-        }
-
-        .discard-btn:hover {
-          background: #fce8e6;
-          color: #c5221f;
-        }
-
-        /* Floating Toast notifications */
-        .gmail-toast {
-          position: fixed;
-          bottom: 24px;
-          left: 24px;
-          background: #202124;
-          color: #f1f3f4;
-          padding: 12px 18px 12px 24px;
-          border-radius: 4px;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        .ct-form { display: flex; flex-direction: column; }
+        .ct-row {
           display: flex;
           align-items: center;
-          gap: 20px;
-          font-family: 'Open Sans', sans-serif;
-          font-size: 14px;
-          z-index: 10000;
-          border: 1px solid #3c4043;
-          animation: toastSlideUp 180ms cubic-bezier(0, 0, 0.2, 1);
+          gap: 14px;
+          padding: 6px 20px;
+          min-height: 52px;
+          border-bottom: 1.5px solid rgba(28, 32, 43, 0.09);
         }
-
-        .gmail-toast-text {
-          font-weight: 600;
+        .ct-row.has-error { box-shadow: inset 3px 0 0 #B11F55; }
+        .ct-label {
+          flex: 0 0 60px;
+          font: 600 14px 'Open Sans', sans-serif;
+          color: #4A5468;
         }
-
-        .gmail-toast-undo-btn {
-          background: none;
-          border: none;
-          color: #8ab4f8;
-          font-weight: 700;
-          cursor: pointer;
+        .ct-input {
+          flex: 1;
+          min-width: 0;
+          border: 0;
+          outline: 0;
+          background: transparent;
+          font: 400 15px 'Open Sans', sans-serif;
+          color: #1C202B;
+          padding: 8px 0;
+        }
+        .ct-input::placeholder, .ct-textarea::placeholder { color: #6B7489; }
+        .ct-input:focus-visible, .ct-textarea:focus-visible { outline: none; }
+        .ct-row:focus-within, .ct-body:focus-within { background: #F7F9FF; box-shadow: inset 4px 0 0 var(--brand); }
+        .ct-recipient {
+          display: inline-flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 4px 8px;
+          background: #F4F6FF;
+          border: 1.5px solid #C8D4FF;
+          border-radius: 999px;
+          padding: 3px 12px 3px 4px;
           font-size: 13px;
-          font-family: 'Open Sans', sans-serif;
-          text-decoration: underline;
-          padding: 0;
+          max-width: 100%;
         }
-
-        .gmail-toast-undo-btn:hover {
-          color: #d2e3fc;
+        .ct-avatar {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          display: grid;
+          place-items: center;
+          background: var(--brand);
+          color: #FFFFFF;
+          font: 400 14px 'Bangers', cursive;
+          letter-spacing: 0.5px;
         }
+        .ct-recipient-name { font-weight: 700; color: #1C202B; }
+        .ct-recipient-email { color: #4A5468; word-break: break-all; }
 
-        .gmail-toast-dismiss-btn {
-          background: none;
-          border: none;
-          color: #9aa0a6;
-          cursor: pointer;
-          font-size: 18px;
+        .ct-body { position: relative; }
+        .ct-body.has-error { box-shadow: inset 3px 0 0 #B11F55; }
+        .ct-textarea {
+          display: block;
+          width: 100%;
+          min-height: 190px;
+          border: 0;
+          outline: 0;
+          resize: none;
+          background: transparent;
+          padding: 18px 20px;
+          font: 400 15px/1.65 'Open Sans', sans-serif;
+          color: #1C202B;
+          overflow-y: auto;
+        }
+        .ct-window.is-wide .ct-textarea { min-height: 280px; }
+        .is-typing { color: #B11F55 !important; caret-color: transparent; }
+        .ct-skeleton {
+          position: absolute;
+          inset: 0;
+          padding: 22px 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          background: #FFFFFF;
+        }
+        .ct-skeleton span, .ct-input.is-loading {
+          height: 12px;
+          border-radius: 4px;
+          background: linear-gradient(90deg, #EFF3FF 25%, #DFE7FF 40%, #EFF3FF 60%);
+          background-size: 300% 100%;
+          animation: ctShimmer 1.3s ease-in-out infinite;
+        }
+        .ct-input.is-loading { height: 16px; color: transparent; padding: 0; max-width: 240px; }
+        .ct-input.is-loading::placeholder { color: transparent; }
+        @keyframes ctShimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+
+        .ct-error {
+          margin: 0;
+          padding: 6px 20px 8px 94px;
+          font-size: 13px;
           font-weight: 700;
-          padding: 0;
-          line-height: 1;
+          color: #B11F55;
+          background: #FFF5F8;
+          border-bottom: 1.5px solid rgba(28, 32, 43, 0.09);
+        }
+        .ct-error-body { padding-left: 20px; }
+        .ct-error-ai { padding: 8px 0 0; background: transparent; border: 0; }
+
+        /* AI tray */
+        .ct-ai {
+          border-top: 1.5px solid rgba(28, 32, 43, 0.09);
+          background: #FFF5F8;
+          padding: 14px 20px 16px;
+        }
+        .ct-ai-label {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font: 800 12px 'Open Sans', sans-serif;
+          letter-spacing: 0.8px;
+          text-transform: uppercase;
+          color: #B11F55;
+          margin-bottom: 8px;
+        }
+        .ct-ai-row { display: flex; gap: 10px; }
+        .ct-ai-input {
+          flex: 1;
+          min-width: 0;
+          min-height: 44px;
+          border: 2px solid #1C202B;
+          border-radius: 6px;
+          padding: 8px 14px;
+          font: 400 14px 'Open Sans', sans-serif;
+          color: #1C202B;
+          background: #FFFFFF;
+        }
+        .ct-ai-input:disabled { background: #EFF3FF; }
+        .ct-ai-hint { margin: 8px 0 0; font-size: 12.5px; color: #4A5468; }
+
+        .ct-failed {
+          border-top: 1.5px solid rgba(28, 32, 43, 0.09);
+          background: #FFF5F8;
+          padding: 14px 20px;
+        }
+        .ct-failed p { margin: 0 0 10px; font-size: 14px; color: #1C202B; }
+        .ct-failed-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+        /* Footer */
+        .ct-foot {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          flex-wrap: wrap;
+          padding: 14px 20px;
+          border-top: 1.5px solid rgba(28, 32, 43, 0.09);
+        }
+        .ct-foot-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .ct-kbd { font-size: 12px; color: #4A5468; }
+
+        .ct-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          min-height: 44px;
+          padding: 10px 22px;
+          border-radius: 6px;
+          font: 800 14px 'Open Sans', sans-serif;
+          letter-spacing: 0.4px;
+          text-decoration: none;
+          cursor: pointer;
+          transition: transform 100ms ease-out, box-shadow 100ms ease-out, background 150ms;
+        }
+        .ct-btn-sm { min-height: 40px; padding: 8px 14px; font-size: 13px; }
+        .ct-btn-send {
+          background: var(--brand);
+          color: #FFFFFF;
+          border: 2.5px solid #1C202B;
+          box-shadow: 4px 4px 0 0 #1C202B;
+          padding-left: 26px;
+          padding-right: 24px;
+        }
+        .ct-btn-send:hover:not(:disabled) { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 0 #1C202B; }
+        .ct-btn-send:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: 1px 1px 0 0 #1C202B; }
+        .ct-btn-send:disabled { background: #94A3CC; cursor: progress; }
+        .ct-btn-ghost {
+          background: #FFFFFF;
+          color: #1C202B;
+          border: 2px solid #1C202B;
+        }
+        .ct-btn-ghost:hover { background: #F4F6FF; color: #1C202B; }
+        .ct-ai-toggle.is-on { background: #1C202B; color: #FFFFFF; }
+        .ct-btn-ai { background: #1C202B; color: #FFFFFF; border: 2px solid #1C202B; }
+        .ct-btn-ai:disabled { background: #C8D4FF; border-color: #C8D4FF; color: #4A5468; cursor: not-allowed; }
+        .ct-link-btn {
+          background: none;
+          border: 0;
+          padding: 8px 4px;
+          font: 700 13px 'Open Sans', sans-serif;
+          color: #1C202B;
+          text-decoration: underline;
+          text-underline-offset: 3px;
+          cursor: pointer;
         }
 
-        .gmail-toast-dismiss-btn:hover {
-          color: #e8eaed;
-        }
-
-        @keyframes toastSlideUp {
-          from { transform: translateY(40px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-
-        /* Gmail Success screen styling */
-        .gmail-success-screen {
-          background: #ffffff;
-          padding: 40px 24px;
+        /* Sent */
+        .ct-sent {
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center;
           text-align: center;
-          flex: 1;
-          min-height: 380px;
+          padding: 48px 24px 52px;
+        }
+        .ct-plane { margin-bottom: 12px; }
+        .ct-plane-body { animation: ctFly 900ms cubic-bezier(0.22, 1, 0.36, 1) both; transform-origin: 30px 52px; }
+        .ct-plane-trail { animation: ctTrail 900ms 150ms ease-out both; }
+        @keyframes ctFly { from { transform: translate(-28px, 22px) rotate(-8deg); opacity: 0; } to { transform: none; opacity: 1; } }
+        @keyframes ctTrail { from { opacity: 0; } to { opacity: 1; } }
+        .ct-sent-title { font-size: 40px; letter-spacing: 0.6px; color: #1C202B; margin: 0 0 8px; }
+        .ct-sent-text { font-size: 15px; color: #4A5468; max-width: 40ch; margin: 0 0 24px; }
+
+        /* Sketch — leans on the right, looking at the window */
+        .ct-sketch {
+          justify-self: end;
+          align-self: end;
+          display: block;
+          width: auto;
+          height: min(620px, 62vw);
+          max-width: 100%;
+          object-fit: contain;
+          object-position: right bottom;
+          pointer-events: none;
+          user-select: none;
+          opacity: 0.94;
         }
 
-        .gmail-lottie-container {
-          width: 100%;
-          max-width: 320px;
-          height: 280px;
-          margin-bottom: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .gmail-success-title {
-          font-family: 'Bangers', cursive;
-          font-size: 32px;
-          color: #1C202B;
-          letter-spacing: 0.5px;
-          margin-bottom: 8px;
-          text-transform: uppercase;
-        }
-
-        .gmail-success-text {
-          font-family: 'Open Sans', sans-serif;
-          font-size: 13px;
-          color: #5f6368;
-          max-width: 340px;
-          line-height: 1.6;
-          margin-bottom: 24px;
-        }
-
-        .gmail-success-btn {
-          background: #1a73e8;
-          color: #ffffff;
-          border: 2px solid #1C202B;
-          box-shadow: 4px 4px 0 0 #1C202B;
-          border-radius: 4px;
-          padding: 10px 24px;
-          font-family: 'Open Sans', sans-serif;
-          font-weight: 700;
-          font-size: 12px;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          cursor: pointer;
-          transition: transform 80ms ease-out, box-shadow 80ms ease-out, background-color 150ms;
-        }
-
-        .gmail-success-btn:hover {
-          background: #1557b0;
-        }
-
-        .gmail-success-btn:active {
-          transform: translate(2px, 2px);
-          box-shadow: 2px 2px 0 0 #1C202B;
-        }
-
-        /* Viewport Breakpoints */
-        @media (min-width: 1024px) {
-          #contact {
-            /* Compact layout that grows dynamically with content */
-            min-height: 620px;
-            padding: 0; /* Clear section paddings to let margins handle spacing */
-          }
-          .contact-wrapper {
-            width: 100%;
-            max-width: 1240px;
-            margin: 0 auto;
-            position: relative;
-          }
-          .gmail-compose-container {
-            position: relative; /* Restores normal document flow */
-            width: 100%;
-            /* Push the container DOWN by 260px to clear the text "LET'S BUILD SOMETHING GREAT" and keep headers visible */
-            margin-top: 260px;
-            margin-bottom: 120px;
-          }
-          .gmail-compose-card {
-            width: 54%;
-            max-width: 620px;
-            height: auto;
-          }
-        }
-
+        /* ── Responsive ── */
         @media (max-width: 1023px) {
-          #contact {
-            padding: 0;
-          }
-          .gmail-compose-container {
-            width: 100%;
-            margin-top: 180px; /* Push the container down on tablets */
-            margin-bottom: 60px;
-            padding: 0 24px;
-          }
-          .gmail-compose-card {
-            max-width: 600px;
-            margin: 0 auto;
-            height: auto;
-          }
+          .ct-section { padding: 88px 32px 0; }
+          .ct-stage { grid-template-columns: minmax(0, 1fr) 180px; }
+          .ct-sketch { height: 440px; }
+          .ct-only-desktop { display: none !important; }
+          .ct-window.is-wide { grid-column: auto; }
         }
-
         @media (max-width: 767px) {
-          .gmail-compose-container {
-            margin-top: 140px; /* Push down on mobile screens */
-            margin-bottom: 40px;
-            padding: 0 16px;
-          }
-          
-          /* Compact spacing and sizes to fit perfectly on small screens */
-          .gmail-field-row {
-            padding: 6px 12px;
-            min-height: 38px;
-            gap: 8px;
-          }
-          .gmail-field-label {
-            min-width: 40px;
-          }
-          .gmail-recipient-pill {
-            flex-wrap: wrap;
-            padding: 2px 6px;
-            border-radius: 8px;
-            gap: 4px;
-          }
-          .gmail-recipient-name {
-            font-size: 11px;
-          }
-          .gmail-recipient-email {
-            font-size: 9px;
-          }
-          .gmail-textarea {
-            padding: 12px;
-            min-height: 100px;
-            font-size: 13px;
-          }
-          .gmail-footer {
-            padding: 10px 12px;
-          }
-          .gmail-send-btn {
-            padding: 6px 14px;
-            font-size: 12px;
-          }
-          .gmail-ai-row {
-            gap: 6px;
-          }
-          .gmail-ai-input {
-            padding: 5px 10px;
-            font-size: 11px;
-          }
-          .gmail-ai-draft-btn {
-            padding: 5px 10px;
-            font-size: 10px;
-          }
+          .ct-section { padding: 72px 16px 0; }
+          .ct-header { margin-bottom: 32px; }
+          .ct-title { text-shadow: 3px 3px 0 var(--brand); }
+          .ct-lead { font-size: 16px; }
+          .ct-stage { grid-template-columns: 1fr; }
+          .ct-window { margin-bottom: 0; box-shadow: 6px 6px 0 0 var(--brand); }
+          .ct-window.is-min { max-width: none; }
+          .ct-sketch { height: 260px; justify-self: end; margin-top: -8px; margin-right: -8px; }
+          .ct-row { padding: 6px 14px; gap: 10px; }
+          .ct-label { flex-basis: 52px; }
+          .ct-error { padding-left: 14px; }
+          .ct-textarea { padding: 14px; }
+          .ct-ai, .ct-failed, .ct-foot { padding-left: 14px; padding-right: 14px; }
+          .ct-ai-row { flex-direction: column; }
+          .ct-kbd { display: none; }
+          .ct-recipient-email { font-size: 12px; }
         }
       `}</style>
     </section>

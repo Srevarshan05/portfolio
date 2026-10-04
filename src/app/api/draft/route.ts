@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
+import { rateLimit, clientKey } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {
   try {
-    const { prompt } = await request.json();
+    const body = await request.json();
+    const prompt = typeof body?.prompt === "string" ? body.prompt.trim().slice(0, 500) : "";
 
     if (!prompt) {
       return NextResponse.json(
@@ -11,7 +13,20 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!rateLimit(`draft:${clientKey(request)}`, 8, 10 * 60 * 1000)) {
+      return NextResponse.json(
+        { status: "error", message: "You've drafted a lot just now. Please wait a few minutes." },
+        { status: 429 }
+      );
+    }
+
     const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        { status: "error", message: "AI drafting isn't configured right now." },
+        { status: 503 }
+      );
+    }
 
     // Call Groq API
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -50,10 +65,10 @@ export async function POST(request: Request) {
       throw new Error(data.error?.message || "Failed to generate draft from Groq API");
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("AI Draft Generation Error:", error);
     return NextResponse.json(
-      { status: "error", message: error.message || "Failed to generate draft" },
+      { status: "error", message: error instanceof Error ? error.message : "Failed to generate draft" },
       { status: 500 }
     );
   }

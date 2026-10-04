@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useScrollReveal } from "@/lib/useScrollReveal";
+import { useDialog } from "@/lib/useDialog";
 
 const PROJECTS = [
   {
@@ -239,6 +240,17 @@ const PROJECTS = [
   },
 ];
 
+// Card-size WebP versions of each project image (originals still used in the detail view)
+const CARD_THUMBS: Record<string, string> = {
+  "agrocare": "/thumbs/agrocare.webp",
+  "textlens": "/thumbs/textlens.webp",
+  "rag-pipeline": "/thumbs/rag-pipeline.webp",
+  "banana-weevil": "/thumbs/banana-weevil.webp",
+  "nutriminds": "/thumbs/nutriminds.webp",
+  "acas-dhristi": "/thumbs/acas-dhristi.webp",
+  "xenia-crm": "/thumbs/xenia-crm.webp",
+};
+
 const PROJECT_ORDER = [
   "banana-weevil",
   "agrocare",
@@ -276,6 +288,10 @@ export default function ProjectsSection() {
   const [pinInput, setPinInput] = useState("");
   const [pinError, setPinError] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
+
+  const projectDialogRef = useDialog<HTMLDivElement>(activeProject !== null, () => setActiveProject(null));
+  const pinDialogRef = useDialog<HTMLDivElement>(isPinPromptOpen, () => setIsPinPromptOpen(false));
+  const workflowDialogRef = useDialog<HTMLDivElement>(isWorkflowOpen, () => setIsWorkflowOpen(false));
 
   const handleOpenWorkflow = () => {
     if (activeProject?.id !== "banana-weevil" || isUnlocked) {
@@ -334,7 +350,7 @@ export default function ProjectsSection() {
             <article
               key={p.id}
               id={p.id}
-              className={`project-dashed-card reveal stagger-${i + 1} ${p.isPinkCard ? "pink-card" : "white-card"}`}
+              className={`project-dashed-card reveal stagger-${Math.min(i + 1, 5)} ${p.isPinkCard ? "pink-card" : "white-card"} ${i === 0 ? "is-featured" : ""}`}
             >
               {/* Top Badge */}
               <div className={`project-card-badge ${p.isPinkCard ? "badge-black" : "badge-outline"}`}>
@@ -350,9 +366,13 @@ export default function ProjectsSection() {
               <div className="project-card-header" style={{ backgroundColor: p.isPinkCard ? "#FFE5EE" : "#F4F6FF" }}>
                 {p.image ? (
                   <img
-                    src={p.image}
+                    src={CARD_THUMBS[p.id] ?? p.image}
                     alt={p.title}
                     className="project-card-image"
+                    width={1200}
+                    height={800}
+                    loading={i < 2 ? "eager" : "lazy"}
+                    decoding="async"
                   />
                 ) : (
                   <div className="project-card-illustration">
@@ -365,6 +385,12 @@ export default function ProjectsSection() {
               <div className="project-card-body">
                 <h3 className="project-card-title">{p.title}</h3>
                 <p className="project-card-desc">{p.description}</p>
+
+                <ul className="project-card-features" aria-label="Key capabilities">
+                  {p.features.map((f) => (
+                    <li key={f.text}>{f.text}</li>
+                  ))}
+                </ul>
                 
                 {/* Dashed Separator */}
                 <div className="project-card-separator" />
@@ -392,13 +418,18 @@ export default function ProjectsSection() {
           onClick={() => setActiveProject(null)}
         >
           <div
+            ref={projectDialogRef}
             className="project-modal-container"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="project-modal-title"
+            tabIndex={-1}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
             <div className="project-modal-header" style={{ borderBottomColor: activeProject.accent }}>
               <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-                <h3 className="project-modal-title">{activeProject.title}</h3>
+                <h3 id="project-modal-title" className="project-modal-title">{activeProject.title}</h3>
                 <span className="project-modal-badge" style={{ backgroundColor: activeProject.accent, borderColor: "#1C202B" }}>
                   {activeProject.badgeText}
                 </span>
@@ -455,7 +486,7 @@ export default function ProjectsSection() {
                           Recognition
                         </h4>
                         <p className="modal-text">
-                          Built and developed in just <strong>24 hours</strong> at <strong>Spectrum '25</strong>, a national-level hackathon. AgroCare earned <strong>1st Prize</strong> and $500 worth of prizes for connecting practical hardware, AI, and farmer-focused decision support.
+                          Built and developed in just <strong>24 hours</strong> at <strong>Spectrum &apos;25</strong>, a national-level hackathon. AgroCare earned <strong>1st Prize</strong> and $500 worth of prizes for connecting practical hardware, AI, and farmer-focused decision support.
                         </p>
                       </div>
                     </div>
@@ -494,7 +525,7 @@ export default function ProjectsSection() {
 
                   <div className="modal-section-card">
                     <h4 className="modal-section-title" style={{ color: "#FFB020" }}>
-                      Built in 24 Hours at Spectrum '25
+                      Built in 24 Hours at Spectrum &apos;25
                     </h4>
                     <div className="agrocare-photo-grid">
                       <img src="/AgroCare-spectrum-award.jpeg" alt="AgroCare award moment at Spectrum 25" />
@@ -1285,6 +1316,11 @@ export default function ProjectsSection() {
           style={{ zIndex: 99999, backgroundColor: "rgba(28, 32, 43, 0.85)", backdropFilter: "blur(6px)" }}
         >
           <div
+            ref={pinDialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Enter access PIN"
+            tabIndex={-1}
             className="project-modal-container"
             style={{
               maxWidth: "420px",
@@ -1496,8 +1532,14 @@ export default function ProjectsSection() {
           }}
         >
           <div
+            ref={workflowDialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Project workflow diagram"
+            tabIndex={-1}
             style={{
               position: "relative",
+              outline: "none",
               maxWidth: "1100px",
               width: "100%",
               maxHeight: "90vh",
@@ -1695,6 +1737,53 @@ export default function ProjectsSection() {
           min-height: 68px;
         }
         
+        .project-card-features {
+          list-style: none;
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px 16px;
+          margin: 0 0 22px;
+        }
+        .project-card-features li {
+          position: relative;
+          padding-left: 16px;
+          font-family: 'Open Sans', sans-serif;
+          font-size: 13px;
+          font-weight: 700;
+          line-height: 1.4;
+          color: #1C202B;
+        }
+        .project-card-features li::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          top: 5px;
+          width: 8px;
+          height: 8px;
+          background: var(--brand);
+          border: 1.5px solid #1C202B;
+        }
+        .white-card .project-card-features li::before { background: #2BB04A; }
+
+        /* Lead project: spans the grid, image beside the story */
+        .project-dashed-card.is-featured {
+          grid-column: 1 / -1;
+          flex-direction: row;
+        }
+        .project-dashed-card.is-featured .project-card-header {
+          flex: 0 0 46%;
+          height: auto;
+          min-height: 360px;
+          border-bottom: 0;
+          border-right: 4px solid #1C202B;
+        }
+        .project-dashed-card.is-featured .project-card-image { position: absolute; inset: 0; }
+        .project-dashed-card.is-featured .project-card-body { padding: 72px 36px 32px; justify-content: center; }
+        .project-dashed-card.is-featured .project-card-title { font-size: 32px; }
+        .project-dashed-card.is-featured .project-card-desc { font-size: 16px; min-height: 0; max-width: 56ch; }
+        .project-dashed-card.is-featured .project-card-btn { width: auto; align-self: flex-start; padding-left: 28px; padding-right: 28px; margin-top: 0; }
+        .project-dashed-card.is-featured .project-card-badge { left: calc(46% + 18px); top: 22px; }
+
         .project-card-separator {
           border-top: 2px dashed rgba(28, 32, 43, 0.15);
           margin: 0 0 20px 0;
@@ -2078,11 +2167,26 @@ export default function ProjectsSection() {
           }
         }
         
+        @media (max-width: 900px) {
+          .project-dashed-card.is-featured { flex-direction: column; }
+          .project-dashed-card.is-featured .project-card-header {
+            flex: none;
+            min-height: 0;
+            height: 260px;
+            border-right: 0;
+            border-bottom: 4px solid #1C202B;
+          }
+          .project-dashed-card.is-featured .project-card-body { padding: 28px 24px 24px; }
+          .project-dashed-card.is-featured .project-card-badge { left: 14px; top: 14px; }
+          .project-dashed-card.is-featured .project-card-btn { width: 100%; }
+        }
+
         @media (max-width: 768px) {
           .projects-grid {
             grid-template-columns: 1fr;
             gap: 20px;
           }
+          .project-card-features { grid-template-columns: 1fr; }
           .project-dashed-card {
             box-shadow: 6px 6px 0 0 #1C202B;
           }

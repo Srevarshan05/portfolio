@@ -349,46 +349,32 @@ a:hover { color:var(--fg-brand-strong); }
 .section-content { position:relative; z-index:1; }
 
 /* ============================================================
-   SCROLL REVEAL ANIMATIONS — Enhanced
+   SCROLL REVEAL ANIMATIONS — blur-focus entrances
    ============================================================ */
-.reveal {
+.reveal, .reveal-left, .reveal-right, .reveal-scale {
   opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 650ms cubic-bezier(0.22,1,0.36,1),
-              transform 650ms cubic-bezier(0.22,1,0.36,1);
+  filter: blur(12px);
+  transition: opacity 900ms cubic-bezier(0.16,1,0.3,1),
+              transform 1100ms cubic-bezier(0.16,1,0.3,1),
+              filter 900ms cubic-bezier(0.16,1,0.3,1);
+  will-change: transform, opacity, filter;
 }
-.reveal.visible { opacity:1; transform:translateY(0); }
-
-.reveal-left {
-  opacity: 0;
-  transform: translateX(-48px);
-  transition: opacity 650ms cubic-bezier(0.22,1,0.36,1),
-              transform 650ms cubic-bezier(0.22,1,0.36,1);
+.reveal       { transform: translateY(64px) rotate(0.6deg); }
+.reveal-left  { transform: translateX(-80px) rotate(-1.2deg); }
+.reveal-right { transform: translateX(80px) rotate(1.2deg); }
+.reveal-scale { transform: scale(0.82) translateY(24px); }
+.reveal.visible, .reveal-left.visible, .reveal-right.visible, .reveal-scale.visible {
+  opacity: 1;
+  filter: blur(0);
+  transform: none;
 }
-.reveal-left.visible { opacity:1; transform:translateX(0); }
-
-.reveal-right {
-  opacity: 0;
-  transform: translateX(48px);
-  transition: opacity 650ms cubic-bezier(0.22,1,0.36,1),
-              transform 650ms cubic-bezier(0.22,1,0.36,1);
-}
-.reveal-right.visible { opacity:1; transform:translateX(0); }
-
-.reveal-scale {
-  opacity: 0;
-  transform: scale(0.90) translateY(16px);
-  transition: opacity 650ms cubic-bezier(0.22,1,0.36,1),
-              transform 650ms cubic-bezier(0.22,1,0.36,1);
-}
-.reveal-scale.visible { opacity:1; transform:scale(1) translateY(0); }
 
 /* Stagger delays */
 .stagger-1 { transition-delay:   0ms; }
-.stagger-2 { transition-delay:  90ms; }
-.stagger-3 { transition-delay: 180ms; }
-.stagger-4 { transition-delay: 270ms; }
-.stagger-5 { transition-delay: 360ms; }
+.stagger-2 { transition-delay: 120ms; }
+.stagger-3 { transition-delay: 240ms; }
+.stagger-4 { transition-delay: 360ms; }
+.stagger-5 { transition-delay: 480ms; }
 
 /* ============================================================
    BUTTONS
@@ -809,6 +795,55 @@ kbd {
 .sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0; }
 
 /* ============================================================
+   BROWSER SURFACES — selection, caret, keyboard focus
+   ============================================================ */
+::selection { background: var(--brand); color: var(--color-white); }
+input, textarea { caret-color: var(--brand); }
+
+/* One focus ring for every interactive element, keyboard only */
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 3px;
+}
+
+/* Skip link — first tab stop on the page */
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 100000;
+  padding: 10px 16px;
+  background: var(--dark);
+  color: var(--color-white);
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  border: 2px solid var(--color-white);
+  transform: translateY(-160%);
+  transition: transform 160ms cubic-bezier(0.22,1,0.36,1);
+}
+.skip-link:focus { transform: translateY(0); color: var(--color-white); }
+main:focus { outline: none; }
+
+/* ============================================================
+   REDUCED MOTION — content is never hidden behind an animation
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+  }
+  .reveal, .reveal-left, .reveal-right, .reveal-scale {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ============================================================
    DIVIDER ORNAMENT
    ============================================================ */
 .section-divider {
@@ -926,12 +961,6 @@ html, body {
 
   /* ── Marquee cards — no interaction on smallest screens ── */
   .stamp-card-wrapper { margin: 12px 8px 16px 8px !important; width: 300px !important; }
-
-  /* ── Connect section — fix aspect ratio on mobile ── */
-  #connect {
-    aspect-ratio: unset !important;
-    min-height: 300px !important;
-  }
 
   /* ── Floating dock — shrink on mobile ── */
   .floating-dock {
