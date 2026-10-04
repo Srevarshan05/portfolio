@@ -475,7 +475,7 @@ export default function ExperienceSection() {
           top: 0;
           bottom: 0;
           width: 1px;
-          background: linear-gradient(to bottom, var(--px-line) 0, var(--px-line) calc(100% - 320px), rgba(230, 227, 221, 0));
+          background: linear-gradient(to bottom, rgba(230, 227, 221, 0) 0, var(--px-line) 300px, var(--px-line) calc(100% - 320px), rgba(230, 227, 221, 0));
           z-index: 1;
           pointer-events: none;
         }
@@ -484,6 +484,20 @@ export default function ExperienceSection() {
 
         /* ── Sky hero ── */
         .px-hero { position: relative; overflow: hidden; padding: 250px 24px 120px; padding-bottom: max(120px, var(--runner-floor, 0px)); text-align: center; }
+        /* Smudge in from the white Skills section above: no hard top edge */
+        .px-hero::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 0;
+          height: 300px;
+          z-index: 0;
+          background: linear-gradient(to bottom,
+            #FFFFFF 0%, rgba(255, 255, 255, 0.92) 12%, rgba(255, 255, 255, 0.7) 30%,
+            rgba(255, 255, 255, 0.4) 52%, rgba(255, 255, 255, 0.15) 76%, rgba(255, 255, 255, 0) 100%);
+          pointer-events: none;
+        }
         .px-hero::after {
           content: "";
           position: absolute;
@@ -505,7 +519,17 @@ export default function ExperienceSection() {
         }
         @keyframes pxDrift { from { background-position: 48% top; } to { background-position: 52% top; } }
         .px-hero-copy { position: relative; z-index: 2; max-width: 860px; margin: 0 auto; }
-        .px-kicker { margin: 0 0 18px; font-size: 13px; font-weight: 500; letter-spacing: 0.16em; color: #15803D; }
+        .px-kicker {
+          display: inline-block;
+          margin: -28px 0 30px;
+          padding: 7px 14px;
+          background: rgba(255, 255, 255, 0.9);
+          border: 1px solid rgba(21, 128, 61, 0.25);
+          font-size: 13px;
+          font-weight: 600;
+          letter-spacing: 0.16em;
+          color: #166534;
+        }
         .px-h2 {
           font-family: inherit;
           font-size: clamp(44px, 6.4vw, 88px);

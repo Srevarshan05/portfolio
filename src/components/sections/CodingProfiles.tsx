@@ -49,10 +49,14 @@ export default function CodingProfilesSection() {
 
   return (
     <section id="coding-profiles" className="pf-section" ref={sectionRef} aria-labelledby="profiles-title">
-      {/* Faint pixel clouds drifting across the black field */}
-      <img className="pf-cloud pf-cloud-a" src="/pixel/clouds-white.png" alt="" aria-hidden="true" width={1800} height={480} />
-      <img className="pf-cloud pf-cloud-b" src="/pixel/clouds-white.png" alt="" aria-hidden="true" width={1800} height={480} />
-      <img className="pf-cloud pf-cloud-c" src="/pixel/clouds-white.png" alt="" aria-hidden="true" width={1800} height={480} />
+      {/* Faint pixel clouds drifting slowly across the black field */}
+      <div className="pf-sky" aria-hidden="true">
+        <img className="pf-cloud pf-cloud-1" src="/pixel/cloud-3.png" alt="" width={368} height={168} />
+        <img className="pf-cloud pf-cloud-2" src="/pixel/cloud-1.png" alt="" width={288} height={144} />
+        <img className="pf-cloud pf-cloud-3" src="/pixel/cloud-2.png" alt="" width={224} height={120} />
+        <img className="pf-cloud pf-cloud-4" src="/pixel/cloud-1.png" alt="" width={288} height={144} />
+        <img className="pf-cloud pf-cloud-5" src="/pixel/cloud-3.png" alt="" width={368} height={168} />
+      </div>
       <img className="pf-doodle pf-doodle-l" src="/icons/doodle-stars.png" alt="" aria-hidden="true" width={60} height={60} loading="lazy" />
       <img className="pf-doodle pf-doodle-r" src="/icons/doodle-stars.png" alt="" aria-hidden="true" width={60} height={60} loading="lazy" />
 
@@ -87,25 +91,49 @@ export default function CodingProfilesSection() {
           position: relative;
           overflow: hidden;
           background: #0B0B0D;
-          padding: 96px 40px 112px;
-          border-top: 1px solid #1F2128;
+          padding: 230px 40px 112px;
           border-bottom: 1px solid #1F2128;
         }
         .pf-inner { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; }
 
+        /* Smudge in from the white Projects section above: eased, no visible edge */
+        .pf-section::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 0;
+          height: 320px;
+          z-index: 1;
+          /* smoothstep-shaped: flat where it leaves white and where it reaches black */
+          background: linear-gradient(to bottom,
+            #FFFFFF 0%, rgba(255, 255, 255, 0.975) 8%, rgba(255, 255, 255, 0.9) 17%, rgba(255, 255, 255, 0.76) 28%,
+            rgba(255, 255, 255, 0.57) 40%, rgba(255, 255, 255, 0.37) 53%, rgba(255, 255, 255, 0.2) 66%,
+            rgba(255, 255, 255, 0.08) 79%, rgba(255, 255, 255, 0.02) 90%, rgba(255, 255, 255, 0) 100%);
+          pointer-events: none;
+        }
+        .pf-sky { position: absolute; inset: 300px 0 0 0; z-index: 0; overflow: hidden; pointer-events: none; }   /* below the white fade */
         .pf-cloud {
           position: absolute;
-          height: auto;
+          left: 0;
           image-rendering: pixelated;
-          pointer-events: none;
-          z-index: 0;
-          animation: pfDrift 60s linear infinite;
+          opacity: 0.13;
+          will-change: transform;
+          animation: pfAcross linear infinite;
         }
-        .pf-cloud-a { width: 900px; top: 4%; left: -180px; opacity: 0.1; }
-        .pf-cloud-b { width: 600px; top: 46%; right: -120px; opacity: 0.08; animation-duration: 75s; animation-direction: reverse; }
-        .pf-cloud-c { width: 600px; bottom: 2%; left: 34%; opacity: 0.06; animation-duration: 90s; }
-        @keyframes pfDrift { 0% { transform: translateX(0); } 50% { transform: translateX(40px); } 100% { transform: translateX(0); } }
-        .pf-doodle { position: absolute; top: 44px; width: 60px; height: auto; opacity: 0.55; filter: invert(1); pointer-events: none; z-index: 1; }
+        /* each cloud crosses the full width; negative delays spread them out on load */
+        @keyframes pfAcross { from { transform: translateX(-420px); } to { transform: translateX(calc(100vw + 40px)); } }
+        .pf-cloud-1 { top: 7%;  animation-duration: 140s; animation-delay: -30s; }
+        .pf-cloud-2 { top: 30%; animation-duration: 175s; animation-delay: -120s; opacity: 0.1; }
+        .pf-cloud-3 { top: 52%; animation-duration: 160s; animation-delay: -70s; opacity: 0.09; }
+        .pf-cloud-4 { top: 74%; animation-duration: 190s; animation-delay: -150s; opacity: 0.1; }
+        .pf-cloud-5 { top: 88%; animation-duration: 150s; animation-delay: -10s; opacity: 0.08; }
+        @media (prefers-reduced-motion: reduce) {
+          .pf-cloud { animation: none; }
+          .pf-cloud-1 { transform: translateX(8vw); } .pf-cloud-2 { transform: translateX(70vw); }
+          .pf-cloud-3 { transform: translateX(30vw); } .pf-cloud-4 { transform: translateX(84vw); } .pf-cloud-5 { transform: translateX(50vw); }
+        }
+        .pf-doodle { position: absolute; top: 190px; width: 60px; height: auto; opacity: 0.55; filter: invert(1); pointer-events: none; z-index: 1; }
         .pf-doodle-l { left: 6%; }
         .pf-doodle-r { right: 6%; transform: scaleX(-1); }
 
@@ -251,15 +279,15 @@ export default function CodingProfilesSection() {
         }
 
         @media (max-width: 1023px) {
-          .pf-section { padding: 80px 32px 96px; }
+          .pf-section { padding: 200px 32px 96px; }
           .pf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
         }
         @media (max-width: 559px) {
-          .pf-section { padding: 64px 16px 80px; }
+          .pf-section { padding: 170px 16px 80px; }
           .pf-header { margin-bottom: 40px; }
           .pf-grid { grid-template-columns: 1fr; gap: 20px; }
           .pf-stamp { transform: none; }
-          .pf-doodle { width: 40px; top: 28px; }
+          .pf-doodle { width: 40px; top: 150px; }
           .pf-group + .pf-group { margin-top: 48px; }
         }
       `}</style>
