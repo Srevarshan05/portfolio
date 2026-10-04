@@ -33,7 +33,7 @@ interface TetrisTextProps {
 }
 
 export function TetrisText({ text, as = "span", className, id, delay = 0, step = 0.028 }: TetrisTextProps) {
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.5 });
   const reduce = useReducedMotion();
   const words = text.split(" ");
@@ -42,8 +42,9 @@ export function TetrisText({ text, as = "span", className, id, delay = 0, step =
 
   return createElement(
     as,
-    { ref, id, className, "aria-label": text },
-    words.map((word, w) => (
+    { id, className, "aria-label": text },
+    <span ref={ref}>
+    {words.map((word, w) => (
         <span key={w} aria-hidden="true" style={{ display: "inline-block", whiteSpace: "nowrap" }}>
           {Array.from(word).map((ch) => {
             const i = index++;
@@ -71,7 +72,8 @@ export function TetrisText({ text, as = "span", className, id, delay = 0, step =
           })}
           {w < words.length - 1 && " "}
         </span>
-    ))
+    ))}
+    </span>
   );
 }
 

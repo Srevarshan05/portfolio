@@ -82,14 +82,10 @@ export default function CodingProfilesSection() {
         .pf-section {
           position: relative;
           overflow: hidden;
-          background: #0F1218;
+          background: #2440D4;
           padding: 96px 40px 112px;
-          border-top: 2.5px solid #262B38;
-          border-bottom: 2.5px solid #262B38;
-          background-image:
-            linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-          background-size: 48px 48px;
+          border-top: 3px solid #1C202B;
+          border-bottom: 3px solid #1C202B;
         }
         .pf-inner { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; }
 
@@ -104,7 +100,7 @@ export default function CodingProfilesSection() {
           color: #FFFFFF;
           margin: 0;
           transform: skewX(-4deg);
-          text-shadow: 3px 3px 0 #000;
+          text-shadow: 4px 4px 0 #1C202B;
           text-wrap: balance;
         }
         .pf-underline { display: block; width: 220px; height: 12px; margin: 6px auto 0; }
@@ -118,7 +114,7 @@ export default function CodingProfilesSection() {
           gap: 4px 16px;
           padding-bottom: 14px;
           margin-bottom: 30px;
-          border-bottom: 2px dashed #333949;
+          border-bottom: 2px dashed rgba(255, 255, 255, 0.35);
         }
         .pf-group-title {
           font-size: clamp(26px, 3vw, 34px);
@@ -126,7 +122,7 @@ export default function CodingProfilesSection() {
           color: #FFFFFF;
           margin: 0;
         }
-        .pf-group-note { margin: 0; font-size: 14px; font-weight: 600; color: #94A3CC; }
+        .pf-group-note { margin: 0; font-size: 14px; font-weight: 600; color: #DCE4FF; }
 
         .pf-grid {
           list-style: none;

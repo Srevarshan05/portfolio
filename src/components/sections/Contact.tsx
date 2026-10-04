@@ -15,8 +15,7 @@ type SendState = "idle" | "sending" | "sent" | "failed";
 const EMPTY: Fields = { name: "", email: "", subject: "", message: "" };
 
 const CHANNELS = ["linkedin", "github", "youtube"].map(profileById);
-const CHANNEL_TINT: Record<string, string> = { linkedin: "#3D8FE0", github: "#FFFFFF", youtube: "#FF3B3B" };
-const CAPABILITIES = ["LLMs", "VLMs", "OCR", "Edge AI", "RAG", "AI Agents", "Full-Stack AI", "NVIDIA Jetson"];
+const CHANNEL_TINT: Record<string, string> = { linkedin: "#0A66C2", github: "#1C202B", youtube: "#FF0000" };
 
 /* Tetromino cells on a 4x2 grid */
 const SHAPES: Record<string, [number, number][]> = {
@@ -614,36 +613,21 @@ export default function ContactSection() {
         </div>
       </div>
 
-      {/* Capability band — the finale's closing beat */}
-      <div className="fx-marquee" aria-hidden="true">
-        <div className="fx-marquee-track">
-          {[0, 1].map((copy) => (
-            <span key={copy} className="fx-marquee-set">
-              {CAPABILITIES.map((c) => (
-                <span key={c} className="fx-marquee-item">
-                  {c}<span className="fx-marquee-block" />
-                </span>
-              ))}
-            </span>
-          ))}
-        </div>
-      </div>
-
       <style>{`
         .fx-section {
           position: relative;
           overflow: clip;
           isolation: isolate;
-          background: #07080B;
-          color: #FFFFFF;
-          padding: 140px 40px 56px;
+          background: #FAF9F7;
+          color: #1C202B;
+          padding: 140px 40px 140px;
         }
         .fx-section::before {
           content: "";
           position: absolute;
           inset: 0;
           z-index: -2;
-          background: radial-gradient(ellipse 55% 45% at 72% 58%, rgba(226, 45, 109, 0.16), transparent 70%);
+          background: radial-gradient(ellipse 50% 42% at 74% 62%, rgba(226, 45, 109, 0.09), transparent 70%);
         }
 
         /* Falling tetrominoes — slow, behind everything */
@@ -651,7 +635,7 @@ export default function ContactSection() {
         .fx-block {
           position: absolute;
           top: -80px;
-          opacity: 0.2;
+          opacity: 0.28;
           animation-name: fxFall;
           animation-timing-function: linear;
           animation-iteration-count: infinite;
@@ -664,21 +648,19 @@ export default function ContactSection() {
         .fx-inner { max-width: 1240px; margin: 0 auto; }
 
         /* ── Headline ── */
-        .fx-head { margin-bottom: 64px; }
+        .fx-head { margin-bottom: 64px; max-width: 1100px; }
         .fx-title {
           display: flex;
           flex-direction: column;
           margin: 0 0 24px;
-          font-size: clamp(56px, 9.6vw, 156px);
-          line-height: 0.88;
-          letter-spacing: 1.5px;
-          color: #FFFFFF;
-          transform: skewX(-6deg);
-          transform-origin: left bottom;
+          font-size: clamp(52px, 8.4vw, 132px);
+          line-height: 0.92;
+          letter-spacing: 1px;
+          color: #1C202B;
         }
-        .fx-line { display: block; text-shadow: 5px 5px 0 #1C202B; }
-        .fx-line-2 { color: var(--brand); text-shadow: 5px 5px 0 #FFFFFF; padding-left: 0.6em; }
-        .fx-lead { margin: 0; max-width: 52ch; font-size: 19px; line-height: 1.6; color: #C8D4FF; }
+        .fx-line { display: block; }
+        .fx-line-2 { color: var(--brand); text-shadow: 4px 4px 0 #1C202B; }
+        .fx-lead { margin: 0; max-width: 54ch; font-size: 19px; line-height: 1.6; color: #4A5468; }
 
         /* ── Grid ── */
         .fx-grid {
@@ -691,8 +673,8 @@ export default function ContactSection() {
         .fx-grid.is-wide { grid-template-columns: 1fr; }
 
         /* Channels */
-        .fx-ch-list { list-style: none; border-top: 1px solid #262B38; }
-        .fx-ch { border-bottom: 1px solid #262B38; }
+        .fx-ch-list { list-style: none; border-top: 1px solid #E2DED6; }
+        .fx-ch { border-bottom: 1px solid #E2DED6; }
         .fx-ch-mail, .fx-ch-link {
           position: relative;
           display: flex;
@@ -701,32 +683,33 @@ export default function ContactSection() {
           padding: 22px 6px;
           isolation: isolate;
         }
-        .fx-ch-link { color: #FFFFFF; text-decoration: none; }
+        .fx-ch-link { color: #1C202B; text-decoration: none; }
         .fx-ch-link::before {
           content: "";
           position: absolute;
           inset: 0;
           z-index: -1;
-          background: #FFFFFF;
+          background: #1C202B;
           transform: scaleX(0);
           transform-origin: left center;
           transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
         }
         .fx-ch-link:hover::before, .fx-ch-link:focus-visible::before { transform: scaleX(1); }
-        .fx-ch-link:hover, .fx-ch-link:focus-visible { color: #07080B; }
+        .fx-ch-link:hover, .fx-ch-link:focus-visible { color: #FFFFFF; }
         .fx-ch-icon {
           width: 48px;
           height: 48px;
           flex-shrink: 0;
           display: grid;
           place-items: center;
-          border: 2px solid #333949;
+          border: 2px solid #1C202B;
           border-radius: 8px;
+          background: #FFFFFF;
           color: var(--ch, var(--brand));
           transition: border-color 300ms, background 300ms;
         }
         .fx-ch-mail .fx-ch-icon { color: var(--brand); }
-        .fx-ch-link:hover .fx-ch-icon { border-color: #07080B; background: #07080B; }
+        .fx-ch-link:hover .fx-ch-icon { border-color: #FFFFFF; }
         .fx-ch-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
         .fx-ch-name {
           font-family: 'Bangers', cursive;
@@ -738,22 +721,22 @@ export default function ContactSection() {
         .fx-ch-value {
           font-size: 14px;
           font-weight: 600;
-          color: #94A3CC;
+          color: #4A5468;
           overflow-wrap: anywhere;
           transition: color 300ms;
         }
-        a.fx-ch-value { color: #DFE7FF; text-decoration-color: var(--brand); text-decoration-thickness: 2px; }
-        a.fx-ch-value:hover { color: #FFFFFF; }
-        .fx-ch-link:hover .fx-ch-value { color: #2F3645; }
+        a.fx-ch-value { color: #1C202B; text-decoration-color: var(--brand); text-decoration-thickness: 2px; }
+        a.fx-ch-value:hover { color: var(--brand-strong); }
+        .fx-ch-link:hover .fx-ch-value { color: #C8D4FF; }
         .fx-ch-go { flex-shrink: 0; transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1); }
         .fx-ch-link:hover .fx-ch-go { transform: translate(4px, -4px) scale(1.15); }
         .fx-copy {
           flex-shrink: 0;
           min-height: 40px;
           padding: 8px 14px;
-          background: transparent;
-          color: #FFFFFF;
-          border: 2px solid #4A5468;
+          background: #FFFFFF;
+          color: #1C202B;
+          border: 2px solid #1C202B;
           border-radius: 6px;
           font: 800 12px 'Open Sans', sans-serif;
           letter-spacing: 0.6px;
@@ -761,7 +744,7 @@ export default function ContactSection() {
           cursor: pointer;
           transition: border-color 160ms, background 160ms, color 160ms;
         }
-        .fx-copy:hover { border-color: #FFFFFF; background: #FFFFFF; color: #07080B; }
+        .fx-copy:hover { background: #1C202B; color: #FFFFFF; }
         .fx-based {
           display: flex;
           align-items: center;
@@ -769,7 +752,7 @@ export default function ContactSection() {
           margin: 26px 0 0;
           font-size: 14px;
           font-weight: 600;
-          color: #94A3CC;
+          color: #4A5468;
         }
         .fx-based-dot {
           width: 10px;
@@ -1047,53 +1030,18 @@ export default function ContactSection() {
         .ct-sent-text { font-size: 15px; color: #4A5468; max-width: 40ch; margin: 0 0 24px; }
 
 
-        /* Capability band */
-        .fx-marquee {
-          margin-top: 120px;
-          border-top: 2px solid #1C202B;
-          background: var(--brand);
-          overflow: hidden;
-          width: 112%;
-          margin-left: -6%;
-          transform: rotate(-1.5deg);
-          transform-origin: center;
-        }
-        .fx-marquee-track {
-          display: flex;
-          width: max-content;
-          animation: fxMarquee 34s linear infinite;
-        }
-        .fx-marquee:hover .fx-marquee-track { animation-play-state: paused; }
-        .fx-marquee-set { display: flex; }
-        .fx-marquee-item {
-          display: inline-flex;
-          align-items: center;
-          gap: 36px;
-          padding: 18px 0 14px 36px;
-          font-family: 'Bangers', cursive;
-          font-size: clamp(34px, 4.6vw, 64px);
-          letter-spacing: 1.5px;
-          line-height: 1;
-          text-transform: uppercase;
-          color: #07080B;
-          white-space: nowrap;
-        }
-        .fx-marquee-block { width: 18px; height: 18px; background: #07080B; transform: rotate(45deg); }
-        @keyframes fxMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
         /* ── Responsive ── */
         @media (max-width: 1023px) {
-          .fx-section { padding: 112px 32px 48px; }
+          .fx-section { padding: 112px 32px 112px; }
           .fx-grid { grid-template-columns: 1fr; gap: 48px; }
           .fx-channels { order: 2; }
           .ct-only-desktop { display: none !important; }
           .fx-grid.is-wide .fx-channels { display: block; }
         }
         @media (max-width: 767px) {
-          .fx-section { padding: 96px 16px 40px; }
+          .fx-section { padding: 96px 16px 88px; }
           .fx-head { margin-bottom: 40px; }
-          .fx-line { text-shadow: 3px 3px 0 #1C202B; }
-          .fx-line-2 { text-shadow: 3px 3px 0 #FFFFFF; padding-left: 0.3em; }
+          .fx-line-2 { text-shadow: 3px 3px 0 #1C202B; }
           .fx-lead { font-size: 16px; }
           .ct-window { box-shadow: 6px 6px 0 0 var(--brand); }
           .ct-window.is-min { max-width: none; }
@@ -1106,7 +1054,6 @@ export default function ContactSection() {
           .ct-kbd { display: none; }
           .ct-recipient-email { font-size: 12px; }
           .fx-ch-name { font-size: 24px; }
-          .fx-marquee { margin-top: 80px; }
         }
       `}</style>
     </section>

@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { AnimatePresence, motion, useScroll, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import { useDialog } from "@/lib/useDialog";
-import { CountUp, EASE_OUT, Reveal, Stagger, StaggerItem, TetrisText } from "@/components/motion";
+import { CountUp, EASE_OUT, Reveal, Stagger, StaggerItem } from "@/components/motion";
 
 interface ReportSection {
   title: string;
@@ -163,11 +163,22 @@ const ROLES: Role[] = [
     ]
   }
 ];
-/** Accent tints that hold contrast on the dark ground */
-const ACCENT_TEXT: Record<string, string> = {
-  emedlogix: "#D29BF5",
-  microsoft: "#7FE1F2",
+/** Per-role banner colour and the pixel scene drawn for each contribution */
+const LOOK: Record<string, { banner: [string, string]; scenes: string[]; tag: string; headline: string }> = {
+  emedlogix: {
+    banner: ["#0A5FB4", "#1690E8"],
+    scenes: ["emed-1", "emed-2", "emed-3", "emed-4", "emed-5", "emed-6"],
+    tag: "Healthcare SaaS · Production",
+    headline: "less manual data entry.",
+  },
+  microsoft: {
+    banner: ["#0B7E62", "#16A97F"],
+    scenes: ["nose-1", "nose-2", "nose-3", "nose-4", "nose-5"],
+    tag: "IoT · Machine Learning",
+    headline: "classification accuracy.",
+  },
 };
+const SQUARES = ["#1E88E5", "#F2A33A", "#E4572E"];
 
 /** "Title: body" → [title, body] */
 function splitBullet(bullet: string): [string | null, string] {
@@ -180,182 +191,172 @@ function parseImpact(value: string) {
   return m ? { prefix: m[1], num: Number(m[2]), suffix: m[3] } : null;
 }
 
-function Arrow() {
+function upperFirst(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function ArrowUpRight() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M7 17 17 7M8 7h9v9" />
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" aria-hidden="true">
+      <path d="M7 17 17 7M9 7h8v8" />
     </svg>
   );
 }
 
-function Chapter({ r, onWorkflow }: { r: Role; onWorkflow: (src: string, alt: string) => void }) {
-  const chapterRef = useRef<HTMLElement>(null);
-  const storyRef = useRef<HTMLDivElement>(null);
+function Squares() {
+  return (
+    <span className="px-squares" aria-hidden="true">
+      {SQUARES.map((c) => <i key={c} style={{ background: c }} />)}
+    </span>
+  );
+}
+
+function RoleBlock({ r, index, onWorkflow }: { r: Role; index: number; onWorkflow: (src: string, alt: string) => void }) {
   const [open, setOpen] = useState(false);
-
-  // Rail fills as the story is read
-  const { scrollYProgress: storyProgress } = useScroll({ target: storyRef, offset: ["start 72%", "end 72%"] });
-  const fill = useSpring(storyProgress, { stiffness: 140, damping: 26, restDelta: 0.001 });
-  const headTop = useTransform(fill, (v) => `${v * 100}%`);
-
-  // Giant outlined company name drifts across behind the chapter
-  const { scrollYProgress: chapterProgress } = useScroll({ target: chapterRef, offset: ["start end", "end start"] });
-  const bandX = useTransform(chapterProgress, [0, 1], ["6%", "-42%"]);
-
+  const look = LOOK[r.id];
   const builtSection = r.fullReportSections.find((s) => s.title === r.builtSection);
   const built = Array.isArray(builtSection?.content) ? builtSection.content.map(splitBullet) : [];
   const prose = r.fullReportSections.filter((s) => !Array.isArray(s.content));
-  const context = prose[0];
-  const outcome = prose.length > 1 ? prose[prose.length - 1] : null;
   const impact = parseImpact(r.impact.value);
   const reportId = `${r.id}-report`;
+  const [typeLead, ...typeRest] = r.type.split(" ");
 
   return (
-    <article
-      ref={chapterRef}
-      id={r.id}
-      className="xs-chapter"
-      aria-labelledby={`${r.id}-role`}
-      style={{ ["--accent" as string]: r.accent, ["--accent-text" as string]: ACCENT_TEXT[r.id] ?? r.accent }}
-    >
-      <motion.div className="xs-band" style={{ x: bandX }} aria-hidden="true">
-        {r.company}&nbsp;&nbsp;{r.company}
+    <article id={r.id} className="px-role" aria-labelledby={`${r.id}-role`}>
+      {/* ── Header row ── */}
+      <div className="px-role-head">
+        <Reveal kind="up" className="px-role-title">
+          <p className="px-mono px-index">
+            {String(index + 1).padStart(2, "0")} / {r.company}
+          </p>
+          <h3 id={`${r.id}-role`} className="px-h3">{r.role}</h3>
+        </Reveal>
+        <Reveal kind="up" delay={0.12} as="p" className="px-role-desc">{r.description}</Reveal>
+      </div>
+
+      {/* ── Banner ── */}
+      {/* The observer sits on an unclipped wrapper: a fully clipped element never reports as in view */}
+      <motion.div initial="hidden" whileInView="shown" viewport={{ once: true, amount: 0.3 }}>
+      <motion.div
+        className="px-banner-wrap"
+        variants={{ hidden: { clipPath: "inset(0 100% 0 0)" }, shown: { clipPath: "inset(0 0% 0 0)" } }}
+        transition={{ duration: 0.9, ease: (t: number) => Math.ceil(t * 12) / 12 }}
+      >
+        <div
+          className="px-banner px-notch"
+          style={{ background: `linear-gradient(135deg, ${look.banner[0]} 0%, ${look.banner[1]} 100%)`, ["--banner-ink" as string]: look.banner[0] }}
+        >
+          <img className="px-banner-clouds px-banner-clouds-a" src="/pixel/banner-clouds.png" alt="" aria-hidden="true" width={800} height={300} />
+          <img className="px-banner-clouds px-banner-clouds-b" src="/pixel/banner-clouds.png" alt="" aria-hidden="true" width={800} height={300} />
+
+          <div className="px-banner-main">
+            <p className="px-banner-headline">
+              <span className="px-pill">
+                {impact ? <CountUp value={impact.num} prefix={impact.prefix} suffix={impact.suffix} /> : r.impact.value}
+              </span>{" "}
+              {look.headline}
+            </p>
+            <p className="px-mono px-banner-meta">
+              <Squares />
+              {r.period} · {r.location}
+            </p>
+            <span className="px-chip">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" />
+              </svg>
+              <b>{typeLead}</b> {typeRest.join(" ")}
+              <span className="px-chip-sep" aria-hidden="true">·</span>
+              {look.tag}
+            </span>
+          </div>
+
+          <div className="px-banner-side">
+            <p>{upperFirst(r.impact.label)}.</p>
+            <a className="px-mono px-banner-link" href={r.linkUrl} target="_blank" rel="noopener noreferrer">
+              {r.linkText} <ArrowUpRight />
+              <span className="sr-only">(opens in a new tab)</span>
+            </a>
+          </div>
+        </div>
+      </motion.div>
       </motion.div>
 
-      {/* ── Pinned identity ── */}
-      <div className="xs-pin-col">
-        <div className="xs-pin">
-          <Reveal kind="left" as="p" className="xs-when">
-            <span className="xs-node" aria-hidden="true" />
-            {r.period}
-            <span className="xs-sep" aria-hidden="true">/</span>
-            <span className="xs-loc">{r.location}</span>
-          </Reveal>
-          <Reveal kind="drop" delay={0.1} as="span" className="xs-type">{r.type}</Reveal>
+      {/* ── What I built: one pixel scene per contribution ── */}
+      <Stagger as="ol" className="px-cards" gap={0.09} amount={0.1}>
+        {built.map(([title, body], i) => (
+          <StaggerItem as="li" kind="tilt" key={body} className="px-card">
+            <div className="px-card-art px-notch-sm">
+              <img src={`/pixel/${look.scenes[i % look.scenes.length]}.webp`} alt="" aria-hidden="true" width={600} height={300} loading="lazy" decoding="async" />
+            </div>
+            <div className="px-card-body">
+              <p className="px-mono px-card-label">
+                <i style={{ background: SQUARES[i % SQUARES.length] }} aria-hidden="true" />
+                Build {String(i + 1).padStart(2, "0")}
+              </p>
+              {title && <h4 className="px-card-title">{title}</h4>}
+              <p className="px-card-text">{body}</p>
+            </div>
+          </StaggerItem>
+        ))}
+      </Stagger>
 
-          <TetrisText as="h3" id={`${r.id}-role`} className="xs-role" text={r.role} delay={0.15} />
-
-          <Reveal kind="up" delay={0.35} className="xs-company">
-            <span className="xs-logo">
-              <img src={r.logo} alt={`${r.company} logo`} width={r.logoWidth} height={44} loading="lazy" decoding="async" />
-            </span>
-            <span className="xs-at">@ {r.company}</span>
-          </Reveal>
-
-          <div className="xs-impact">
-            {impact ? (
-              <CountUp className="xs-impact-num" value={impact.num} prefix={impact.prefix} suffix={impact.suffix} />
-            ) : (
-              <span className="xs-impact-num">{r.impact.value}</span>
-            )}
-            <Reveal kind="blur" delay={0.3} as="p" className="xs-impact-label">{r.impact.label}</Reveal>
-          </div>
-
-          <Stagger as="ul" className="xs-hl" gap={0.07} delay={0.2}>
-            {r.highlights.map((hl) => (
-              <StaggerItem as="li" key={hl}>{hl}</StaggerItem>
-            ))}
+      {/* ── Highlights + stack ── */}
+      <div className="px-meta-grid">
+        <Reveal kind="up" className="px-meta">
+          <p className="px-mono px-meta-label">Key highlights</p>
+          <ul className="px-highlights">
+            {r.highlights.map((hl) => <li key={hl}>{hl}</li>)}
+          </ul>
+        </Reveal>
+        <Reveal kind="up" delay={0.1} className="px-meta">
+          <p className="px-mono px-meta-label">Stack</p>
+          <Stagger as="ul" className="px-stack" gap={0.035}>
+            {r.skills.map((s) => <StaggerItem as="li" kind="pop" key={s}>{s}</StaggerItem>)}
           </Stagger>
-        </div>
+        </Reveal>
       </div>
 
-      {/* ── The story, read top to bottom ── */}
-      <div ref={storyRef} className="xs-story">
-        <div className="xs-rail" aria-hidden="true">
-          <motion.div className="xs-rail-fill" style={{ scaleY: fill }} />
-          <motion.span className="xs-rail-head" style={{ top: headTop }} />
-        </div>
-
-        <Reveal className="xs-step">
-          <h4 className="xs-step-title">The brief</h4>
-          <p className="xs-brief">{r.description}</p>
-        </Reveal>
-
-        {built.length > 0 && (
-          <div className="xs-step">
-            <Reveal><h4 className="xs-step-title">What I built</h4></Reveal>
-            <Stagger as="ol" className="xs-built" gap={0.11} amount={0.08}>
-              {built.map(([title, body]) => (
-                <StaggerItem as="li" kind="right" key={body} className="xs-built-item">
-                  <span className="xs-built-block" aria-hidden="true" />
-                  <div>
-                    {title && <h5>{title}</h5>}
-                    <p>{body}</p>
-                  </div>
-                </StaggerItem>
-              ))}
-            </Stagger>
-          </div>
-        )}
-
-        <div className="xs-step">
-          <Reveal><h4 className="xs-step-title">Stack</h4></Reveal>
-          <Stagger as="ul" className="xs-stack" gap={0.045}>
-            {r.skills.map((s) => (
-              <StaggerItem as="li" kind="pop" key={s}>{s}</StaggerItem>
-            ))}
-          </Stagger>
-        </div>
-
-        {outcome && (
-          <Reveal className="xs-step">
-            <h4 className="xs-step-title">Outcome</h4>
-            <p className="xs-outcome">{outcome.content as string}</p>
-          </Reveal>
-        )}
-
-        <Reveal className="xs-actions">
+      <div className="px-actions">
+        <button type="button" className="px-mono px-action" aria-expanded={open} aria-controls={reportId} onClick={() => setOpen((v) => !v)}>
+          {open ? "Hide the full report" : "Read the full report"}
+          <motion.svg animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.3, ease: EASE_OUT }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" aria-hidden="true">
+            <path d="m6 9 6 6 6-6" />
+          </motion.svg>
+        </button>
+        {r.workflowImage && (
           <button
             type="button"
-            className="xs-btn xs-btn-ghost"
-            aria-expanded={open}
-            aria-controls={reportId}
-            onClick={() => setOpen((v) => !v)}
+            className="px-mono px-action"
+            onClick={() => onWorkflow(r.workflowImage!, "AI Nose Environmental Odor Detection System Workflow")}
           >
-            {open ? "Hide full report" : "Read the full report"}
-            <motion.svg animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.3, ease: EASE_OUT }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="m6 9 6 6 6-6" />
-            </motion.svg>
+            See internship workflow <ArrowUpRight />
           </button>
-          {r.workflowImage && (
-            <button
-              type="button"
-              className="xs-btn xs-btn-ghost"
-              onClick={() => onWorkflow(r.workflowImage!, "AI Nose Environmental Odor Detection System Workflow")}
-            >
-              See Internship Workflow
-            </button>
-          )}
-          <a href={r.linkUrl} target="_blank" rel="noopener noreferrer" className="xs-btn xs-btn-solid">
-            {r.linkText} <Arrow />
-            <span className="sr-only">(opens in a new tab)</span>
-          </a>
-        </Reveal>
-
-        <AnimatePresence initial={false}>
-          {open && (
-            <motion.div
-              id={reportId}
-              className="xs-report"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.55, ease: EASE_OUT }}
-            >
-              <div className="xs-report-inner">
-                <h5 className="xs-report-title">{r.modalTitle}</h5>
-                <p>{r.introduction}</p>
-                {context && (
-                  <>
-                    <h6>{context.title}</h6>
-                    <p>{context.content as string}</p>
-                  </>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        )}
       </div>
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            id={reportId}
+            className="px-report"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.55, ease: EASE_OUT }}
+          >
+            <div className="px-report-inner">
+              <h4 className="px-report-title">{r.modalTitle}</h4>
+              <p>{r.introduction}</p>
+              {prose.map((section) => (
+                <section key={section.title}>
+                  <h5 className="px-mono">{section.title}</h5>
+                  <p>{section.content as string}</p>
+                </section>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </article>
   );
 }
@@ -365,45 +366,58 @@ export default function ExperienceSection() {
   const closeLightbox = () => setLightbox(null);
   const lightboxRef = useDialog<HTMLDivElement>(lightbox !== null, closeLightbox);
 
-  return (
-    <section id="experience" className="xs-section" aria-labelledby="experience-title">
-      <header className="xs-header">
-        <TetrisText as="h2" id="experience-title" className="xs-title" text="Real Work, Real Impact." />
-        <Reveal kind="up" delay={0.5} as="p" className="xs-lead">
-          Every role I&apos;ve taken has been about building something
-          that genuinely works for real people — not just demos.
-        </Reveal>
-      </header>
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const skyY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
 
-      {ROLES.map((r) => (
-        <Chapter key={r.id} r={r} onWorkflow={(src, alt) => setLightbox({ src, alt })} />
-      ))}
+  return (
+    <section id="experience" className="px-section" aria-labelledby="experience-title">
+      <span className="px-guide px-guide-l" aria-hidden="true" />
+      <span className="px-guide px-guide-r" aria-hidden="true" />
+
+      {/* ── Sky hero ── */}
+      <div ref={heroRef} className="px-hero">
+        <motion.div className="px-sky" style={{ y: skyY }} aria-hidden="true" />
+        <div className="px-hero-copy">
+          <Reveal kind="up" as="p" className="px-mono px-kicker">Work experience · 02 roles</Reveal>
+          <Reveal kind="up" delay={0.08}>
+            <h2 id="experience-title" className="px-h2">Real work, real impact.</h2>
+          </Reveal>
+          <Reveal kind="up" delay={0.16} as="p" className="px-lead">
+            Every role I&apos;ve taken has been about building something
+            that genuinely works for real people — not just demos.
+          </Reveal>
+          <Reveal kind="blur" delay={0.3} as="p" className="px-mono px-hero-note">
+            Healthcare SaaS · IoT + machine learning · Remote
+          </Reveal>
+        </div>
+      </div>
+
+      <div className="px-roles">
+        {ROLES.map((r, i) => (
+          <RoleBlock key={r.id} r={r} index={i} onWorkflow={(src, alt) => setLightbox({ src, alt })} />
+        ))}
+      </div>
 
       <AnimatePresence>
         {lightbox && (
-          <motion.div
-            className="xs-lightbox"
-            onClick={closeLightbox}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
+          <motion.div className="px-lightbox" onClick={closeLightbox} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <motion.div
               ref={lightboxRef}
-              className="xs-lightbox-panel"
+              className="px-lightbox-panel"
               role="dialog"
               aria-modal="true"
               aria-label={lightbox.alt}
               tabIndex={-1}
               onClick={(e) => e.stopPropagation()}
-              initial={{ scale: 0.9, y: 30 }}
+              initial={{ scale: 0.92, y: 24 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.94, y: 20 }}
+              exit={{ scale: 0.95, y: 16 }}
               transition={{ type: "spring", stiffness: 320, damping: 28 }}
             >
               <img src={lightbox.src} alt={lightbox.alt} />
-              <button type="button" className="xs-lightbox-close" onClick={closeLightbox} aria-label="Close workflow diagram">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+              <button type="button" className="px-lightbox-close" onClick={closeLightbox} aria-label="Close workflow diagram">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="square" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
               </button>
             </motion.div>
           </motion.div>
@@ -411,295 +425,354 @@ export default function ExperienceSection() {
       </AnimatePresence>
 
       <style>{`
-        .xs-section {
+        .px-section {
+          --px-bg: #FAF9F7;
+          --px-ink: #141414;
+          --px-body: #4D4D4D;
+          --px-muted: #6E6E6E;
+          --px-line: #E6E3DD;
           position: relative;
           overflow: clip;
-          background: #0D1016;
-          color: #FFFFFF;
-          padding: 140px 40px 120px;
           isolation: isolate;
+          background: var(--px-bg);
+          color: var(--px-ink);
+          font-family: 'Geist', 'Open Sans', system-ui, sans-serif;
+          padding: 0 0 120px;
         }
+        .px-mono { font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; }
 
-        /* ── Header ── */
-        .xs-header {
-          max-width: 1240px;
-          margin: 0 auto 24px;
-          display: grid;
-          grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-          gap: 48px;
-          align-items: end;
-        }
-        .xs-title {
-          font-size: clamp(54px, 8vw, 124px);
-          line-height: 0.9;
-          letter-spacing: 1px;
-          color: #FFFFFF;
-          margin: 0;
-          transform: skewX(-6deg);
-          transform-origin: left bottom;
-          text-shadow: 5px 5px 0 var(--brand);
-        }
-        .xs-lead { font-size: 18px; line-height: 1.6; color: #B7C4ED; max-width: 42ch; margin: 0 0 10px; }
+        /* thin guide rules framing the content column */
+        .px-guide { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--px-line); z-index: 1; pointer-events: none; }
+        .px-guide-l { left: max(16px, calc(50% - 650px)); }
+        .px-guide-r { right: max(16px, calc(50% - 650px)); }
 
-        /* ── Chapter ── */
-        .xs-chapter {
-          position: relative;
-          max-width: 1240px;
-          margin: 0 auto;
-          padding: 120px 0 110px;
-          display: grid;
-          grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-          gap: 80px;
-          scroll-margin-top: var(--nav-h);
-        }
-        .xs-chapter + .xs-chapter { border-top: 2px dashed #232838; }
-        .xs-band {
-          position: absolute;
-          top: 34px;
-          left: 0;
-          z-index: -1;
-          white-space: nowrap;
-          font-family: 'Bangers', cursive;
-          font-size: clamp(150px, 22vw, 340px);
-          line-height: 1;
-          letter-spacing: 4px;
-          text-transform: uppercase;
-          color: transparent;
-          -webkit-text-stroke: 2px rgba(255, 255, 255, 0.065);
-          pointer-events: none;
-          user-select: none;
-        }
-
-        .xs-pin { position: sticky; top: calc(var(--nav-h) + 44px); }
-        .xs-when {
-          display: flex;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 10px;
-          margin: 0;
-          font-family: 'Bangers', cursive;
-          font-size: 24px;
-          letter-spacing: 0.6px;
-          color: var(--accent-text);
-        }
-        .xs-node { width: 16px; height: 16px; background: var(--accent); flex-shrink: 0; }
-        .xs-sep { color: #4A5468; }
-        .xs-loc { color: #94A3CC; }
-        .xs-type {
-          display: inline-block;
-          margin: 14px 0 20px;
-          background: #FFFFFF;
-          color: #0D1016;
-          padding: 4px 10px;
-          font: 800 11px 'Open Sans', sans-serif;
-          letter-spacing: 1px;
-          text-transform: uppercase;
-          border-radius: 3px;
-        }
-        .xs-role {
-          font-size: clamp(40px, 4.6vw, 68px);
-          line-height: 0.95;
-          letter-spacing: 0.5px;
-          color: #FFFFFF;
-          margin: 0 0 22px;
-        }
-        .xs-company { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
-        .xs-logo {
-          display: inline-flex;
-          background: #FFFFFF;
-          border-radius: 8px;
-          padding: 8px 12px;
-          box-shadow: 4px 4px 0 0 var(--accent);
-        }
-        .xs-logo img { display: block; height: 32px; width: auto; max-width: 170px; object-fit: contain; }
-        .xs-at { font-family: 'Bangers', cursive; font-size: 26px; letter-spacing: 0.6px; color: var(--accent-text); }
-
-        .xs-impact { margin-top: 40px; padding-top: 30px; border-top: 2px dashed #2A3040; }
-        .xs-impact-num {
-          display: block;
-          font-family: 'Bangers', cursive;
-          font-size: clamp(100px, 10.5vw, 168px);
-          line-height: 0.85;
-          letter-spacing: 1px;
-          color: #FFFFFF;
-          text-shadow: 6px 6px 0 var(--accent);
-          font-variant-numeric: tabular-nums;
-        }
-        .xs-impact-label { margin: 14px 0 0; max-width: 30ch; font-size: 16px; font-weight: 600; line-height: 1.5; color: #C8D4FF; }
-
-        .xs-hl { list-style: none; margin: 34px 0 0; display: grid; gap: 11px; }
-        .xs-hl li {
-          position: relative;
-          padding-left: 22px;
-          font-size: 14px;
-          font-weight: 700;
-          line-height: 1.4;
-          color: #DFE7FF;
-        }
-        .xs-hl li::before {
+        /* ── Sky hero ── */
+        .px-hero { position: relative; overflow: hidden; padding: 250px 24px 120px; text-align: center; }
+        .px-hero::after {
           content: "";
           position: absolute;
           left: 0;
-          top: 5px;
-          width: 9px;
-          height: 9px;
-          background: var(--accent);
+          right: 0;
+          bottom: 0;
+          height: 42%;
+          z-index: -1;
+          background: linear-gradient(to bottom, rgba(250, 249, 247, 0), var(--px-bg) 85%);
+          pointer-events: none;
         }
-
-        /* ── Story ── */
-        .xs-story { position: relative; padding-left: 60px; display: flex; flex-direction: column; gap: 64px; }
-        .xs-rail { position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; background: #232838; }
-        .xs-rail-fill { position: absolute; inset: 0; background: var(--accent); transform-origin: 50% 0%; }
-        .xs-rail-head {
+        .px-sky {
           position: absolute;
-          left: 50%;
-          width: 17px;
-          height: 17px;
-          margin: -8px 0 0 -8.5px;
-          background: var(--accent);
-          border: 3px solid #0D1016;
-          box-shadow: 0 0 0 2px var(--accent);
+          inset: -6% 0 0;
+          z-index: -1;
+          background: url('/pixel/sky.webp') center top / cover no-repeat;
+          image-rendering: pixelated;
+          animation: pxDrift 26s ease-in-out infinite alternate;
         }
-        .xs-step-title {
-          font-size: 32px;
-          letter-spacing: 1px;
-          color: #FFFFFF;
-          margin: 0 0 20px;
-        }
-        .xs-brief { margin: 0; max-width: 50ch; font-size: clamp(19px, 1.7vw, 23px); line-height: 1.55; color: #EEF2FF; }
-
-        .xs-built { list-style: none; border-top: 1px dashed #2A3040; }
-        .xs-built-item {
-          display: grid;
-          grid-template-columns: 14px minmax(0, 1fr);
-          gap: 20px;
-          padding: 22px 0;
-          border-bottom: 1px dashed #2A3040;
-        }
-        .xs-built-block { width: 14px; height: 14px; margin-top: 5px; background: var(--accent); }
-        .xs-built-item h5 {
-          font-family: 'Open Sans', sans-serif;
-          font-size: 18px;
-          font-weight: 800;
-          letter-spacing: -0.2px;
-          line-height: 1.3;
+        @keyframes pxDrift { from { background-position: 48% top; } to { background-position: 52% top; } }
+        .px-hero-copy { position: relative; z-index: 2; max-width: 860px; margin: 0 auto; }
+        .px-kicker { margin: 0 0 18px; font-size: 13px; font-weight: 500; letter-spacing: 0.16em; color: #15803D; }
+        .px-h2 {
+          font-family: inherit;
+          font-size: clamp(44px, 6.4vw, 88px);
+          font-weight: 600;
+          line-height: 1.02;
+          letter-spacing: -0.04em;
           text-transform: none;
+          color: var(--px-ink);
+          margin: 0 0 22px;
+          text-wrap: balance;
+        }
+        .px-lead { margin: 0 auto; max-width: 52ch; font-size: 18px; line-height: 1.6; color: var(--px-body); }
+        .px-hero-note { margin: 44px 0 0; font-size: 12px; letter-spacing: 0.14em; color: var(--px-muted); }
+
+        /* ── Roles ── */
+        .px-roles { position: relative; z-index: 2; max-width: 1240px; margin: 0 auto; padding: 0 64px; }
+        .px-role { padding-top: 64px; scroll-margin-top: var(--nav-h); }
+        .px-role + .px-role { margin-top: 72px; padding-top: 96px; border-top: 1px solid var(--px-line); }
+
+        .px-role-head {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          gap: 48px;
+          align-items: end;
+          margin-bottom: 40px;
+        }
+        .px-index { margin: 0 0 10px; font-size: 13px; letter-spacing: 0.08em; color: #15803D; }
+        .px-h3 {
+          font-family: inherit;
+          font-size: clamp(30px, 3.3vw, 44px);
+          font-weight: 600;
+          line-height: 1.08;
+          letter-spacing: -0.03em;
+          text-transform: none;
+          color: var(--px-ink);
+          margin: 0;
+        }
+        .px-role-desc {
+          margin: 0;
+          justify-self: end;
+          max-width: 46ch;
+          text-align: right;
+          font-size: 16.5px;
+          line-height: 1.6;
+          color: var(--px-body);
+        }
+
+        /* Stepped pixel corners */
+        .px-notch {
+          clip-path: polygon(
+            12px 0, calc(100% - 12px) 0, calc(100% - 12px) 6px, calc(100% - 6px) 6px, calc(100% - 6px) 12px, 100% 12px,
+            100% calc(100% - 12px), calc(100% - 6px) calc(100% - 12px), calc(100% - 6px) calc(100% - 6px), calc(100% - 12px) calc(100% - 6px), calc(100% - 12px) 100%,
+            12px 100%, 12px calc(100% - 6px), 6px calc(100% - 6px), 6px calc(100% - 12px), 0 calc(100% - 12px),
+            0 12px, 6px 12px, 6px 6px, 12px 6px
+          );
+        }
+        .px-notch-sm {
+          clip-path: polygon(
+            8px 0, calc(100% - 8px) 0, calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px,
+            100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%,
+            8px 100%, 8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px),
+            0 8px, 4px 8px, 4px 4px, 8px 4px
+          );
+        }
+
+        /* ── Banner ── */
+        .px-banner {
+          position: relative;
+          overflow: hidden;
+          display: grid;
+          grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+          align-items: end;
+          gap: 40px;
+          padding: 64px 48px 46px;
           color: #FFFFFF;
-          margin: 0 0 6px;
+          min-height: 300px;
         }
-        .xs-built-item p { margin: 0; max-width: 62ch; font-size: 15.5px; line-height: 1.65; color: #A9B4D0; }
+        .px-banner-clouds { position: absolute; image-rendering: pixelated; pointer-events: none; opacity: 0.16; height: auto; }
+        .px-banner-clouds-a { width: 44%; right: -4%; top: -6%; animation: pxFloat 18s ease-in-out infinite alternate; }
+        .px-banner-clouds-b { width: 30%; left: 44%; bottom: -14%; opacity: 0.12; animation: pxFloat 22s ease-in-out infinite alternate-reverse; }
+        @keyframes pxFloat { from { transform: translateX(-12px); } to { transform: translateX(12px); } }
 
-        .xs-stack { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; }
-        .xs-stack li {
-          background: #141821;
-          color: #DFE7FF;
-          border: 1.5px solid #333949;
-          padding: 7px 13px;
-          border-radius: 4px;
+        .px-banner-main, .px-banner-side { position: relative; z-index: 1; }
+        .px-banner-headline {
+          margin: 0 0 26px;
+          color: #FFFFFF;
+          font-size: clamp(36px, 4.4vw, 60px);
+          font-weight: 600;
+          line-height: 1.08;
+          letter-spacing: -0.035em;
+          text-wrap: balance;
+        }
+        .px-pill {
+          display: inline-block;
+          background: #FFFFFF;
+          color: var(--banner-ink, #0A5FB4);
+          padding: 0 14px 4px;
+          border-radius: 12px;
+          font-variant-numeric: tabular-nums;
+        }
+        .px-banner-meta {
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 14px;
+          margin: 0 0 16px;
           font-size: 13px;
-          font-weight: 700;
-          transition: background 180ms, color 180ms, border-color 180ms;
+          letter-spacing: 0.18em;
+          color: rgba(255, 255, 255, 0.92);
         }
-        .xs-stack li:hover { background: var(--accent); border-color: var(--accent); color: #0D1016; }
-
-        .xs-outcome { margin: 0; max-width: 64ch; font-size: 16px; line-height: 1.75; color: #C8D4FF; white-space: pre-line; }
-
-        .xs-actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
-        .xs-btn {
+        .px-squares { display: inline-flex; gap: 3px; padding: 3px; background: #FFFFFF; }
+        .px-squares i { display: block; width: 9px; height: 9px; }
+        .px-chip {
           display: inline-flex;
           align-items: center;
-          justify-content: center;
+          flex-wrap: wrap;
           gap: 8px;
-          min-height: 46px;
-          padding: 10px 20px;
-          border-radius: 6px;
-          font: 800 13px 'Open Sans', sans-serif;
-          letter-spacing: 0.6px;
+          padding: 9px 14px;
+          border: 1.5px solid rgba(255, 255, 255, 0.45);
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.08);
+          font-family: 'Geist Mono', ui-monospace, monospace;
+          font-size: 12.5px;
+          letter-spacing: 0.12em;
           text-transform: uppercase;
-          text-decoration: none;
-          cursor: pointer;
-          transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 140ms cubic-bezier(0.16, 1, 0.3, 1), background 160ms, color 160ms;
+          color: rgba(255, 255, 255, 0.92);
         }
-        .xs-btn-solid { background: #FFFFFF; color: #0D1016; border: 2px solid #FFFFFF; box-shadow: 4px 4px 0 0 var(--accent); }
-        .xs-btn-solid:hover { color: #0D1016; transform: translate(-2px, -2px); box-shadow: 6px 6px 0 0 var(--accent); }
-        .xs-btn-ghost { background: transparent; color: #FFFFFF; border: 2px solid #4A5468; }
-        .xs-btn-ghost:hover { border-color: #FFFFFF; }
-        .xs-btn:active { transform: translate(2px, 2px); box-shadow: none; }
-
-        .xs-report { overflow: hidden; margin-top: -32px; }
-        .xs-report-inner {
-          background: #121620;
-          border: 1.5px solid #2A3040;
-          border-radius: 10px;
-          padding: 28px 30px;
-        }
-        .xs-report-title { font-size: 26px; letter-spacing: 0.6px; color: #FFFFFF; margin: 0 0 14px; }
-        .xs-report-inner h6 {
-          font: 800 13px 'Open Sans', sans-serif;
-          letter-spacing: 1px;
-          text-transform: uppercase;
+        .px-chip b { font-weight: 700; color: #FFFFFF; }
+        .px-chip-sep { opacity: 0.6; }
+        .px-banner-side { justify-self: end; max-width: 40ch; text-align: right; }
+        .px-banner-side p { margin: 0 0 16px; font-size: 16px; line-height: 1.55; color: rgba(255, 255, 255, 0.95); }
+        .px-banner-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 13px;
+          font-weight: 500;
+          letter-spacing: 0.14em;
           color: #FFFFFF;
-          margin: 24px 0 8px;
+          text-decoration: none;
+          border-bottom: 1.5px solid rgba(255, 255, 255, 0.5);
+          padding-bottom: 3px;
+          transition: border-color 160ms;
         }
-        .xs-report-inner p { margin: 0; max-width: 70ch; font-size: 15.5px; line-height: 1.7; color: #B7C4ED; white-space: pre-line; }
+        .px-banner-link:hover { color: #FFFFFF; border-color: #FFFFFF; }
+        .px-banner-link:focus-visible { outline-color: #FFFFFF; }
+
+        /* ── Cards ── */
+        .px-cards {
+          list-style: none;
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 24px;
+          margin-top: 24px;
+        }
+        .px-card {
+          display: flex;
+          flex-direction: column;
+          background: #FFFFFF;
+          border: 1px solid var(--px-line);
+          padding: 8px;
+          transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .px-card:hover { transform: translateY(-4px); box-shadow: 0 14px 28px -18px rgba(20, 20, 20, 0.35); }
+        .px-card-art { overflow: hidden; aspect-ratio: 2 / 1; background: #BFE5FC; }
+        .px-card-art img {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          image-rendering: pixelated;
+          transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .px-card:hover .px-card-art img { transform: scale(1.06); }
+        .px-card-body { padding: 22px 16px 18px; }
+        .px-card-label {
+          display: flex;
+          align-items: center;
+          gap: 9px;
+          margin: 0 0 12px;
+          font-size: 12.5px;
+          letter-spacing: 0.12em;
+          color: var(--px-muted);
+        }
+        .px-card-label i { display: block; width: 9px; height: 9px; }
+        .px-card-title {
+          font-family: inherit;
+          font-size: 19px;
+          font-weight: 600;
+          line-height: 1.25;
+          letter-spacing: -0.02em;
+          text-transform: none;
+          color: var(--px-ink);
+          margin: 0 0 8px;
+        }
+        .px-card-text { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--px-body); }
+
+        /* ── Highlights + stack ── */
+        .px-meta-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+          gap: 24px;
+          margin-top: 24px;
+        }
+        .px-meta { background: #FFFFFF; border: 1px solid var(--px-line); padding: 24px 26px; }
+        .px-meta-label { margin: 0 0 14px; font-size: 12px; letter-spacing: 0.16em; color: #15803D; }
+        .px-highlights { list-style: none; display: grid; gap: 10px; }
+        .px-highlights li { position: relative; padding-left: 18px; font-size: 15px; font-weight: 500; line-height: 1.4; color: var(--px-ink); }
+        .px-highlights li::before { content: ""; position: absolute; left: 0; top: 6px; width: 8px; height: 8px; background: #1E88E5; }
+        .px-stack { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+        .px-stack li {
+          font-family: 'Geist Mono', ui-monospace, monospace;
+          font-size: 12.5px;
+          letter-spacing: 0.02em;
+          color: var(--px-ink);
+          background: var(--px-bg);
+          border: 1px solid var(--px-line);
+          padding: 6px 10px;
+        }
+
+        .px-actions { display: flex; flex-wrap: wrap; gap: 28px; margin-top: 28px; }
+        .px-action {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          min-height: 44px;
+          padding: 0;
+          background: none;
+          border: 0;
+          font-size: 13px;
+          font-weight: 500;
+          letter-spacing: 0.14em;
+          color: var(--px-ink);
+          cursor: pointer;
+          border-bottom: 1.5px solid transparent;
+          transition: border-color 160ms;
+        }
+        .px-action:hover { border-bottom-color: var(--px-ink); }
+
+        .px-report { overflow: hidden; }
+        .px-report-inner { margin-top: 16px; background: #FFFFFF; border: 1px solid var(--px-line); padding: 30px 32px; }
+        .px-report-title {
+          font-family: inherit;
+          font-size: 24px;
+          font-weight: 600;
+          letter-spacing: -0.02em;
+          text-transform: none;
+          color: var(--px-ink);
+          margin: 0 0 14px;
+        }
+        .px-report-inner h5 { font-size: 12px; font-weight: 500; letter-spacing: 0.14em; color: #15803D; margin: 26px 0 8px; }
+        .px-report-inner p { margin: 0; max-width: 72ch; font-size: 15.5px; line-height: 1.7; color: var(--px-body); white-space: pre-line; }
 
         /* ── Lightbox ── */
-        .xs-lightbox {
+        .px-lightbox {
           position: fixed;
           inset: 0;
           z-index: 99999;
-          background: rgba(9, 11, 15, 0.9);
+          background: rgba(20, 20, 20, 0.82);
           display: flex;
           align-items: center;
           justify-content: center;
           padding: 24px;
           cursor: zoom-out;
         }
-        .xs-lightbox-panel { position: relative; max-width: 1100px; width: 100%; cursor: default; outline: none; }
-        .xs-lightbox-panel img {
-          display: block;
-          max-width: 100%;
-          max-height: 86vh;
-          margin: 0 auto;
-          object-fit: contain;
-          background: #FFFFFF;
-          border: 4px solid #1C202B;
-          border-radius: 4px;
-        }
-        .xs-lightbox-close {
+        .px-lightbox-panel { position: relative; max-width: 1100px; width: 100%; cursor: default; outline: none; }
+        .px-lightbox-panel img { display: block; max-width: 100%; max-height: 86vh; margin: 0 auto; object-fit: contain; background: #FFFFFF; }
+        .px-lightbox-close {
           position: absolute;
-          top: -18px;
-          right: -10px;
+          top: -16px;
+          right: -8px;
           width: 44px;
           height: 44px;
-          border-radius: 50%;
-          background: var(--brand);
-          color: #FFFFFF;
-          border: 3px solid #1C202B;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          display: grid;
+          place-items: center;
+          background: #FFFFFF;
+          color: var(--px-ink);
+          border: 1px solid var(--px-line);
           cursor: pointer;
         }
 
         /* ── Responsive ── */
         @media (max-width: 1023px) {
-          .xs-section { padding: 112px 32px 96px; }
-          .xs-chapter { grid-template-columns: 1fr; gap: 48px; padding: 88px 0 80px; }
-          .xs-pin { position: relative; top: 0; }
-          .xs-band { font-size: 38vw; top: 24px; }
+          .px-roles { padding: 0 40px; }
+          .px-hero { padding: 200px 24px 96px; }
+          .px-banner { grid-template-columns: 1fr; gap: 28px; padding: 52px 36px 40px; }
+          .px-banner-side { justify-self: start; text-align: left; }
+          .px-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .px-meta-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 767px) {
-          .xs-section { padding: 96px 20px 80px; }
-          .xs-header { grid-template-columns: 1fr; gap: 20px; }
-          .xs-title { text-shadow: 3px 3px 0 var(--brand); }
-          .xs-chapter { padding: 72px 0 64px; gap: 40px; }
-          .xs-impact-num { font-size: clamp(84px, 26vw, 120px); text-shadow: 4px 4px 0 var(--accent); }
-          .xs-story { padding-left: 30px; gap: 52px; }
-          .xs-step-title { font-size: 28px; }
-          .xs-built-item { gap: 14px; }
-          .xs-actions { flex-direction: column; align-items: stretch; }
-          .xs-report-inner { padding: 20px 16px; }
+          .px-section { padding-bottom: 88px; }
+          .px-guide { display: none; }
+          .px-roles { padding: 0 16px; }
+          .px-hero { padding: 150px 16px 72px; }
+          .px-sky { background-size: auto 100%; }
+          .px-role-head { grid-template-columns: 1fr; gap: 16px; margin-bottom: 28px; }
+          .px-role-desc { justify-self: start; text-align: left; }
+          .px-banner { padding: 44px 24px 32px; min-height: 0; }
+          .px-cards { grid-template-columns: 1fr; gap: 16px; }
+          .px-meta { padding: 20px; }
+          .px-report-inner { padding: 22px 18px; }
+          .px-actions { gap: 8px 24px; }
         }
       `}</style>
     </section>
