@@ -1310,207 +1310,187 @@ export default function ProjectsSection() {
 
       {/* ── PIN Protection Verification Modal ── */}
       {isPinPromptOpen && (
-        <div
-          className="modal-backdrop"
-          onClick={() => setIsPinPromptOpen(false)}
-          style={{ zIndex: 99999, backgroundColor: "rgba(28, 32, 43, 0.85)", backdropFilter: "blur(6px)" }}
-        >
+        <div className="pin-backdrop" onClick={() => setIsPinPromptOpen(false)}>
           <div
             ref={pinDialogRef}
             role="dialog"
             aria-modal="true"
-            aria-label="Enter access PIN"
+            aria-labelledby="pin-title"
+            aria-describedby="pin-desc"
             tabIndex={-1}
-            className="project-modal-container"
-            style={{
-              maxWidth: "420px",
-              width: "90%",
-              padding: "40px 32px 32px",
-              textAlign: "center",
-              borderRadius: "8px",
-              boxShadow: "0 16px 48px rgba(28, 32, 43, 0.18)",
-              border: "1px solid #E2E8F0",
-              background: "#FFFFFF",
-              position: "relative",
-            }}
+            className="pin-card"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              onClick={() => setIsPinPromptOpen(false)}
-              style={{
-                position: "absolute",
-                top: "14px",
-                right: "16px",
-                background: "none",
-                border: "none",
-                fontSize: "22px",
-                fontWeight: "bold",
-                color: "#1C202B",
-                cursor: "pointer",
-              }}
-            >
-              ✕
-            </button>
-
-            <img
-              src="/banana-project-padlock.png"
-              alt="Locked Banana Weevil project"
-              style={{
-                display: "block",
-                width: "46px",
-                height: "46px",
-                objectFit: "contain",
-                margin: "0 auto 12px",
-              }}
-            />
-            <h3
-              style={{
-                fontFamily: "'Geist', sans-serif",
-                fontSize: "20px",
-                fontWeight: 800,
-                letterSpacing: "-0.035em",
-                color: "#1C202B",
-                margin: "0 0 8px",
-              }}
-            >
-              PIN PROTECTED
-            </h3>
-            <p
-              style={{
-                fontFamily: "'Geist', sans-serif",
-                fontSize: "13px",
-                color: "#4A5468",
-                lineHeight: "1.5",
-                margin: "0 0 22px",
-              }}
-            >
-              Enter the 4-digit PIN password to open the protected <strong>{activeProject?.title || "Banana Weevil"}</strong> project.
-            </p>
-
-            <form
-              onSubmit={handlePinSubmit}
-              style={{ display: "flex", flexDirection: "column", gap: "14px", alignItems: "center", width: "100%" }}
-            >
-              {/* Discrete 4-Digit Box Indicators */}
-              <div
-                onClick={() => {
-                  const el = document.getElementById("pin-hidden-input");
-                  if (el) el.focus();
-                }}
-                style={{
-                  display: "flex",
-                  gap: "14px",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  margin: "4px 0 8px",
-                }}
-              >
-                {[0, 1, 2, 3].map((idx) => {
-                  const isFilled = pinInput.length > idx;
-                  const isCurrent = pinInput.length === idx;
-                  return (
-                    <div
-                      key={idx}
-                      style={{
-                        width: "38px",
-                        height: "42px",
-                        borderRadius: "2px",
-                        border: pinError
-                          ? "1px solid #E22D6D"
-                          : isCurrent || isFilled
-                          ? "1px solid #94A3B8"
-                          : "1px solid #D7DDE5",
-                        background: "#FFFFFF",
-                        boxShadow: isCurrent
-                          ? "0 0 0 2px rgba(148, 163, 184, 0.15)"
-                          : "0 1px 2px rgba(28, 32, 43, 0.04)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "18px",
-                        color: "#1C202B",
-                        transition: "all 150ms ease",
-                      }}
-                    >
-                      {isFilled ? "●" : <span style={{ opacity: 0.25, fontSize: "16px" }}>○</span>}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Input field (styled clean and clear) */}
-              <input
-                id="pin-hidden-input"
-                type="password"
-                maxLength={4}
-                value={pinInput}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, "");
-                  setPinInput(val);
-                  setPinError(false);
-                }}
-                autoFocus
-                style={{
-                  position: "absolute",
-                  opacity: 0,
-                  pointerEvents: "none",
-                  width: "1px",
-                  height: "1px",
-                }}
-              />
-
-              {pinError ? (
-                <p style={{ color: "#E22D6D", fontSize: "13px", fontWeight: "bold", margin: 0 }}>
-                  ❌ Incorrect PIN. Access Denied.
+            <div className="pin-body">
+              <div className="pin-head">
+                <p className="pin-mono pin-kicker">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" aria-hidden="true">
+                    <rect x="4" y="11" width="16" height="10" rx="1" /><path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                  </svg>
+                  Protected
                 </p>
-              ) : (
-                <p style={{ color: "#64748B", fontSize: "12px", margin: 0 }}>
-                  Enter the 4-digit access PIN
-                </p>
-              )}
-
-              <div style={{ display: "flex", gap: "12px", width: "100%", marginTop: "8px" }}>
-                <button
-                  type="button"
-                  onClick={() => setIsPinPromptOpen(false)}
-                  style={{
-                    flex: 1,
-                    padding: "12px",
-                    borderRadius: "10px",
-                    border: "2.5px solid #1C202B",
-                    background: "#FFFFFF",
-                    color: "#1C202B",
-                    fontFamily: "'Geist', sans-serif",
-                    fontWeight: "700",
-                    fontSize: "13px",
-                    cursor: "pointer",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  style={{
-                    flex: 1,
-                    padding: "12px",
-                    borderRadius: "10px",
-                    border: "2.5px solid #1C202B",
-                    background: "var(--brand)",
-                    color: "#FFFFFF",
-                    fontFamily: "'Geist', sans-serif",
-                    fontSize: "17px",
-                    letterSpacing: "1px",
-                    cursor: "pointer",
-                    boxShadow: "3px 3px 0 0 #1C202B",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  UNLOCK →
+                <button type="button" className="pin-close" onClick={() => setIsPinPromptOpen(false)} aria-label="Close">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="square" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
                 </button>
               </div>
-            </form>
+              <h3 id="pin-title" className="pin-title">Enter the access PIN</h3>
+              <p id="pin-desc" className="pin-desc">
+                The <strong>Banana Weevil</strong> project is patent-protected. Enter the 4-digit PIN to view it.
+              </p>
+
+              <form onSubmit={handlePinSubmit} className="pin-form">
+                <label htmlFor="pin-hidden-input" className="pin-boxes" aria-hidden="true">
+                  {[0, 1, 2, 3].map((idx) => {
+                    const isFilled = pinInput.length > idx;
+                    const isCurrent = pinInput.length === idx;
+                    return (
+                      <span key={idx} className={`pin-box ${isFilled ? "is-filled" : ""} ${isCurrent ? "is-current" : ""} ${pinError ? "is-error" : ""}`}>
+                        {isFilled && <i />}
+                      </span>
+                    );
+                  })}
+                </label>
+                <input
+                  id="pin-hidden-input"
+                  className="pin-input"
+                  type="password"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  maxLength={4}
+                  aria-label="4-digit access PIN"
+                  aria-invalid={pinError}
+                  aria-describedby="pin-status"
+                  value={pinInput}
+                  onChange={(e) => {
+                    setPinInput(e.target.value.replace(/\D/g, ""));
+                    setPinError(false);
+                  }}
+                  autoFocus
+                />
+                <p id="pin-status" className={`pin-mono pin-status ${pinError ? "is-error" : ""}`} role={pinError ? "alert" : undefined}>
+                  {pinError ? "Incorrect PIN. Try again." : `${pinInput.length} of 4 digits`}
+                </p>
+
+                <div className="pin-actions">
+                  <button type="submit" className="pin-btn pin-btn-green" disabled={pinInput.length < 4}>
+                    Unlock project
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" /></svg>
+                  </button>
+                  <button type="button" className="pin-btn pin-btn-outline" onClick={() => setIsPinPromptOpen(false)}>
+                    Cancel
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
+
+          <style>{`
+            .pin-backdrop {
+              position: fixed;
+              inset: 0;
+              z-index: 99999;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 20px;
+              background: rgba(20, 20, 20, 0.55);
+              backdrop-filter: blur(4px);
+              animation: pinFade 180ms ease-out;
+            }
+            @keyframes pinFade { from { opacity: 0; } to { opacity: 1; } }
+            .pin-card {
+              position: relative;
+              width: min(440px, 100%);
+              overflow: hidden;
+              border: 1px solid #A7D7BC;
+              background: linear-gradient(180deg, #EEF7F1 0%, #E4F2EA 100%);
+              box-shadow: 0 24px 48px -24px rgba(20, 20, 20, 0.45);
+              font-family: 'Geist', system-ui, sans-serif;
+              outline: none;
+              animation: pinIn 260ms cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            @keyframes pinIn { from { opacity: 0; transform: translateY(14px) scale(0.98); } to { opacity: 1; transform: none; } }
+            .pin-card::after {
+              content: "";
+              position: absolute;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              height: 55%;
+              background: url('/pixel/sky.webp') center 70% / cover no-repeat;
+              image-rendering: pixelated;
+              opacity: 0.2;
+              -webkit-mask-image: linear-gradient(to top, #000, transparent);
+              mask-image: linear-gradient(to top, #000, transparent);
+              pointer-events: none;
+            }
+            .pin-body { position: relative; z-index: 1; padding: 22px 24px 24px; }
+            .pin-mono { font-family: 'Geist Mono', ui-monospace, monospace; text-transform: uppercase; letter-spacing: 0.12em; }
+            .pin-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+            .pin-kicker { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 12px; color: #1F7A4C; }
+            .pin-close {
+              width: 34px;
+              height: 34px;
+              display: grid;
+              place-items: center;
+              margin: -6px -8px -6px 0;
+              background: transparent;
+              border: 0;
+              border-radius: 4px;
+              color: #141414;
+              cursor: pointer;
+            }
+            .pin-close:hover { background: rgba(31, 122, 76, 0.1); }
+            .pin-title { margin: 0 0 6px; font-size: 21px; font-weight: 600; letter-spacing: -0.025em; line-height: 1.2; color: #141414; }
+            .pin-desc { margin: 0 0 22px; font-size: 15px; line-height: 1.55; color: #4D4D4D; }
+            .pin-desc strong { font-weight: 600; color: #141414; }
+            .pin-form { position: relative; display: flex; flex-direction: column; gap: 10px; }
+            .pin-boxes { display: flex; gap: 10px; cursor: text; }
+            .pin-box {
+              width: 52px;
+              height: 56px;
+              display: grid;
+              place-items: center;
+              background: #FFFFFF;
+              border: 1px solid #CFCBC3;
+              border-radius: 4px;
+              transition: border-color 150ms, box-shadow 150ms;
+            }
+            .pin-box i { width: 10px; height: 10px; background: #141414; }
+            .pin-form:focus-within .pin-box.is-current {
+              border-color: #1F7A4C;
+              box-shadow: 0 0 0 3px rgba(31, 122, 76, 0.18);
+            }
+            .pin-box.is-error { border-color: #B11F55; }
+            .pin-input { position: absolute; top: 0; left: 0; width: 248px; height: 56px; opacity: 0; border: 0; padding: 0; caret-color: transparent; }
+            .pin-status { margin: 2px 0 8px; font-size: 11.5px; color: #6E6E6E; }
+            .pin-status.is-error { color: #B11F55; }
+            .pin-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+            .pin-btn {
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              gap: 8px;
+              min-height: 44px;
+              padding: 10px 18px;
+              border-radius: 4px;
+              font: 600 15px 'Geist', system-ui, sans-serif;
+              letter-spacing: -0.01em;
+              cursor: pointer;
+              transition: background 160ms, transform 120ms;
+            }
+            .pin-btn:active:not(:disabled) { transform: translateY(1px); }
+            .pin-btn-green { background: #1F7A4C; color: #FFFFFF; border: 1px solid #17603B; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18); }
+            .pin-btn-green:hover:not(:disabled) { background: #17603B; }
+            .pin-btn-green:disabled { background: #9DC7AF; border-color: #9DC7AF; cursor: not-allowed; }
+            .pin-btn-outline { background: #FFFFFF; color: #141414; border: 1px solid #CFCBC3; box-shadow: 0 1px 2px rgba(20, 20, 20, 0.06); }
+            .pin-btn-outline:hover { background: #F6F4F0; }
+            @media (max-width: 420px) {
+              .pin-box { width: 48px; height: 52px; }
+              .pin-btn { flex: 1; }
+            }
+          `}</style>
         </div>
       )}
 
@@ -1622,12 +1602,17 @@ export default function ProjectsSection() {
           top: 0;
           left: 0;
           right: 0;
-          height: 640px;
+          height: 720px;
           background: url('/pixel/sky.webp') center top / cover no-repeat;
           image-rendering: pixelated;
           opacity: 0.32;
-          -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30%, #000 45%, transparent 100%);
-          mask-image: linear-gradient(to bottom, transparent 0, #000 30%, #000 45%, transparent 100%);
+          /* eases in from nothing (zero slope at the top edge) so it meets the Experience fade without a seam */
+          -webkit-mask-image: linear-gradient(to bottom,
+            transparent 0%, rgba(0,0,0,0.03) 6%, rgba(0,0,0,0.12) 13%, rgba(0,0,0,0.3) 21%, rgba(0,0,0,0.55) 29%,
+            rgba(0,0,0,0.8) 36%, #000 44%, #000 52%, rgba(0,0,0,0.5) 76%, transparent 100%);
+          mask-image: linear-gradient(to bottom,
+            transparent 0%, rgba(0,0,0,0.03) 6%, rgba(0,0,0,0.12) 13%, rgba(0,0,0,0.3) 21%, rgba(0,0,0,0.55) 29%,
+            rgba(0,0,0,0.8) 36%, #000 44%, #000 52%, rgba(0,0,0,0.5) 76%, transparent 100%);
           pointer-events: none;
           z-index: 0;
         }

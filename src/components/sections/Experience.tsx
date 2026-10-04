@@ -390,7 +390,7 @@ export default function ExperienceSection() {
       {/* ── Sky hero ── */}
       <div ref={heroRef} className="px-hero">
         <motion.div className="px-sky" style={{ y: skyY }} aria-hidden="true" />
-        <PixelRunner />
+        <PixelRunner avoid=".px-hero-copy" />
         <div className="px-hero-copy">
           <Reveal kind="up" as="p" className="px-mono px-kicker">Work experience · 02 roles</Reveal>
           <Reveal kind="up" delay={0.08}>
@@ -459,8 +459,11 @@ export default function ExperienceSection() {
           left: 0;
           right: 0;
           bottom: 0;
-          height: 260px;
-          background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #FFFFFF 92%);
+          height: 320px;
+          /* eased stops: reaches white with zero slope exactly at the edge, so there is no crease */
+          background: linear-gradient(to bottom,
+            rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.18) 20%, rgba(255, 255, 255, 0.42) 40%,
+            rgba(255, 255, 255, 0.68) 60%, rgba(255, 255, 255, 0.88) 80%, rgba(255, 255, 255, 0.97) 92%, #FFFFFF 100%);
           pointer-events: none;
           z-index: 1;
         }
@@ -480,7 +483,7 @@ export default function ExperienceSection() {
         .px-guide-r { right: max(16px, calc(50% - 650px)); }
 
         /* ── Sky hero ── */
-        .px-hero { position: relative; overflow: hidden; padding: 250px 24px 120px; text-align: center; }
+        .px-hero { position: relative; overflow: hidden; padding: 250px 24px 120px; padding-bottom: max(120px, var(--runner-floor, 0px)); text-align: center; }
         .px-hero::after {
           content: "";
           position: absolute;

@@ -29,10 +29,12 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hovered, setHovered]     = useState<string | null>(null);
   const [isMobile, setIsMobile]   = useState(false);
+  const [isCompact, setIsCompact] = useState(false);   // 860–1239px: the pixel font needs tighter links
 
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 860);
+      setIsCompact(window.innerWidth < 1240);
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -87,7 +89,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
-    padding: isMobile && mobileOpen ? "16px 20px" : (scrolled ? "0 18px" : "0 24px"),
+    padding: isMobile && mobileOpen ? "16px 20px" : isCompact ? "0 14px" : (scrolled ? "0 18px" : "0 24px"),
     transition: "height 300ms cubic-bezier(0.22, 1, 0.36, 1), padding 300ms",
     overflow: "hidden",
   };
@@ -103,7 +105,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: isMobile ? "0" : "16px",
+          gap: isMobile ? "0" : isCompact ? "10px" : "16px",
           width: "100%",
           height: isMobile ? "44px" : "100%",
           transition: "height 300ms",
@@ -183,7 +185,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
                   aria-current={isActive ? "page" : undefined}
                   style={{
                     fontFamily:      "'Silkscreen', 'Geist Mono', monospace",
-                    fontSize:        "11.5px",
+                    fontSize:        isCompact ? "10px" : "11.5px",
                     fontWeight:      700,
                     textTransform:   "uppercase",
                     letterSpacing:   "0.6px",
@@ -194,7 +196,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
                     display:         "inline-flex",
                     alignItems:      "center",
                     justifyContent:  "center",
-                    padding:         "0 10px",
+                    padding:         isCompact ? "0 6px" : "0 10px",
                     borderRadius:    0,
                     clipPath:        pixelNotch(3),
                     cursor:          "pointer",
@@ -214,7 +216,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
               id="nav-services-page"
               style={{
                 fontFamily:    "'Silkscreen', 'Geist Mono', monospace",
-                fontSize:      "11.5px",
+                fontSize:      isCompact ? "10px" : "11.5px",
                 fontWeight:    700,
                 textTransform: "uppercase",
                 letterSpacing: "0.6px",
@@ -226,7 +228,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
                 display:       "inline-flex",
                 alignItems:    "center",
                 justifyContent:"center",
-                padding:       "0 12px",
+                padding:       isCompact ? "0 8px" : "0 12px",
                 borderRadius:  0,
                 clipPath:      pixelNotch(3),
                 textDecoration:"none",

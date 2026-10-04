@@ -72,8 +72,12 @@ export default function SkillsSection() {
           }}
         >
           <img
-            src="/Skills-Section-Final.png"
-            alt="Sre Varshan Tech Stack and Skills Illustration"
+            src="/skills-stack.webp"
+            alt="Sketch of Sre Varshan at a laptop surrounded by his tools: Hugging Face, PyTorch, AWS, Google Cloud, Docker, C, NVIDIA, Amplify, OpenRouter, Claude, SQL, REST API, GitHub, LangChain, Ollama, Git, NumPy, pandas, PostgreSQL, Python, scikit-learn and vLLM"
+            width={1678}
+            height={937}
+            loading="lazy"
+            decoding="async"
             className="skills-themed-image"
             style={{
               width: "100%",
