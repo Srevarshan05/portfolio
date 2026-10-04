@@ -202,7 +202,7 @@ export default function ServicesModal() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;700&display=swap');
 
         @keyframes sv-fade-in   { from { opacity:0 } to { opacity:1 } }
         @keyframes sv-slide-up  { from { opacity:0; transform:translateY(24px) scale(0.97) } to { opacity:1; transform:none } }
@@ -273,16 +273,16 @@ export default function ServicesModal() {
           border-bottom: 1px solid #ececec;
         }
         .bk-hey {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 13px; color: #6b7280; margin-bottom: 4px; display: block;
         }
         .bk-name {
-          font-family: 'Bangers', cursive;
-          font-size: 26px; letter-spacing: 1px; color: #111827;
-          margin: 0 0 4px; text-transform: uppercase;
+          font-family: 'Geist', sans-serif; font-weight: 600;
+          font-size: 26px; letter-spacing: -0.035em; color: #111827;
+          margin: 0 0 4px; text-transform: none;
         }
         .bk-title-tag {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 12.5px; font-weight: 700; color: #E22D6D;
           margin: 0;
         }
@@ -303,12 +303,12 @@ export default function ServicesModal() {
           box-shadow: 0 2px 6px rgba(0,0,0,0.07);
         }
         .bk-svc-title {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 13px; font-weight: 700; color: #111827;
           margin: 0 0 2px;
         }
         .bk-svc-desc {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 11.5px; color: #6b7280; margin: 0; line-height: 1.4;
         }
 
@@ -320,7 +320,7 @@ export default function ServicesModal() {
         }
         .bk-banner-icon { font-size: 24px; flex-shrink: 0; }
         .bk-banner-text {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 12px; color: #374151; line-height: 1.5; margin: 0;
         }
         .bk-banner-text strong { color: #E22D6D; display: block; }
@@ -348,12 +348,12 @@ export default function ServicesModal() {
           font-size: 26px; flex-shrink: 0;
         }
         .bk-header-title {
-          font-family: 'Bangers', cursive;
-          font-size: 32px; letter-spacing: 1.5px; color: #111827;
-          margin: 0; text-transform: uppercase; line-height: 1;
+          font-family: 'Geist', sans-serif; font-weight: 600;
+          font-size: 32px; letter-spacing: -0.035em; color: #111827;
+          margin: 0; text-transform: none; line-height: 1;
         }
         .bk-header-sub {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 13px; color: #6b7280; margin: 4px 0 0;
         }
 
@@ -368,7 +368,7 @@ export default function ServicesModal() {
 
         /* ── Section Headers ─────────────────────────────────────── */
         .bk-section-title {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 11px; font-weight: 800; text-transform: uppercase;
           letter-spacing: 1.5px; color: #E22D6D;
           border-left: 3px solid #E22D6D; padding-left: 10px;
@@ -379,7 +379,7 @@ export default function ServicesModal() {
         .bk-form-col { display: flex; flex-direction: column; gap: 14px; }
         .bk-field { display: flex; flex-direction: column; gap: 5px; }
         .bk-label {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 12.5px; font-weight: 700; color: #374151;
         }
         .bk-input-wrap {
@@ -393,7 +393,7 @@ export default function ServicesModal() {
           width: 100%; box-sizing: border-box;
           background: #f9fafb; border: 1.5px solid #e5e7eb;
           border-radius: 10px; padding: 10px 14px 10px 38px;
-          font-family: 'Open Sans', sans-serif; font-size: 13.5px; color: #111827;
+          font-family: 'Geist', sans-serif; font-size: 13.5px; color: #111827;
           outline: none; transition: border-color 150ms, box-shadow 150ms;
         }
         .bk-input::placeholder { color: #9ca3af; }
@@ -402,7 +402,7 @@ export default function ServicesModal() {
           width: 100%; box-sizing: border-box;
           background: #f9fafb; border: 1.5px solid #e5e7eb;
           border-radius: 10px; padding: 10px 14px 10px 38px;
-          font-family: 'Open Sans', sans-serif; font-size: 13.5px; color: #111827;
+          font-family: 'Geist', sans-serif; font-size: 13.5px; color: #111827;
           outline: none; cursor: pointer; appearance: none;
           transition: border-color 150ms;
         }
@@ -417,7 +417,7 @@ export default function ServicesModal() {
           width: 100%; box-sizing: border-box; resize: none;
           background: #f9fafb; border: 1.5px solid #e5e7eb;
           border-radius: 10px; padding: 10px 14px 28px 38px;
-          font-family: 'Open Sans', sans-serif; font-size: 13.5px; color: #111827;
+          font-family: 'Geist', sans-serif; font-size: 13.5px; color: #111827;
           outline: none; min-height: 90px;
           transition: border-color 150ms;
         }
@@ -426,7 +426,7 @@ export default function ServicesModal() {
         .bk-char-count {
           position: absolute; bottom: 8px; right: 12px;
           font-size: 11px; color: #9ca3af;
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
         }
 
         .bk-privacy-box {
@@ -437,7 +437,7 @@ export default function ServicesModal() {
         }
         .bk-privacy-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
         .bk-privacy-text {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 12px; color: #374151; line-height: 1.5; margin: 0;
         }
         .bk-privacy-text strong { color: #059669; display: block; }
@@ -456,7 +456,7 @@ export default function ServicesModal() {
         }
         .bk-cal-nav-btn:hover { background: #E22D6D; color: #fff; border-color: #E22D6D; }
         .bk-cal-month {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 14px; font-weight: 700; color: #111827;
         }
         .bk-cal-grid {
@@ -464,13 +464,13 @@ export default function ServicesModal() {
           gap: 2px;
         }
         .bk-cal-day-hdr {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 10px; font-weight: 700; color: #9ca3af;
           text-align: center; padding: 4px 0 6px;
           text-transform: uppercase;
         }
         .bk-cal-cell {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 13px; color: #374151;
           text-align: center; padding: 7px 4px;
           border-radius: 8px; cursor: pointer;
@@ -489,7 +489,7 @@ export default function ServicesModal() {
         /* ── Time Slots ────────────────────────────────────────────── */
         .bk-time-section { margin-top: 18px; }
         .bk-time-label {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 10px;
         }
         .bk-time-grid {
@@ -498,7 +498,7 @@ export default function ServicesModal() {
         .bk-time-btn {
           background: #f9fafb; border: 1.5px solid #e5e7eb;
           border-radius: 10px; padding: 8px 4px;
-          font-family: 'Open Sans', sans-serif; font-size: 12px; font-weight: 700;
+          font-family: 'Geist', sans-serif; font-size: 12px; font-weight: 700;
           color: #374151; cursor: pointer; text-align: center;
           transition: all 130ms;
         }
@@ -525,7 +525,7 @@ export default function ServicesModal() {
           font-size: 20px; flex-shrink: 0;
         }
         .bk-hint-text {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 12.5px; color: #6b7280; margin: 0; line-height: 1.5;
         }
         .bk-hint-text strong { color: #111827; display: block; }
@@ -533,8 +533,8 @@ export default function ServicesModal() {
           background: linear-gradient(135deg, #E22D6D 0%, #c0185a 100%);
           border: none; border-radius: 14px;
           padding: 14px 30px;
-          font-family: 'Bangers', cursive; font-size: 19px;
-          letter-spacing: 1.5px; text-transform: uppercase; color: #ffffff;
+          font-family: 'Geist', sans-serif; font-weight: 600; font-size: 19px;
+          letter-spacing: -0.035em; text-transform: none; color: #ffffff;
           cursor: pointer;
           display: flex; align-items: center; gap: 12px;
           box-shadow: 0 6px 24px rgba(226,45,109,0.45);
@@ -577,11 +577,11 @@ export default function ServicesModal() {
           animation: sv-pop-check 0.5s cubic-bezier(0.22,1,0.36,1);
         }
         .bk-confirmed-title {
-          font-family: 'Bangers', cursive;
-          font-size: 38px; letter-spacing: 1.5px; color: #111827; margin: 0;
+          font-family: 'Geist', sans-serif; font-weight: 600;
+          font-size: 38px; letter-spacing: -0.035em; color: #111827; margin: 0;
         }
         .bk-confirmed-sub {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 14.5px; color: #6b7280;
           max-width: 360px; line-height: 1.6; margin: 0;
         }
@@ -590,8 +590,8 @@ export default function ServicesModal() {
           background: linear-gradient(135deg, #E22D6D 0%, #c0185a 100%);
           border: none; border-radius: 12px;
           padding: 12px 32px;
-          font-family: 'Bangers', cursive; font-size: 18px;
-          letter-spacing: 1px; color: #fff; cursor: pointer;
+          font-family: 'Geist', sans-serif; font-weight: 600; font-size: 18px;
+          letter-spacing: -0.035em; color: #fff; cursor: pointer;
           box-shadow: 0 6px 20px rgba(226,45,109,0.4);
           transition: all 150ms;
         }

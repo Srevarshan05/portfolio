@@ -92,7 +92,7 @@ export default function AboutSection() {
                 display: "inline-block",
                 background: "var(--orange)", // #FF8B2D
                 color: "#14171F",
-                fontFamily: "'Open Sans', sans-serif",
+                fontFamily: "'Geist', sans-serif",
                 fontWeight: 800,
                 fontSize: "12px",
                 textTransform: "uppercase",
@@ -112,14 +112,13 @@ export default function AboutSection() {
             <h2
               className="reveal reveal-left stagger-2"
               style={{
-                fontFamily: "'Bangers', cursive",
+                fontFamily: "'Geist', sans-serif", fontWeight: 600,
                 fontSize: "clamp(46px, 6vw, 76px)",
                 lineHeight: "0.85",
                 color: "white",
-                textTransform: "uppercase",
-                transform: "skewX(-6deg)",
+                textTransform: "none",
                 marginBottom: "24px",
-                letterSpacing: "1.5px",
+                letterSpacing: "-0.035em",
               }}
             >
               SRE <br />
@@ -130,7 +129,7 @@ export default function AboutSection() {
             <p
               className="reveal stagger-3"
               style={{
-                fontFamily: "'Open Sans', sans-serif",
+                fontFamily: "'Geist', sans-serif",
                 fontSize: "clamp(15px, 2.2vw, 18px)",
                 fontWeight: 600,
                 lineHeight: "1.6",
@@ -145,7 +144,7 @@ export default function AboutSection() {
             <p
               className="reveal stagger-4"
               style={{
-                fontFamily: "'Open Sans', sans-serif",
+                fontFamily: "'Geist', sans-serif",
                 fontSize: "14px",
                 lineHeight: "1.65",
                 color: "var(--neutral-quaternary)",
@@ -165,12 +164,11 @@ export default function AboutSection() {
               {/* Title above the map */}
               <div
                 style={{
-                  fontFamily: "'Bangers', cursive",
+                  fontFamily: "'Geist', sans-serif", fontWeight: 600,
                   fontSize: "20px",
                   color: "var(--brand)",
-                  textTransform: "uppercase",
-                  letterSpacing: "1.5px",
-                  transform: "skewX(-6deg)",
+                  textTransform: "none",
+                  letterSpacing: "-0.035em",
                   marginBottom: "12px",
                 }}
               >

@@ -28,7 +28,7 @@ export default function SkillsSection() {
             display: "inline-block",
             background: "var(--orange)", // #FF8B2D
             color: "#14171F",
-            fontFamily: "'Open Sans', sans-serif",
+            fontFamily: "'Geist', sans-serif",
             fontWeight: 800,
             fontSize: "12px",
             textTransform: "uppercase",
@@ -47,13 +47,12 @@ export default function SkillsSection() {
         <h2
           className="reveal reveal-scale stagger-2"
           style={{
-            fontFamily: "'Bangers', cursive",
+            fontFamily: "'Geist', sans-serif", fontWeight: 600,
             fontSize: "clamp(38px, 5vw, 64px)",
             color: "var(--color-heading)",
-            textTransform: "uppercase",
-            transform: "skewX(-6deg)",
+            textTransform: "none",
             marginBottom: "32px",
-            letterSpacing: "1.5px",
+            letterSpacing: "-0.035em",
             textAlign: "center",
           }}
         >

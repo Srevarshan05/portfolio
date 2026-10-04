@@ -896,7 +896,7 @@ export default function ProjectsSection() {
                         <p className="modal-text">
                           Fine-tuned <strong>Mistral 7B Instruct</strong> using QLoRA via Unsloth on a Google Colab T4 GPU (16GB VRAM) for optimized reasoning performance.
                         </p>
-                        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px", fontFamily: "'Open Sans', sans-serif", fontSize: "13px" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px", fontFamily: "'Geist', sans-serif", fontSize: "13px" }}>
                           <thead>
                             <tr style={{ borderBottom: "2px solid #1C202B" }}>
                               <th style={{ textAlign: "left", padding: "6px 0", fontWeight: "800" }}>Parameter</th>
@@ -1069,7 +1069,7 @@ export default function ProjectsSection() {
                         <h4 className="modal-section-title" style={{ color: "#4D5BFF" }}>
                           Technology Stack Summary
                         </h4>
-                        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px", fontFamily: "'Open Sans', sans-serif", fontSize: "12.5px" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px", fontFamily: "'Geist', sans-serif", fontSize: "12.5px" }}>
                           <tbody>
                             <tr style={{ borderBottom: "1px solid rgba(28,32,43,0.1)" }}>
                               <td style={{ padding: "5px 0", fontWeight: "bold" }}>Frontend</td>
@@ -1167,7 +1167,7 @@ export default function ProjectsSection() {
                         <p className="modal-text">
                           Instead of simple footfall count, the stress index dynamically aggregates multiple key signals:
                         </p>
-                        <div style={{ padding: "10px", margin: "10px 0", border: "1.5px dashed #1C202B", background: "#FFFFFF", borderRadius: "4px", textAlign: "center", fontFamily: "'Bangers', cursive", fontSize: "16px", color: "#1C202B", transform: "skewX(-3deg)" }}>
+                        <div style={{ padding: "10px", margin: "10px 0", border: "1.5px dashed #1C202B", background: "#FFFFFF", borderRadius: "4px", textAlign: "center", fontFamily: "'Geist', sans-serif", fontSize: "16px", color: "#1C202B", transform: "skewX(-3deg)" }}>
                           Stress Index = (Biometric Intensity + Student Lead Factor) / Temporal Weight
                         </div>
                         <ul className="modal-list">
@@ -1198,7 +1198,7 @@ export default function ProjectsSection() {
                         <p className="modal-text">
                           Stress levels trigger automated response protocols according to a 5-tier classification model:
                         </p>
-                        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px", fontFamily: "'Open Sans', sans-serif", fontSize: "12px" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px", fontFamily: "'Geist', sans-serif", fontSize: "12px" }}>
                           <thead>
                             <tr style={{ borderBottom: "2px solid #1C202B" }}>
                               <th style={{ textAlign: "left", padding: "6px 0", fontWeight: "800" }}>Priority & Condition</th>
@@ -1365,10 +1365,10 @@ export default function ProjectsSection() {
             />
             <h3
               style={{
-                fontFamily: "'Open Sans', sans-serif",
+                fontFamily: "'Geist', sans-serif",
                 fontSize: "20px",
                 fontWeight: 800,
-                letterSpacing: "0.2px",
+                letterSpacing: "-0.035em",
                 color: "#1C202B",
                 margin: "0 0 8px",
               }}
@@ -1377,7 +1377,7 @@ export default function ProjectsSection() {
             </h3>
             <p
               style={{
-                fontFamily: "'Open Sans', sans-serif",
+                fontFamily: "'Geist', sans-serif",
                 fontSize: "13px",
                 color: "#4A5468",
                 lineHeight: "1.5",
@@ -1480,7 +1480,7 @@ export default function ProjectsSection() {
                     border: "2.5px solid #1C202B",
                     background: "#FFFFFF",
                     color: "#1C202B",
-                    fontFamily: "'Open Sans', sans-serif",
+                    fontFamily: "'Geist', sans-serif",
                     fontWeight: "700",
                     fontSize: "13px",
                     cursor: "pointer",
@@ -1498,7 +1498,7 @@ export default function ProjectsSection() {
                     border: "2.5px solid #1C202B",
                     background: "var(--brand)",
                     color: "#FFFFFF",
-                    fontFamily: "'Bangers', cursive",
+                    fontFamily: "'Geist', sans-serif",
                     fontSize: "17px",
                     letterSpacing: "1px",
                     cursor: "pointer",
@@ -1599,7 +1599,7 @@ export default function ProjectsSection() {
                 width: "36px",
                 height: "36px",
                 borderRadius: "50%",
-                fontFamily: "'Bangers', cursive",
+                fontFamily: "'Geist', sans-serif",
                 fontSize: "20px",
                 cursor: "pointer",
                 display: "flex",
@@ -1615,6 +1615,22 @@ export default function ProjectsSection() {
       )}
 
       <style>{`
+        /* Soft pixel sky behind the section header */
+        #projects::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 640px;
+          background: url('/pixel/sky.webp') center top / cover no-repeat;
+          image-rendering: pixelated;
+          opacity: 0.32;
+          -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 25%, transparent 100%);
+          pointer-events: none;
+          z-index: 0;
+        }
         .projects-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
@@ -1697,7 +1713,7 @@ export default function ProjectsSection() {
           top: 14px;
           left: 14px;
           padding: 6px 12px;
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 10px;
           font-weight: 800;
           text-transform: uppercase;
@@ -1717,19 +1733,18 @@ export default function ProjectsSection() {
         }
         
         .project-card-title {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 25px;
           font-weight: 800;
           color: #1C202B;
           letter-spacing: -0.5px;
-          text-transform: uppercase;
+          text-transform: none;
           margin: 0 0 10px 0;
-          transform: skewX(-6deg);
           line-height: 1.2;
         }
         
         .project-card-desc {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 14px;
           line-height: 1.6;
           color: var(--color-body);
@@ -1747,7 +1762,7 @@ export default function ProjectsSection() {
         .project-card-features li {
           position: relative;
           padding-left: 16px;
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 13px;
           font-weight: 700;
           line-height: 1.4;
@@ -1796,7 +1811,7 @@ export default function ProjectsSection() {
           margin-bottom: 24px;
         }
         .project-metric-label {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 10px;
           font-weight: 800;
           color: var(--color-body-subtle);
@@ -1805,12 +1820,11 @@ export default function ProjectsSection() {
         }
         
         .project-metric-value {
-          font-family: 'Bangers', cursive;
+          font-family: 'Geist', sans-serif; font-weight: 600;
           font-size: 26px;
           color: #1C202B;
-          letter-spacing: 0.5px;
+          letter-spacing: -0.035em;
           font-style: italic;
-          transform: skewX(-4deg);
         }
         
         .project-card-btn {
@@ -1820,7 +1834,7 @@ export default function ProjectsSection() {
           box-shadow: 5px 5px 0 0 var(--btn-shadow-color);
           color: #FFFFFF;
           padding: 14px 20px;
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 13px;
           font-weight: 800;
           text-transform: uppercase;
@@ -1894,19 +1908,18 @@ export default function ProjectsSection() {
         }
         
         .project-modal-title {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 28px;
           font-weight: 800;
           color: #1C202B;
           margin: 0;
-          transform: skewX(-4deg);
-          text-transform: uppercase;
+          text-transform: none;
           line-height: 1.2;
         }
         
         .project-modal-badge {
           color: #FFFFFF;
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 10px;
           font-weight: 800;
           padding: 4px 8px;
@@ -1924,7 +1937,7 @@ export default function ProjectsSection() {
           width: 36px;
           height: 36px;
           border-radius: 50%;
-          font-family: 'Bangers', cursive;
+          font-family: 'Geist', sans-serif;
           font-size: 20px;
           cursor: pointer;
           display: flex;
@@ -1947,7 +1960,7 @@ export default function ProjectsSection() {
         }
         
         .modal-overview p {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 15px;
           line-height: 1.65;
           color: #1C202B;
@@ -1983,15 +1996,15 @@ export default function ProjectsSection() {
         }
         
         .modal-section-title {
-          font-family: 'Bangers', cursive;
+          font-family: 'Geist', sans-serif; font-weight: 600;
           font-size: 22px;
-          letter-spacing: 0.5px;
+          letter-spacing: -0.035em;
           margin: 0 0 10px 0;
-          text-transform: uppercase;
+          text-transform: none;
         }
         
         .modal-text {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 13.5px;
           line-height: 1.6;
           color: var(--color-body);
@@ -2023,7 +2036,7 @@ export default function ProjectsSection() {
         }
         
         .modal-list li {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 13px;
           line-height: 1.55;
           color: var(--color-body);
@@ -2068,7 +2081,7 @@ export default function ProjectsSection() {
           display: block;
           padding: 8px 10px;
           color: #FFFFFF;
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 11px;
           font-weight: 800;
           letter-spacing: 0.4px;
@@ -2093,7 +2106,7 @@ export default function ProjectsSection() {
         }
         
         .modal-metric-label {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 10px;
           font-weight: 800;
           color: var(--color-body-subtle);
@@ -2102,16 +2115,15 @@ export default function ProjectsSection() {
         }
         
         .modal-metric-value {
-          font-family: 'Bangers', cursive;
+          font-family: 'Geist', sans-serif; font-weight: 600;
           font-size: 26px;
           color: #1C202B;
-          letter-spacing: 0.5px;
+          letter-spacing: -0.035em;
           font-style: italic;
-          transform: skewX(-4deg);
         }
         
         .modal-action-btn {
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 12px;
           font-weight: 800;
           text-transform: uppercase;

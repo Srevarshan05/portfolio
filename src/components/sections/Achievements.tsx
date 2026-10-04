@@ -233,10 +233,10 @@ export default function AchievementsSection() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontFamily: "'Bangers', cursive",
+                        fontFamily: "'Geist', sans-serif", fontWeight: 600,
                         fontSize: "24px",
                         color: "white",
-                        letterSpacing: "1px",
+                        letterSpacing: "-0.035em",
                       }}
                     >
                       {numberStr}
@@ -263,11 +263,11 @@ export default function AchievementsSection() {
                     )}
                     <h4
                       style={{
-                        fontFamily: "'Bangers', cursive",
+                        fontFamily: "'Geist', sans-serif", fontWeight: 600,
                         fontSize: "20px",
                         color: "#1C202B",
-                        letterSpacing: "0.5px",
-                        textTransform: "uppercase",
+                        letterSpacing: "-0.035em",
+                        textTransform: "none",
                         marginBottom: "8px",
                         marginTop: "4px"
                       }}
@@ -276,7 +276,7 @@ export default function AchievementsSection() {
                     </h4>
                     <div
                       style={{
-                        fontFamily: "'Open Sans', sans-serif",
+                        fontFamily: "'Geist', sans-serif",
                         fontSize: "11px",
                         fontWeight: 700,
                         textTransform: "uppercase",
@@ -361,7 +361,7 @@ export default function AchievementsSection() {
                 width: "36px",
                 height: "36px",
                 borderRadius: "50%",
-                fontFamily: "'Bangers', cursive",
+                fontFamily: "'Geist', sans-serif",
                 fontSize: "20px",
                 cursor: "pointer",
                 display: "flex",

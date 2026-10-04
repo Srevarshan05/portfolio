@@ -82,25 +82,24 @@ export default function CodingProfilesSection() {
         .pf-section {
           position: relative;
           overflow: hidden;
-          background: #2440D4;
+          background: #0B0B0D;
           padding: 96px 40px 112px;
-          border-top: 3px solid #1C202B;
-          border-bottom: 3px solid #1C202B;
+          border-top: 1px solid #1F2128;
+          border-bottom: 1px solid #1F2128;
         }
         .pf-inner { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; }
 
-        .pf-doodle { position: absolute; top: 44px; width: 60px; height: auto; opacity: 0.8; pointer-events: none; z-index: 1; }
+        .pf-doodle { position: absolute; top: 44px; width: 60px; height: auto; opacity: 0.55; filter: invert(1); pointer-events: none; z-index: 1; }
         .pf-doodle-l { left: 6%; }
         .pf-doodle-r { right: 6%; transform: scaleX(-1); }
 
         .pf-header { text-align: center; margin-bottom: 56px; }
         .pf-title {
           font-size: clamp(40px, 5.8vw, 72px);
-          letter-spacing: 2px;
+          letter-spacing: -0.04em;
+          font-weight: 600;
           color: #FFFFFF;
           margin: 0;
-          transform: skewX(-4deg);
-          text-shadow: 4px 4px 0 #1C202B;
           text-wrap: balance;
         }
         .pf-underline { display: block; width: 220px; height: 12px; margin: 6px auto 0; }
@@ -114,15 +113,16 @@ export default function CodingProfilesSection() {
           gap: 4px 16px;
           padding-bottom: 14px;
           margin-bottom: 30px;
-          border-bottom: 2px dashed rgba(255, 255, 255, 0.35);
+          border-bottom: 1px dashed rgba(255, 255, 255, 0.18);
         }
         .pf-group-title {
           font-size: clamp(26px, 3vw, 34px);
-          letter-spacing: 1px;
+          letter-spacing: -0.03em;
+          font-weight: 600;
           color: #FFFFFF;
           margin: 0;
         }
-        .pf-group-note { margin: 0; font-size: 14px; font-weight: 600; color: #DCE4FF; }
+        .pf-group-note { margin: 0; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12.5px; letter-spacing: 0.12em; text-transform: uppercase; color: #8B90A0; }
 
         .pf-grid {
           list-style: none;
@@ -148,16 +148,16 @@ export default function CodingProfilesSection() {
             radial-gradient(circle at 50% 0, transparent 5px, #FFFFFF 5.5px) top / 20px 10px repeat-x,
             radial-gradient(circle at 50% 100%, transparent 5px, #FFFFFF 5.5px) bottom / 20px 10px repeat-x,
             linear-gradient(#FFFFFF, #FFFFFF) center / calc(100% - 18px) calc(100% - 18px) no-repeat;
-          filter: drop-shadow(5px 5px 0 #000);
+          filter: drop-shadow(5px 5px 0 #2A2D36);
           transform: rotate(var(--tilt));
           transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), filter 220ms cubic-bezier(0.22, 1, 0.36, 1);
         }
         .pf-stamp:hover, .pf-stamp:focus-visible {
           transform: rotate(0deg) translateY(-6px);
-          filter: drop-shadow(8px 8px 0 var(--accent)) drop-shadow(2px 2px 0 #000);
+          filter: drop-shadow(8px 8px 0 var(--accent));
           color: #1C202B;
         }
-        .pf-stamp:active { transform: rotate(0deg) translateY(1px); filter: drop-shadow(2px 2px 0 #000); }
+        .pf-stamp:active { transform: rotate(0deg) translateY(1px); filter: drop-shadow(2px 2px 0 #2A2D36); }
         .pf-stamp:focus-visible { outline: 3px solid #FFFFFF; outline-offset: 6px; }
         .pf-inset {
           position: absolute;
@@ -200,11 +200,11 @@ export default function CodingProfilesSection() {
 
         .pf-name {
           position: relative;
-          font-family: 'Bangers', cursive;
-          font-size: 26px;
-          letter-spacing: 0.8px;
-          line-height: 1.05;
-          text-transform: uppercase;
+          font-family: 'Geist', sans-serif;
+          font-size: 21px;
+          font-weight: 600;
+          letter-spacing: -0.02em;
+          line-height: 1.15;
         }
         .pf-category {
           position: relative;

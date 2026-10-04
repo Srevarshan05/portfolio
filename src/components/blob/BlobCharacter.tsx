@@ -188,7 +188,7 @@ export default function BlobCharacter() {
       {/* Privacy mode label */}
       <p
         style={{
-          fontFamily: "'Open Sans', sans-serif",
+          fontFamily: "'Geist', sans-serif",
           fontSize: "11px",
           fontWeight: 700,
           textTransform: "uppercase",

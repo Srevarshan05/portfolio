@@ -216,7 +216,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
               {/* Category header */}
               <div
                 style={{
-                  fontFamily: "'Open Sans', sans-serif",
+                  fontFamily: "'Geist', sans-serif",
                   fontSize: "11px",
                   fontWeight: 700,
                   textTransform: "uppercase",
@@ -247,7 +247,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
                     <div style={{ flex: 1 }}>
                       <div
                         style={{
-                          fontFamily: "'Open Sans', sans-serif",
+                          fontFamily: "'Geist', sans-serif",
                           fontSize: "15px",
                           fontWeight: 600,
                           color: "var(--color-heading)",
@@ -257,7 +257,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
                       </div>
                       <div
                         style={{
-                          fontFamily: "'Open Sans', sans-serif",
+                          fontFamily: "'Geist', sans-serif",
                           fontSize: "13px",
                           color: "var(--color-body-subtle)",
                         }}
@@ -279,7 +279,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
               style={{
                 padding: "32px 20px",
                 textAlign: "center",
-                fontFamily: "'Open Sans', sans-serif",
+                fontFamily: "'Geist', sans-serif",
                 fontSize: "14px",
                 color: "var(--color-body-subtle)",
               }}

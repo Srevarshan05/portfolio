@@ -3,16 +3,11 @@
 import { useRef, useState } from "react";
 import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import { useDialog } from "@/lib/useDialog";
-import { CountUp, EASE_OUT, Reveal, Stagger, StaggerItem } from "@/components/motion";
+import { EASE_OUT, Reveal, Stagger, StaggerItem } from "@/components/motion";
 
 interface ReportSection {
   title: string;
   content: string | string[];
-}
-
-interface Impact {
-  value: string;
-  label: string;
 }
 
 interface Role {
@@ -22,18 +17,20 @@ interface Role {
   role: string;
   company: string;
   type: string;
-  accent: string;
   logo: string;
   logoWidth: number;
   description: string;
+  /** Banner headline, with one phrase set in the white pill */
+  headline: { before: string; pill: string; after: string };
+  bannerNote: string;
   skills: string[];
   linkText: string;
   linkUrl: string;
   highlights: string[];
-  /** Headline outcome, quoted from the report below */
-  impact: Impact;
-  /** Which report section lists the engineering work */
-  builtSection: string;
+  cardTitle: string;
+  cardIntro: string;
+  /** "Title: body" entries for the single "What I built" card */
+  built: string[];
   workflowImage: string | null;
   modalTitle: string;
   introduction: string;
@@ -48,35 +45,47 @@ const ROLES: Role[] = [
     role:     "Intelligent System Developer",
     company:  "EmedLogix",
     type:     "7-Month Internship",
-    accent:   "#A23DDB",
     logo:     "/EmedLogix-logo.jpg",
     logoWidth: 132,
     description:
       "Worked as an AI Product Developer Intern at EmedLogix (US-based healthcare technology SaaS), contributing to a production provider onboarding and credential management system active in the market.",
+    headline: { before: "Integrated", pill: "Gen AI", after: "into a traditional credentialing application, end to end." },
+    bannerNote:
+      "Worked with sensitive, real US healthcare provider data under strict monitoring, and deployed the beta version of the application to the company on AWS.",
     skills: [
       "Generative AI",
-      "OCR Document Ingestion",
-      "Explainable AI",
+      "Text-to-SQL Agent",
+      "Qwen2.5-VL 7B OCR",
+      "CAQH & NPI APIs",
       "FastAPI / Python",
-      "PostgreSQL",
-      "Microsoft Azure Entra ID",
+      "PostgreSQL on AWS RDS",
+      "Microsoft Azure Entra ID SSO",
+      "Cloudflare Bot Verification",
       "AWS Beanstalk / RDS / Amplify",
+      "Frontend: Login & Landing Pages",
       "SaaS Production Architecture",
       "Team-based Agile Development"
     ],
     linkText: "Public Product Site",
     linkUrl: "https://enroll.pmslogix.com/",
     highlights: [
-      "Enterprise Healthcare SaaS Focus",
-      "Intelligent Document Processing (OCR)",
-      "Plain-English Database Chatbot Interface",
-      "Production AWS & Entra ID SSO Integration"
+      "Sensitive US healthcare provider data, under strict monitoring",
+      "Real CAQH and NPI API integrations",
+      "Beta version deployed on AWS during the internship",
+      "Azure Entra ID SSO with Cloudflare bot verification"
     ],
-    impact: {
-      value: "~90%",
-      label: "less manual data entry through automated document extraction and autofill",
-    },
-    builtSection: "Key Contributions & Engineering Impact",
+    cardTitle: "Gen AI inside a real credentialing platform",
+    cardIntro:
+      "Healthcare credentialing is slow, manual and document-heavy. I worked on bringing Gen AI into a production credentialing application end to end, handling sensitive, real US healthcare provider data under strict monitoring.",
+    built: [
+      "Text-to-SQL Agent: My core role. I developed an agent that converts plain-English questions into SQL and retrieves the data. The agent knows the database schema of the PostgreSQL database on AWS RDS.",
+      "OCR Pipeline with Qwen2.5-VL 7B: Built an OCR pipeline on Qwen2.5-VL 7B for accurate text extraction across varied documents, autofilling form fields and saving a lot of time compared with traditional manual filling.",
+      "Document Deadline Tracking: Every provider carries 60+ documents. I added automated deadlines for each document of every provider to track its lifecycle and renewal cycle, with alerts 30 days before it falls due.",
+      "CAQH & NPI APIs: Worked with the real CAQH and NPI APIs from the US to retrieve and validate provider information.",
+      "Secure Sign-in: Integrated Azure Entra ID SSO login through a web service and added Cloudflare bot verification for additional security.",
+      "Login & Landing Page Design: Worked on the frontend design of the login page and landing page to make them user friendly.",
+      "Beta Deployment on AWS: Deployed the beta version of the application to the company on AWS during the internship."
+    ],
     workflowImage: null,
     modalTitle: "EmedLogix Internship Report",
     introduction: "I worked as an AI Product Developer Intern at EmedLogix, a US-based healthcare technology product company, where I spent over 7 months developing an enterprise-grade healthcare credentialing platform used by healthcare organizations to automate and accelerate provider onboarding and credential management workflows.",
@@ -108,17 +117,20 @@ const ROLES: Role[] = [
     location: "Remote",
     role:     "AI/ML Intern",
     company:  "Microsoft × Edunet",
-    type:     "Internship",
-    accent:   "#2DC8E2",
+    type:     "Virtual Internship",
     logo:     "/Edunet-Microsoft-logo.png",
-    logoWidth: 156,
+    logoWidth: 170,
     description:
-      "Developed 'AI Nose', an intelligent real-time odor detection and environmental monitoring system that combines IoT, Machine Learning, and Cloud Computing to identify unpleasant odor conditions.",
+      "A virtual internship with Microsoft and the Edunet Foundation: core machine learning on the Microsoft Learn portal, from the basics to intermediate algorithms and techniques, finished with a capstone project of my own.",
+    headline: { before: "Developed", pill: "AI Nose", after: ", real-time odor detection using ML + IoT." },
+    bannerNote:
+      "An ESP32 with gas sensors feeds a Random Forest classifier that recognises odor conditions in real time and raises an alert when a gas crosses its safety threshold.",
     skills: [
+      "Microsoft Learn: Core ML",
+      "Random Forest Classifier",
       "Embedded ESP32",
       "IoT Sensor Integration",
       "Firebase Cloud Services",
-      "Random Forest Model",
       "Gradio Dashboards",
       "Python Data Science",
       "Feature Engineering",
@@ -133,11 +145,16 @@ const ROLES: Role[] = [
       "Database: Firebase Realtime Database",
       "Dashboard: Python Gradio Visualizer"
     ],
-    impact: {
-      value: "98%",
-      label: "classification accuracy from a Random Forest model that runs in milliseconds on the server",
-    },
-    builtSection: "System Architecture & Engineering Steps",
+    cardTitle: "AI Nose, the capstone",
+    cardIntro:
+      "Microsoft Learn gave me quality courses on core machine learning, from the basics to intermediate, and introduced me to a range of ML algorithms and techniques. One algorithm caught my interest: the Random Forest classifier. With my background in IoT and hardware, the idea for the capstone followed: an AI nose that can actually smell its environment, detect particular gases, classify them in real time and alert when a gas exceeds a safety threshold.",
+    built: [
+      "IoT Hardware & Sensors: Programmed an ESP32 microcontroller integrated with MQ3 and MQ9 gas sensors. These sensors measure concentrations of alcohol vapors, carbon monoxide, methane, LPG, and hydrogen.",
+      "Signal Processing & Cloud Sync: Developed initial ESP32 preprocessing routines for sensor calibration, value normalization, and noise filtering. Timestamped datasets were streamed in real time to Firebase Realtime Database for instant synchronization.",
+      "Odor Level Classification Model: Collected a labeled sensor dataset categorized into Clean, Moderate, Foul, and Very Foul. Tested various machine learning models to choose the most reliable and fastest one, settling on a decision-tree-based algorithm (Random Forest) that achieves 98% accuracy and runs in milliseconds on the server.",
+      "Live Monitoring Web Dashboard: Built a Gradio web application visualizing live sensor readings, predicted odor classes, and historical trends for remote monitoring.",
+      "Automated Sanitation Alerts: Programmed alerts that trigger whenever predicted levels are Foul or Very Foul, notifying maintenance teams immediately so they can clean proactively rather than on a fixed schedule."
+    ],
     workflowImage: "/AI_Nose_Workflow.png",
     modalTitle: "AI Nose Internship Report",
     introduction: "During my Microsoft Edunet Foundation AI/ML Internship, I developed AI Nose, an intelligent real-time odor detection and environmental monitoring system that combines IoT, Machine Learning, and Cloud Computing to identify unpleasant odor conditions and trigger immediate sanitation alerts.",
@@ -147,36 +164,17 @@ const ROLES: Role[] = [
         content: "The goal of the project was to replace subjective human inspection with an automated air quality monitoring system. The system continuously analyzes air quality and Volatile Organic Compounds (VOCs) in enclosed environments such as public restrooms, hospitals, labs, and industrial spaces."
       },
       {
-        title: "System Architecture & Engineering Steps",
-        content: [
-          "IoT Hardware & Sensors: Programmed an ESP32 microcontroller integrated with MQ3 and MQ9 gas sensors. These sensors measure concentrations of alcohol vapors, carbon monoxide, methane, LPG, and hydrogen.",
-          "Signal Processing & Cloud Sync: Developed initial ESP32 preprocessing routines for sensor calibration, value normalization, and noise filtering. Timestamped datasets were streamed in real time to Firebase Realtime Database for instant synchronization.",
-          "Odor Level Classification Model: Collected a labeled sensor dataset categorized into Clean, Moderate, Foul, and Very Foul. Tested various machine learning models to choose the most reliable and fastest one, settling on a decision-tree-based algorithm (Random Forest) that achieves 98% accuracy and runs in milliseconds on the server.",
-          "Live Monitoring Web Dashboard: Built a Gradio web application visualizing live sensor readings, predicted odor classes, and historical trends for remote monitoring.",
-          "Automated Sanitation Alerts: Programmed alerts that trigger whenever predicted levels are Foul or Very Foul, notifying maintenance teams immediately so they can clean proactively rather than on a fixed schedule."
-        ]
-      },
-      {
         title: "Outcome & Impact",
         content: "This project demonstrated how combining smart sensors with lightweight machine learning algorithms can automate environmental monitoring. It replaces subjective human facility checks with automated, data-driven decisions that improve hygiene and operational efficiency."
       }
     ]
   }
 ];
-/** Per-role banner colour and the pixel scene drawn for each contribution */
-const LOOK: Record<string, { banner: [string, string]; scenes: string[]; tag: string; headline: string }> = {
-  emedlogix: {
-    banner: ["#0A5FB4", "#1690E8"],
-    scenes: ["emed-1", "emed-2", "emed-3", "emed-4", "emed-5", "emed-6"],
-    tag: "Healthcare SaaS · Production",
-    headline: "less manual data entry.",
-  },
-  microsoft: {
-    banner: ["#0B7E62", "#16A97F"],
-    scenes: ["nose-1", "nose-2", "nose-3", "nose-4", "nose-5"],
-    tag: "IoT · Machine Learning",
-    headline: "classification accuracy.",
-  },
+
+/** Per-role banner colour and wide pixel scene */
+const LOOK: Record<string, { banner: [string, string]; scene: string; tag: string }> = {
+  emedlogix: { banner: ["#0A5FB4", "#1690E8"], scene: "emed-wide", tag: "Healthcare SaaS · Production" },
+  microsoft: { banner: ["#0B7E62", "#16A97F"], scene: "nose-wide", tag: "IoT · Machine Learning" },
 };
 const SQUARES = ["#1E88E5", "#F2A33A", "#E4572E"];
 
@@ -184,15 +182,6 @@ const SQUARES = ["#1E88E5", "#F2A33A", "#E4572E"];
 function splitBullet(bullet: string): [string | null, string] {
   const i = bullet.indexOf(":");
   return i === -1 ? [null, bullet] : [bullet.slice(0, i), bullet.slice(i + 1).trim()];
-}
-
-function parseImpact(value: string) {
-  const m = value.match(/^(\D*)(\d+)(\D*)$/);
-  return m ? { prefix: m[1], num: Number(m[2]), suffix: m[3] } : null;
-}
-
-function upperFirst(s: string) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 function ArrowUpRight() {
@@ -214,10 +203,7 @@ function Squares() {
 function RoleBlock({ r, index, onWorkflow }: { r: Role; index: number; onWorkflow: (src: string, alt: string) => void }) {
   const [open, setOpen] = useState(false);
   const look = LOOK[r.id];
-  const builtSection = r.fullReportSections.find((s) => s.title === r.builtSection);
-  const built = Array.isArray(builtSection?.content) ? builtSection.content.map(splitBullet) : [];
-  const prose = r.fullReportSections.filter((s) => !Array.isArray(s.content));
-  const impact = parseImpact(r.impact.value);
+  const built = r.built.map(splitBullet);
   const reportId = `${r.id}-report`;
   const [typeLead, ...typeRest] = r.type.split(" ");
 
@@ -226,16 +212,20 @@ function RoleBlock({ r, index, onWorkflow }: { r: Role; index: number; onWorkflo
       {/* ── Header row ── */}
       <div className="px-role-head">
         <Reveal kind="up" className="px-role-title">
-          <p className="px-mono px-index">
-            {String(index + 1).padStart(2, "0")} / {r.company}
-          </p>
+          <div className="px-role-id">
+            <span className="px-logo">
+              <img src={r.logo} alt={`${r.company} logo`} width={r.logoWidth} height={40} loading="lazy" decoding="async" />
+            </span>
+            <p className="px-mono px-index">
+              {String(index + 1).padStart(2, "0")} / {r.company}
+            </p>
+          </div>
           <h3 id={`${r.id}-role`} className="px-h3">{r.role}</h3>
         </Reveal>
         <Reveal kind="up" delay={0.12} as="p" className="px-role-desc">{r.description}</Reveal>
       </div>
 
-      {/* ── Banner ── */}
-      {/* The observer sits on an unclipped wrapper: a fully clipped element never reports as in view */}
+      {/* ── Banner — observed on an unclipped wrapper: a fully clipped element never reports as in view ── */}
       <motion.div initial="hidden" whileInView="shown" viewport={{ once: true, amount: 0.3 }}>
       <motion.div
         className="px-banner-wrap"
@@ -251,10 +241,16 @@ function RoleBlock({ r, index, onWorkflow }: { r: Role; index: number; onWorkflo
 
           <div className="px-banner-main">
             <p className="px-banner-headline">
-              <span className="px-pill">
-                {impact ? <CountUp value={impact.num} prefix={impact.prefix} suffix={impact.suffix} /> : r.impact.value}
-              </span>{" "}
-              {look.headline}
+              {r.headline.before}{" "}
+              {/* punctuation stays glued to the pill so it never wraps onto its own line */}
+              {/^[,:.]/.test(r.headline.after) ? (
+                <>
+                  <span style={{ whiteSpace: "nowrap" }}><span className="px-pill">{r.headline.pill}</span>{r.headline.after[0]}</span>
+                  {r.headline.after.slice(1)}
+                </>
+              ) : (
+                <><span className="px-pill">{r.headline.pill}</span> {r.headline.after}</>
+              )}
             </p>
             <p className="px-mono px-banner-meta">
               <Squares />
@@ -271,7 +267,7 @@ function RoleBlock({ r, index, onWorkflow }: { r: Role; index: number; onWorkflo
           </div>
 
           <div className="px-banner-side">
-            <p>{upperFirst(r.impact.label)}.</p>
+            <p>{r.bannerNote}</p>
             <a className="px-mono px-banner-link" href={r.linkUrl} target="_blank" rel="noopener noreferrer">
               {r.linkText} <ArrowUpRight />
               <span className="sr-only">(opens in a new tab)</span>
@@ -281,24 +277,33 @@ function RoleBlock({ r, index, onWorkflow }: { r: Role; index: number; onWorkflo
       </motion.div>
       </motion.div>
 
-      {/* ── What I built: one pixel scene per contribution ── */}
-      <Stagger as="ol" className="px-cards" gap={0.09} amount={0.1}>
-        {built.map(([title, body], i) => (
-          <StaggerItem as="li" kind="tilt" key={body} className="px-card">
-            <div className="px-card-art px-notch-sm">
-              <img src={`/pixel/${look.scenes[i % look.scenes.length]}.webp`} alt="" aria-hidden="true" width={600} height={300} loading="lazy" decoding="async" />
-            </div>
-            <div className="px-card-body">
-              <p className="px-mono px-card-label">
+      {/* ── What I built: one card ── */}
+      <Reveal kind="up" className="px-one">
+        <div className="px-one-art px-notch-sm">
+          <img src={`/pixel/${look.scene}.webp`} alt="" aria-hidden="true" width={1200} height={300} loading="lazy" decoding="async" />
+        </div>
+        <div className="px-one-body">
+          <div className="px-one-head">
+            <p className="px-mono px-card-label">
+              <i style={{ background: SQUARES[0] }} aria-hidden="true" />
+              What I built
+            </p>
+            <h4 className="px-one-title">{r.cardTitle}</h4>
+            <p className="px-one-intro">{r.cardIntro}</p>
+          </div>
+          <Stagger as="ol" className="px-one-list" gap={0.07} amount={0.1}>
+            {built.map(([title, body], i) => (
+              <StaggerItem as="li" key={body} className="px-one-item">
                 <i style={{ background: SQUARES[i % SQUARES.length] }} aria-hidden="true" />
-                Build {String(i + 1).padStart(2, "0")}
-              </p>
-              {title && <h4 className="px-card-title">{title}</h4>}
-              <p className="px-card-text">{body}</p>
-            </div>
-          </StaggerItem>
-        ))}
-      </Stagger>
+                <div>
+                  {title && <h5>{title}</h5>}
+                  <p>{body}</p>
+                </div>
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </div>
+      </Reveal>
 
       {/* ── Highlights + stack ── */}
       <div className="px-meta-grid">
@@ -347,10 +352,19 @@ function RoleBlock({ r, index, onWorkflow }: { r: Role; index: number; onWorkflo
             <div className="px-report-inner">
               <h4 className="px-report-title">{r.modalTitle}</h4>
               <p>{r.introduction}</p>
-              {prose.map((section) => (
+              {r.fullReportSections.map((section) => (
                 <section key={section.title}>
                   <h5 className="px-mono">{section.title}</h5>
-                  <p>{section.content as string}</p>
+                  {Array.isArray(section.content) ? (
+                    <ul className="px-report-list">
+                      {section.content.map((b) => {
+                        const [k, v] = splitBullet(b);
+                        return <li key={b}>{k ? (<><strong>{k}:</strong> {v}</>) : v}</li>;
+                      })}
+                    </ul>
+                  ) : (
+                    <p>{section.content}</p>
+                  )}
                 </section>
               ))}
             </div>
@@ -436,7 +450,7 @@ export default function ExperienceSection() {
           isolation: isolate;
           background: var(--px-bg);
           color: var(--px-ink);
-          font-family: 'Geist', 'Open Sans', system-ui, sans-serif;
+          font-family: 'Geist', system-ui, sans-serif;
           padding: 0 0 120px;
         }
         .px-mono { font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; }
@@ -556,9 +570,9 @@ export default function ExperienceSection() {
         .px-banner-headline {
           margin: 0 0 26px;
           color: #FFFFFF;
-          font-size: clamp(36px, 4.4vw, 60px);
+          font-size: clamp(30px, 3.4vw, 46px);
           font-weight: 600;
-          line-height: 1.08;
+          line-height: 1.12;
           letter-spacing: -0.035em;
           text-wrap: balance;
         }
@@ -617,55 +631,63 @@ export default function ExperienceSection() {
         .px-banner-link:hover { color: #FFFFFF; border-color: #FFFFFF; }
         .px-banner-link:focus-visible { outline-color: #FFFFFF; }
 
-        /* ── Cards ── */
-        .px-cards {
-          list-style: none;
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 24px;
-          margin-top: 24px;
-        }
-        .px-card {
-          display: flex;
-          flex-direction: column;
+        /* ── Logo + id ── */
+        .px-role-id { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+        .px-logo {
+          display: inline-flex;
+          align-items: center;
+          height: 52px;
+          padding: 6px 12px;
           background: #FFFFFF;
           border: 1px solid var(--px-line);
-          padding: 8px;
-          transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .px-card:hover { transform: translateY(-4px); box-shadow: 0 14px 28px -18px rgba(20, 20, 20, 0.35); }
-        .px-card-art { overflow: hidden; aspect-ratio: 2 / 1; background: #BFE5FC; }
-        .px-card-art img {
-          display: block;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          image-rendering: pixelated;
-          transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+        .px-logo img { display: block; height: 36px; width: auto; max-width: 180px; object-fit: contain; }
+        .px-role-id .px-index { margin: 0; }
+
+        /* ── Single "What I built" card ── */
+        .px-one { margin-top: 24px; background: #FFFFFF; border: 1px solid var(--px-line); padding: 8px; }
+        .px-one-art { overflow: hidden; aspect-ratio: 4 / 1; background: #BFE5FC; }
+        .px-one-art img { display: block; width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1); }
+        .px-one:hover .px-one-art img { transform: scale(1.03); }
+        .px-one-body {
+          display: grid;
+          grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.6fr);
+          gap: 48px;
+          padding: 34px 28px 30px;
         }
-        .px-card:hover .px-card-art img { transform: scale(1.06); }
-        .px-card-body { padding: 22px 16px 18px; }
         .px-card-label {
           display: flex;
           align-items: center;
           gap: 9px;
-          margin: 0 0 12px;
+          margin: 0 0 14px;
           font-size: 12.5px;
           letter-spacing: 0.12em;
           color: var(--px-muted);
         }
         .px-card-label i { display: block; width: 9px; height: 9px; }
-        .px-card-title {
+        .px-one-title {
           font-family: inherit;
-          font-size: 19px;
+          font-size: 26px;
           font-weight: 600;
-          line-height: 1.25;
-          letter-spacing: -0.02em;
-          text-transform: none;
+          line-height: 1.2;
+          letter-spacing: -0.025em;
           color: var(--px-ink);
-          margin: 0 0 8px;
+          margin: 0 0 12px;
         }
-        .px-card-text { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--px-body); }
+        .px-one-intro { margin: 0; font-size: 15.5px; line-height: 1.65; color: var(--px-body); }
+        .px-one-list { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 32px; }
+        .px-one-item { display: grid; grid-template-columns: 10px minmax(0, 1fr); gap: 14px; }
+        .px-one-item > i { display: block; width: 10px; height: 10px; margin-top: 6px; }
+        .px-one-item h5 {
+          font-family: inherit;
+          font-size: 16.5px;
+          font-weight: 600;
+          line-height: 1.3;
+          letter-spacing: -0.015em;
+          color: var(--px-ink);
+          margin: 0 0 6px;
+        }
+        .px-one-item p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--px-body); }
 
         /* ── Highlights + stack ── */
         .px-meta-grid {
@@ -721,6 +743,9 @@ export default function ExperienceSection() {
           margin: 0 0 14px;
         }
         .px-report-inner h5 { font-size: 12px; font-weight: 500; letter-spacing: 0.14em; color: #15803D; margin: 26px 0 8px; }
+        .px-report-list { list-style: none; display: grid; gap: 12px; max-width: 72ch; }
+        .px-report-list li { font-size: 15px; line-height: 1.65; color: var(--px-body); padding-left: 16px; border-left: 2px solid var(--px-line); }
+        .px-report-list strong { color: var(--px-ink); font-weight: 600; }
         .px-report-inner p { margin: 0; max-width: 72ch; font-size: 15.5px; line-height: 1.7; color: var(--px-body); white-space: pre-line; }
 
         /* ── Lightbox ── */
@@ -757,7 +782,7 @@ export default function ExperienceSection() {
           .px-hero { padding: 200px 24px 96px; }
           .px-banner { grid-template-columns: 1fr; gap: 28px; padding: 52px 36px 40px; }
           .px-banner-side { justify-self: start; text-align: left; }
-          .px-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .px-one-body { grid-template-columns: 1fr; gap: 28px; }
           .px-meta-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 767px) {
@@ -769,7 +794,9 @@ export default function ExperienceSection() {
           .px-role-head { grid-template-columns: 1fr; gap: 16px; margin-bottom: 28px; }
           .px-role-desc { justify-self: start; text-align: left; }
           .px-banner { padding: 44px 24px 32px; min-height: 0; }
-          .px-cards { grid-template-columns: 1fr; gap: 16px; }
+          .px-one-list { grid-template-columns: 1fr; }
+          .px-one-art { aspect-ratio: 2.4 / 1; }
+          .px-one-body { padding: 24px 14px 20px; }
           .px-meta { padding: 20px; }
           .px-report-inner { padding: 22px 18px; }
           .px-actions { gap: 8px 24px; }

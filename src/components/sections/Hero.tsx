@@ -69,7 +69,7 @@ export default function HeroSection() {
           pointerEvents: "none",
         }}
       >
-        <span style={{ fontFamily: "'Open Sans', sans-serif", fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: "var(--color-body-subtle)" }}>Scroll</span>
+        <span style={{ fontFamily: "'Geist', sans-serif", fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: "var(--color-body-subtle)" }}>Scroll</span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-body-subtle)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="6 9 12 15 18 9"/>
         </svg>

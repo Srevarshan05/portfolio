@@ -103,7 +103,7 @@ END:VCARD`;
           border-top: 4px solid #1C202B;
           padding: 48px 40px;
           color: #ffffff;
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           position: relative;
           width: 100%;
           box-sizing: border-box;
@@ -129,11 +129,11 @@ END:VCARD`;
         }
 
         .brand-title {
-          font-family: 'Bangers', cursive;
+          font-family: 'Geist', sans-serif; font-weight: 600;
           font-size: 28px;
-          letter-spacing: 2px;
+          letter-spacing: -0.035em;
           color: #ffffff;
-          text-transform: uppercase;
+          text-transform: none;
           line-height: 1;
         }
 
@@ -161,7 +161,7 @@ END:VCARD`;
           border-radius: 3px;
           font-size: 10px;
           font-weight: bold;
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           color: #ffffff;
         }
 
@@ -198,12 +198,12 @@ END:VCARD`;
         }
 
         .col-header {
-          font-family: 'Bangers', cursive;
+          font-family: 'Geist', sans-serif; font-weight: 600;
           font-size: 18px;
-          letter-spacing: 1px;
+          letter-spacing: -0.035em;
           color: #E22D6D;
           margin: 0 0 16px 0;
-          text-transform: uppercase;
+          text-transform: none;
           line-height: 1;
         }
 
@@ -218,7 +218,7 @@ END:VCARD`;
           border: none;
           padding: 0;
           text-align: left;
-          font-family: 'Open Sans', sans-serif;
+          font-family: 'Geist', sans-serif;
           font-size: 14px;
           font-weight: 700;
           color: #B7C4ED;

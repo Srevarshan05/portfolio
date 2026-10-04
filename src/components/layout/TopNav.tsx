@@ -139,10 +139,10 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
           {/* Name & Title (hidden on compact mobile mode) */}
           {(!isMobile || mobileOpen) && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1.1, gap: "1px" }}>
-              <span style={{ fontFamily: "'Bangers', cursive", fontSize: "16px", letterSpacing: "1.5px", color: "#1C202B", textTransform: "uppercase" }}>
+              <span style={{ fontFamily: "'Geist', sans-serif", fontSize: "16px", fontWeight: 700, letterSpacing: "-0.02em", color: "#1C202B", textTransform: "none" }}>
                 Sre Varshan
               </span>
-              <span style={{ fontFamily: "'Open Sans', sans-serif", fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", color: "var(--brand)" }}>
+              <span style={{ fontFamily: "'Geist', sans-serif", fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", color: "var(--brand)" }}>
                 Applied AI & GenAI Engineer
               </span>
             </div>
@@ -173,7 +173,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
                   onMouseLeave={() => setHovered(null)}
                   aria-current={isActive ? "page" : undefined}
                   style={{
-                    fontFamily:      "'Open Sans', sans-serif",
+                    fontFamily:      "'Geist', sans-serif",
                     fontSize:        "11px",
                     fontWeight:      700,
                     textTransform:   "uppercase",
@@ -203,7 +203,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
               href="/services"
               id="nav-services-page"
               style={{
-                fontFamily:    "'Open Sans', sans-serif",
+                fontFamily:    "'Geist', sans-serif",
                 fontSize:      "11px",
                 fontWeight:    700,
                 textTransform: "uppercase",
@@ -293,7 +293,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
               key={link.id}
               onClick={() => scrollTo(link.id)}
               style={{
-                fontFamily:   "'Open Sans', sans-serif",
+                fontFamily:   "'Geist', sans-serif",
                 fontSize:     "13px",
                 fontWeight:   700,
                 textTransform:"uppercase",
@@ -317,7 +317,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
             href="/services"
             onClick={() => setMobileOpen(false)}
             style={{
-              fontFamily:    "'Open Sans', sans-serif",
+              fontFamily:    "'Geist', sans-serif",
               fontSize:      "13px",
               fontWeight:    700,
               textTransform: "uppercase",

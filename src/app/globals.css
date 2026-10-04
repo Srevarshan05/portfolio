@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;600;700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
 /* ============================================================
@@ -116,7 +116,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: var(--nav-h); }
 body {
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Geist', system-ui, sans-serif;
   font-weight: 400;
   color: var(--color-body);
   background: var(--section-light);
@@ -128,18 +128,20 @@ body {
    TYPOGRAPHY
    ============================================================ */
 h1,h2,h3,h4,h5,h6 {
-  font-family: 'Bangers', cursive;
-  font-weight: 400;
+  font-family: 'Geist', system-ui, sans-serif;
+  font-weight: 600;
   color: var(--color-heading);
-  text-transform: uppercase;
-  line-height: 1;
+  text-transform: none;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+  text-wrap: balance;
 }
-h1 { font-size: 88px; letter-spacing: 2px;   margin-bottom: 28px; }
-h2 { font-size: 60px; letter-spacing: 1.5px; margin-bottom: 20px; }
-h3 { font-size: 42px; letter-spacing: 1px;   margin-bottom: 18px; }
-h4 { font-size: 30px; letter-spacing: 1px;   margin-bottom: 14px; }
-h5 { font-size: 24px; letter-spacing: 0.5px; margin-bottom: 10px; }
-h6 { font-size: 20px; letter-spacing: 0.5px; margin-bottom: 10px; }
+h1 { font-size: 84px; margin-bottom: 28px; }
+h2 { font-size: 60px; margin-bottom: 20px; }
+h3 { font-size: 40px; margin-bottom: 18px; }
+h4 { font-size: 28px; margin-bottom: 14px; letter-spacing: -0.025em; }
+h5 { font-size: 22px; margin-bottom: 10px; letter-spacing: -0.02em; }
+h6 { font-size: 18px; margin-bottom: 10px; letter-spacing: -0.015em; }
 
 @media (max-width:1023px) {
   h1{font-size:60px} h2{font-size:46px} h3{font-size:34px} h4{font-size:26px}
@@ -148,7 +150,7 @@ h6 { font-size: 20px; letter-spacing: 0.5px; margin-bottom: 10px; }
   h1{font-size:40px} h2{font-size:32px} h3{font-size:26px} h4{font-size:22px}
 }
 
-p { font-family:'Open Sans',sans-serif; line-height:1.65; color:var(--color-body); }
+p { font-family:'Geist',sans-serif; line-height:1.65; color:var(--color-body); }
 p.leading { font-size:20px; max-width:70ch; }
 p.normal  { font-size:16px; max-width:65ch; }
 p.small   { font-size:14px; line-height:1.55; }
@@ -182,7 +184,7 @@ a:hover { color:var(--fg-brand-strong); }
 }
 
 .nav-logo {
-  font-family: 'Bangers', cursive;
+  font-family: 'Geist', sans-serif;
   font-size: 28px;
   letter-spacing: 2px;
   color: var(--color-heading);
@@ -214,7 +216,7 @@ a:hover { color:var(--fg-brand-strong); }
   list-style: none;
 }
 .nav-link {
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Geist', sans-serif;
   font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
@@ -249,7 +251,7 @@ a:hover { color:var(--fg-brand-strong); }
   display: flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Geist', sans-serif;
   font-size: 12px;
   font-weight: 700;
   color: var(--color-body-subtle);
@@ -384,7 +386,7 @@ a:hover { color:var(--fg-brand-strong); }
   align-items: center;
   justify-content: center;
   gap: 10px;
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Geist', sans-serif;
   font-weight: 700;
   font-size: 16px;
   text-transform: uppercase;
@@ -493,7 +495,7 @@ a:hover { color:var(--fg-brand-strong); }
   display:inline-flex;
   align-items:center;
   gap:4px;
-  font-family:'Open Sans',sans-serif;
+  font-family:'Geist',sans-serif;
   font-weight:700;
   font-size:11px;
   text-transform:uppercase;
@@ -522,7 +524,7 @@ a:hover { color:var(--fg-brand-strong); }
    ============================================================ */
 .input-wrapper { display:flex; flex-direction:column; gap:8px; }
 .input-label {
-  font-family:'Open Sans',sans-serif;
+  font-family:'Geist',sans-serif;
   font-size:13px;
   font-weight:700;
   text-transform:uppercase;
@@ -532,7 +534,7 @@ a:hover { color:var(--fg-brand-strong); }
 .input-field {
   display:block;
   width:100%;
-  font-family:'Open Sans',sans-serif;
+  font-family:'Geist',sans-serif;
   font-size:16px;
   color:var(--color-heading);
   background:var(--neutral-primary);
@@ -580,7 +582,7 @@ a:hover { color:var(--fg-brand-strong); }
 }
 .cmd-input {
   flex:1;
-  font-family:'Open Sans',sans-serif;
+  font-family:'Geist',sans-serif;
   font-size:18px;
   color:var(--color-heading);
   background:transparent;
@@ -596,7 +598,7 @@ a:hover { color:var(--fg-brand-strong); }
   border-radius:var(--radius-base);
   cursor:pointer;
   transition:background 80ms;
-  font-family:'Open Sans',sans-serif;
+  font-family:'Geist',sans-serif;
   font-size:14px;
   font-weight:600;
   color:var(--color-heading);
@@ -616,7 +618,7 @@ a:hover { color:var(--fg-brand-strong); }
   display:flex;align-items:center;gap:16px;
 }
 .cmd-key {
-  font-family:'Open Sans',sans-serif;
+  font-family:'Geist',sans-serif;
   font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
   color:var(--color-body-subtle);
   display:flex;align-items:center;gap:4px;
@@ -624,7 +626,7 @@ a:hover { color:var(--fg-brand-strong); }
 kbd {
   display:inline-flex;align-items:center;justify-content:center;
   padding:2px 7px;font-size:10px;
-  font-family:'Open Sans',sans-serif;font-weight:700;
+  font-family:'Geist',sans-serif;font-weight:700;
   background:var(--neutral-primary-soft);
   border:1.5px solid var(--border-light-medium);
   border-radius:3px;
@@ -687,7 +689,7 @@ kbd {
    EYEBROW LABEL
    ============================================================ */
 .eyebrow {
-  font-family:'Open Sans',sans-serif;
+  font-family:'Geist',sans-serif;
   font-size:12px;font-weight:700;
   text-transform:uppercase;letter-spacing:1.5px;
   color:var(--fg-brand);
@@ -720,7 +722,7 @@ kbd {
   flex-shrink:0;z-index:1;
 }
 .timeline-period {
-  font-family:'Open Sans',sans-serif;
+  font-family:'Geist',sans-serif;
   font-size:11px;font-weight:700;
   text-transform:uppercase;letter-spacing:1.5px;
   color:rgba(255,255,255,0.5);
@@ -815,7 +817,7 @@ input, textarea { caret-color: var(--brand); }
   padding: 10px 16px;
   background: var(--dark);
   color: var(--color-white);
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Geist', sans-serif;
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
@@ -869,7 +871,7 @@ main:focus { outline: none; }
   background:var(--neutral-primary);
   border:2px solid var(--border-default);
   border-radius:var(--radius-full);
-  font-family:'Open Sans',sans-serif;
+  font-family:'Geist',sans-serif;
   font-size:13px;font-weight:700;
   color:var(--color-heading);
   box-shadow:var(--shadow-2xs);

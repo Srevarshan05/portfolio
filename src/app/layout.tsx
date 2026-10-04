@@ -140,11 +140,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Google Fonts — Bangers (display) + Open Sans (body/UI) as per Tetris DS */}
+        {/* Google Fonts — Geist (display + body) and Geist Mono (labels) */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;700&display=swap"
           rel="stylesheet"
         />
         <link rel="icon" type="image/png" href="/Portfolio-favi.png" />
