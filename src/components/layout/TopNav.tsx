@@ -13,6 +13,12 @@ const NAV_LINKS = [
   { id: "contact",      label: "Contact" },
 ];
 
+/** Stepped "pixel" corners as a clip-path, n = step size in px */
+function pixelNotch(n: number) {
+  const a = `${n}px`, b = `${n * 2}px`;
+  return `polygon(${b} 0, calc(100% - ${b}) 0, calc(100% - ${b}) ${a}, calc(100% - ${a}) ${a}, calc(100% - ${a}) ${b}, 100% ${b}, 100% calc(100% - ${b}), calc(100% - ${a}) calc(100% - ${b}), calc(100% - ${a}) calc(100% - ${a}), calc(100% - ${b}) calc(100% - ${a}), calc(100% - ${b}) 100%, ${b} 100%, ${b} calc(100% - ${a}), ${a} calc(100% - ${a}), ${a} calc(100% - ${b}), 0 calc(100% - ${b}), 0 ${b}, ${a} ${b}, ${a} ${a}, ${b} ${a})`;
+}
+
 interface TopNavProps {
   onCommandPaletteOpen: () => void;
 }
@@ -54,39 +60,42 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
     setMobileOpen(false);
   };
 
-  /* ── Dynamic Island Nav Style ── */
-  const containerStyle: React.CSSProperties = {
+  /* ── Pixel nav: stepped corners, pixel border, hard pixel shadow ── */
+  // Centred with auto margins: left:50% capped the bar at half the viewport and clipped its last link
+  const wrapStyle: React.CSSProperties = {
     position: "fixed",
     top: scrolled ? "12px" : "20px",
-    // Centred with auto margins: left:50% capped the pill at half the viewport and clipped its last link
     left: 0,
     right: 0,
     marginLeft: "auto",
     marginRight: "auto",
-    width: isMobile
-      ? (mobileOpen ? "calc(100% - 32px)" : "142px")
-      : "fit-content",
+    width: isMobile ? (mobileOpen ? "calc(100% - 32px)" : "142px") : "fit-content",
     maxWidth: isMobile ? (mobileOpen ? "480px" : "142px") : "calc(100% - 32px)",
-    height: isMobile
-      ? "auto"
-      : (scrolled ? "50px" : "58px"),
-    background: "#ffffff", // clean white pill
-    border: "3px solid #1C202B", // neobrutalist border
-    borderRadius: isMobile && mobileOpen ? "24px" : "9999px",
-    boxShadow: "5px 5px 0 0 #1C202B", // neobrutalist slab shadow
     zIndex: 1000,
+    filter: "drop-shadow(4px 4px 0 #1C202B)",
+    transition: "top 300ms cubic-bezier(0.22, 1, 0.36, 1), width 300ms cubic-bezier(0.22, 1, 0.36, 1)",
+  };
+  const frameStyle: React.CSSProperties = {
+    background: "#1C202B",
+    padding: "3px",
+    clipPath: pixelNotch(6),
+  };
+  const containerStyle: React.CSSProperties = {
+    height: isMobile ? "auto" : (scrolled ? "46px" : "54px"),
+    background: "#ffffff",
+    clipPath: pixelNotch(4),
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
-    padding: isMobile && mobileOpen
-      ? "16px 20px"
-      : (scrolled ? "0 24px" : "0 32px"),
-    transition: "all 400ms cubic-bezier(0.22, 1, 0.36, 1)",
+    padding: isMobile && mobileOpen ? "16px 20px" : (scrolled ? "0 18px" : "0 24px"),
+    transition: "height 300ms cubic-bezier(0.22, 1, 0.36, 1), padding 300ms",
     overflow: "hidden",
   };
 
   return (
-    <header style={containerStyle} role="banner">
+    <header style={wrapStyle} role="banner">
+      <div style={frameStyle}>
+      <div style={containerStyle}>
       {/* Top Row: Brand, Desktop Nav Links & Actions / Mobile Hamburger */}
       <div
         style={{
@@ -142,7 +151,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
               <span style={{ fontFamily: "'Geist', sans-serif", fontSize: "16px", fontWeight: 700, letterSpacing: "-0.02em", color: "#1C202B", textTransform: "none" }}>
                 Sre Varshan
               </span>
-              <span style={{ fontFamily: "'Geist', sans-serif", fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", color: "var(--brand)" }}>
+              <span style={{ fontFamily: "'Geist Mono', monospace", fontSize: "9px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.8px", color: "var(--brand)" }}>
                 Applied AI & GenAI Engineer
               </span>
             </div>
@@ -173,8 +182,8 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
                   onMouseLeave={() => setHovered(null)}
                   aria-current={isActive ? "page" : undefined}
                   style={{
-                    fontFamily:      "'Geist', sans-serif",
-                    fontSize:        "11px",
+                    fontFamily:      "'Silkscreen', 'Geist Mono', monospace",
+                    fontSize:        "11.5px",
                     fontWeight:      700,
                     textTransform:   "uppercase",
                     letterSpacing:   "0.6px",
@@ -186,7 +195,8 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
                     alignItems:      "center",
                     justifyContent:  "center",
                     padding:         "0 10px",
-                    borderRadius:    "9999px",
+                    borderRadius:    0,
+                    clipPath:        pixelNotch(3),
                     cursor:          "pointer",
                     transition:      "all 150ms",
                     whiteSpace:      "nowrap",
@@ -203,20 +213,22 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
               href="/services"
               id="nav-services-page"
               style={{
-                fontFamily:    "'Geist', sans-serif",
-                fontSize:      "11px",
+                fontFamily:    "'Silkscreen', 'Geist Mono', monospace",
+                fontSize:      "11.5px",
                 fontWeight:    700,
                 textTransform: "uppercase",
                 letterSpacing: "0.6px",
                 color:         "#E22D6D",
                 background:    "rgba(226,45,109,0.08)",
-                border:        "1.5px solid rgba(226,45,109,0.3)",
+                border:        "0",
+                boxShadow:     "inset 0 0 0 2px rgba(226,45,109,0.35)",
                 height:        "32px",
                 display:       "inline-flex",
                 alignItems:    "center",
                 justifyContent:"center",
                 padding:       "0 12px",
-                borderRadius:  "9999px",
+                borderRadius:  0,
+                clipPath:      pixelNotch(3),
                 textDecoration:"none",
                 transition:    "all 150ms",
                 whiteSpace:    "nowrap",
@@ -293,7 +305,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
               key={link.id}
               onClick={() => scrollTo(link.id)}
               style={{
-                fontFamily:   "'Geist', sans-serif",
+                fontFamily:   "'Silkscreen', 'Geist Mono', monospace",
                 fontSize:     "13px",
                 fontWeight:   700,
                 textTransform:"uppercase",
@@ -301,7 +313,8 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
                 color:        active === link.id ? "white" : "#1C202B",
                 background:   active === link.id ? "var(--brand)" : "transparent",
                 border:       "none",
-                borderRadius: "12px",
+                borderRadius: 0,
+                clipPath:     pixelNotch(3),
                 padding:      "10px 14px",
                 textAlign:    "left",
                 cursor:       "pointer",
@@ -317,7 +330,7 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
             href="/services"
             onClick={() => setMobileOpen(false)}
             style={{
-              fontFamily:    "'Geist', sans-serif",
+              fontFamily:    "'Silkscreen', 'Geist Mono', monospace",
               fontSize:      "13px",
               fontWeight:    700,
               textTransform: "uppercase",
@@ -325,7 +338,8 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
               color:         "#E22D6D",
               background:    "rgba(226,45,109,0.08)",
               border:        "1.5px solid rgba(226,45,109,0.2)",
-              borderRadius:  "12px",
+              borderRadius:  0,
+              clipPath:      pixelNotch(3),
               padding:       "10px 14px",
               textAlign:     "left",
               cursor:        "pointer",
@@ -338,6 +352,8 @@ export default function TopNav({ onCommandPaletteOpen }: TopNavProps) {
           </Link>
         </div>
       )}
+      </div>
+      </div>
     </header>
   );
 }

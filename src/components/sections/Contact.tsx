@@ -17,6 +17,9 @@ const EMPTY: Fields = { name: "", email: "", subject: "", message: "" };
 const CHANNELS = ["linkedin", "github", "youtube"].map(profileById);
 const CHANNEL_TINT: Record<string, string> = { linkedin: "#0A66C2", github: "#1C202B", youtube: "#FF0000" };
 
+/** Places along the journey, drawn into /pixel/places.png (x = % across the artwork) */
+const PLACES: { name: string; x: number; high?: boolean }[] = [{"name": "Goa", "x": 4.21}, {"name": "Kerala", "x": 14.08}, {"name": "Bangalore", "x": 24.47}, {"name": "Metro", "x": 40.2, "high": true}, {"name": "IIT", "x": 34.47}, {"name": "Chennai", "x": 43.42}, {"name": "NIT", "x": 52.37}, {"name": "Madurai", "x": 59.47}, {"name": "Dindigul", "x": 68.42}, {"name": "Tirunelveli", "x": 78.95}];
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function validate(f: Fields): FieldErrors {
@@ -286,7 +289,16 @@ export default function ContactSection() {
     <section id="contact" className="cx-section" aria-labelledby="contact-title">
       <span className="cx-guide cx-guide-l" aria-hidden="true" />
       <span className="cx-guide cx-guide-r" aria-hidden="true" />
-      <div className="cx-sky" aria-hidden="true" />
+      <div className="cx-places" aria-hidden="true">
+        <div className="cx-places-art">
+          <img src="/pixel/places.png" alt="" width={2280} height={510} loading="lazy" decoding="async" />
+          {PLACES.map((p) => (
+            <span key={p.name} className={`cx-mono cx-place ${p.high ? "is-high" : ""}`} style={{ left: `${p.x}%` }}>
+              <i />{p.name}
+            </span>
+          ))}
+        </div>
+      </div>
 
       <div className="cx-inner">
         <header className="cx-head">
@@ -368,18 +380,18 @@ export default function ContactSection() {
             </Reveal>
           </div>
 
-          {/* ── Right: compose card ── */}
+          {/* ── Right: compose window, built like a real mail client ── */}
           <motion.div
             id="compose-card"
-            className={`cx-card cx-compose ${minimized ? "is-min" : ""}`}
+            className={`cx-mail ${minimized ? "is-min" : ""}`}
             initial={{ opacity: 0, y: 48 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.15 }}
             transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.1 }}
           >
-            <div className="cx-strip cx-strip-split">
-              <span className="cx-mono">{sendState === "sent" ? "Message sent" : "New message"}</span>
-              <div className="cx-controls">
+            <div className="cx-mail-bar">
+              <span className="cx-mail-title">{sendState === "sent" ? "Message sent" : "New Message"}</span>
+              <div className="cx-mail-controls">
                 <button type="button" onClick={() => setMinimized((v) => !v)} aria-label={minimized ? "Restore message window" : "Minimize message window"} aria-pressed={minimized}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" aria-hidden="true">
                     {minimized ? <path d="M6 15l6-6 6 6" /> : <path d="M5 18h14" />}
@@ -390,7 +402,7 @@ export default function ContactSection() {
                     {expanded ? <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" /> : <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />}
                   </svg>
                 </button>
-                <button type="button" onClick={discard} aria-label="Discard draft">
+                <button type="button" onClick={discard} aria-label="Close and discard draft">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
                 </button>
               </div>
@@ -418,94 +430,88 @@ export default function ContactSection() {
                 </svg>
                 <h3 className="cx-card-title">Message sent!</h3>
                 <p className="cx-card-sub">Thanks for reaching out. Your message is in my inbox and I&apos;ll reply to the email you gave.</p>
-                <button type="button" className="cx-btn cx-btn-outline cx-btn-block" onClick={() => setSendState("idle")}>Write another message</button>
+                <button type="button" className="cx-btn cx-btn-outline" onClick={() => setSendState("idle")}>Write another message</button>
               </motion.div>
             ) : (
               <motion.div
                 key="compose"
-                className="cx-card-body"
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, rotateX: 72, y: -70, scale: 0.8, transition: { duration: 0.5, ease: [0.7, 0, 0.84, 0] } }}
-                transition={{ duration: 0.45, ease: EASE_OUT }}
+                transition={{ duration: 0.4, ease: EASE_OUT }}
                 style={{ transformOrigin: "50% 0%", transformPerspective: 1000 }}
               >
-                <div className="cx-compose-top">
-                  <span className="cx-mono cx-chip">To · Sre Varshan</span>
-                  <button type="button" className="cx-icon-btn" onClick={copyEmail} aria-label={copied ? "Email address copied" : "Copy email address"}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h8" /></svg>
-                  </button>
-                </div>
-                <h3 className="cx-card-title">Write to me</h3>
-                <p className="cx-card-sub">Your message goes straight to my inbox.</p>
-
-                <div className="cx-recipient">
-                  <span className="cx-row-text">
-                    <span className="cx-row-name">Sre Varshan</span>
-                    <span className="cx-mono cx-row-handle">{TO_EMAIL}</span>
-                  </span>
-                  <span className="cx-tag">Recipient</span>
-                </div>
-
-                <form id="compose-form" className="cx-form" onSubmit={send} onKeyDown={onFormKeyDown} noValidate aria-busy={busy}>
-                  <div className="cx-field-pair">
-                    <div className="cx-field">
-                      <label htmlFor="contact-email" className="cx-mono cx-label">Your email</label>
-                      <input
-                        id="contact-email" name="email" type="email" inputMode="email" autoComplete="email"
-                        className="cx-input" placeholder="you@company.com"
-                        value={fields.email} onChange={update("email")}
-                        aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? "contact-email-error" : undefined}
-                        readOnly={typing} onPointerDown={typing ? finishTyping : undefined}
-                      />
-                      {errors.email && <p id="contact-email-error" className="cx-error">{errors.email}</p>}
-                    </div>
-                    <div className="cx-field">
-                      <label htmlFor="contact-name" className="cx-mono cx-label">Name</label>
-                      <input
-                        id="contact-name" name="name" type="text" autoComplete="name"
-                        className="cx-input" placeholder="Your name"
-                        value={fields.name} onChange={update("name")}
-                        aria-invalid={Boolean(errors.name)} aria-describedby={errors.name ? "contact-name-error" : undefined}
-                        readOnly={typing} onPointerDown={typing ? finishTyping : undefined}
-                      />
-                      {errors.name && <p id="contact-name-error" className="cx-error">{errors.name}</p>}
-                    </div>
+                <form id="compose-form" className="cx-mail-form" onSubmit={send} onKeyDown={onFormKeyDown} noValidate aria-busy={busy}>
+                  <div className="cx-mail-row">
+                    <span className="cx-mail-label" id="contact-to-label">To</span>
+                    <span className="cx-mail-to" aria-labelledby="contact-to-label">
+                      <span className="cx-mail-avatar" aria-hidden="true">S</span>
+                      Sre Varshan <span className="cx-mail-addr">&lt;{TO_EMAIL}&gt;</span>
+                    </span>
+                    <button type="button" className="cx-icon-btn cx-mail-copy" onClick={copyEmail} aria-label={copied ? "Email address copied" : "Copy email address"}>
+                      {copied ? (
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>
+                      ) : (
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h8" /></svg>
+                      )}
+                    </button>
                   </div>
 
-                  <div className="cx-field">
-                    <label htmlFor="contact-subject" className="cx-mono cx-label">Subject</label>
+                  <div className={`cx-mail-row ${errors.email ? "has-error" : ""}`}>
+                    <label htmlFor="contact-email" className="cx-mail-label">From</label>
+                    <input
+                      id="contact-email" name="email" type="email" inputMode="email" autoComplete="email"
+                      className="cx-mail-input" placeholder="your@email.com"
+                      value={fields.email} onChange={update("email")}
+                      aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? "contact-email-error" : undefined}
+                      readOnly={typing} onPointerDown={typing ? finishTyping : undefined}
+                    />
+                  </div>
+                  {errors.email && <p id="contact-email-error" className="cx-mail-error">{errors.email}</p>}
+
+                  <div className={`cx-mail-row ${errors.name ? "has-error" : ""}`}>
+                    <label htmlFor="contact-name" className="cx-mail-label">Name</label>
+                    <input
+                      id="contact-name" name="name" type="text" autoComplete="name"
+                      className="cx-mail-input" placeholder="Your name"
+                      value={fields.name} onChange={update("name")}
+                      aria-invalid={Boolean(errors.name)} aria-describedby={errors.name ? "contact-name-error" : undefined}
+                      readOnly={typing} onPointerDown={typing ? finishTyping : undefined}
+                    />
+                  </div>
+                  {errors.name && <p id="contact-name-error" className="cx-mail-error">{errors.name}</p>}
+
+                  <div className="cx-mail-row">
+                    <label htmlFor="contact-subject" className="sr-only">Subject</label>
                     <input
                       id="contact-subject" name="subject" type="text"
-                      className={`cx-input ${typing ? "is-typing" : ""} ${drafting ? "is-loading" : ""}`}
-                      placeholder="Portfolio Inquiry"
+                      className={`cx-mail-input cx-mail-subject ${typing ? "is-typing" : ""} ${drafting ? "is-loading" : ""}`}
+                      placeholder="Subject"
                       value={fields.subject} onChange={update("subject")}
                       readOnly={busy} onPointerDown={typing ? finishTyping : undefined}
                       onKeyDown={typing ? finishTyping : undefined}
                     />
                   </div>
 
-                  <div className="cx-field">
-                    <label htmlFor="contact-message" className="cx-mono cx-label">Message</label>
-                    <div className="cx-textarea-wrap">
-                      <textarea
-                        ref={textareaRef}
-                        id="contact-message" name="message"
-                        className={`cx-input cx-textarea ${typing ? "is-typing" : ""}`}
-                        placeholder="What are you building, and how can I help?"
-                        value={fields.message} onChange={update("message")}
-                        aria-invalid={Boolean(errors.message)} aria-describedby={errors.message ? "contact-message-error" : undefined}
-                        readOnly={busy} onPointerDown={typing ? finishTyping : undefined}
-                        onKeyDown={typing ? finishTyping : undefined}
-                      />
-                      {drafting && (
-                        <div className="cx-skeleton" aria-hidden="true">
-                          <span style={{ width: "92%" }} /><span style={{ width: "78%" }} /><span style={{ width: "86%" }} /><span style={{ width: "54%" }} />
-                        </div>
-                      )}
-                    </div>
-                    {errors.message && <p id="contact-message-error" className="cx-error">{errors.message}</p>}
+                  <div className={`cx-mail-body ${errors.message ? "has-error" : ""}`}>
+                    <label htmlFor="contact-message" className="sr-only">Message</label>
+                    <textarea
+                      ref={textareaRef}
+                      id="contact-message" name="message"
+                      className={`cx-mail-textarea ${typing ? "is-typing" : ""}`}
+                      placeholder="What are you building, and how can I help?"
+                      value={fields.message} onChange={update("message")}
+                      aria-invalid={Boolean(errors.message)} aria-describedby={errors.message ? "contact-message-error" : undefined}
+                      readOnly={busy} onPointerDown={typing ? finishTyping : undefined}
+                      onKeyDown={typing ? finishTyping : undefined}
+                    />
+                    {drafting && (
+                      <div className="cx-skeleton" aria-hidden="true">
+                        <span style={{ width: "92%" }} /><span style={{ width: "78%" }} /><span style={{ width: "86%" }} /><span style={{ width: "54%" }} />
+                      </div>
+                    )}
                   </div>
+                  {errors.message && <p id="contact-message-error" className="cx-mail-error">{errors.message}</p>}
                 </form>
 
                 <AnimatePresence initial={false}>
@@ -518,7 +524,10 @@ export default function ContactSection() {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.35, ease: EASE_OUT }}
                     >
-                      <label htmlFor="contact-ai" className="cx-mono cx-label">Describe your email</label>
+                      <label htmlFor="contact-ai" className="cx-ai-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.6L19 9.5l-5.2 1.9L12 17l-1.8-5.6L5 9.5l5.2-1.9L12 2Z" /></svg>
+                        Help me write
+                      </label>
                       <div className="cx-ai-row">
                         <input
                           ref={aiInputRef}
@@ -534,10 +543,10 @@ export default function ContactSection() {
                         {drafting ? (
                           <button type="button" className="cx-btn cx-btn-outline" onClick={cancelDraft}>Cancel</button>
                         ) : (
-                          <button type="submit" className="cx-btn cx-btn-green" disabled={!aiPrompt.trim()}>Write draft</button>
+                          <button type="submit" className="cx-btn cx-btn-send-pill" disabled={!aiPrompt.trim()}>Create</button>
                         )}
                       </div>
-                      {aiError && <p className="cx-error" role="alert">{aiError}</p>}
+                      {aiError && <p className="cx-mail-error cx-mail-error-flat" role="alert">{aiError}</p>}
                       {(fields.subject || fields.message) && !drafting && (
                         <p className="cx-fine">The draft replaces the current subject and message. You can undo it afterwards.</p>
                       )}
@@ -555,21 +564,32 @@ export default function ContactSection() {
                   </div>
                 )}
 
-                <div className="cx-btn-row cx-send-row">
-                  <button type="submit" form="compose-form" className="cx-btn cx-btn-green cx-btn-send" disabled={sendState === "sending"}>
+                <div className="cx-mail-toolbar">
+                  <button type="submit" form="compose-form" className="cx-btn cx-btn-send-pill" disabled={sendState === "sending"}>
                     {sendState === "sending" ? "Sending…" : "Send"}
                     {sendState !== "sending" && (
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z" /></svg>
                     )}
                   </button>
+                  <button
+                    type="button"
+                    className={`cx-tool ${aiOpen ? "is-on" : ""}`}
+                    onClick={() => setAiOpen((v) => !v)}
+                    aria-expanded={aiOpen}
+                    aria-label="Draft with AI"
+                    title="Draft with AI"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.6L19 9.5l-5.2 1.9L12 17l-1.8-5.6L5 9.5l5.2-1.9L12 2Zm7 12 .9 2.6 2.6.9-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9L19 14Z" /></svg>
+                    <span className="cx-tool-text">Draft with AI</span>
+                  </button>
                   {preDraft && !drafting && (
                     <button type="button" className="cx-link-btn" onClick={undoDraft}>Undo draft</button>
                   )}
+                  <span className="cx-mail-hint">Ctrl + Enter</span>
+                  <button type="button" className="cx-tool cx-tool-end" onClick={discard} aria-label="Discard draft" title="Discard draft">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg>
+                  </button>
                 </div>
-                <button type="button" className="cx-btn cx-btn-outline cx-btn-block" onClick={() => setAiOpen((v) => !v)} aria-expanded={aiOpen}>
-                  {aiOpen ? "Close AI draft" : "Draft with AI"}
-                </button>
-                <p className="cx-fine">Ctrl + Enter sends. Your draft is saved in this browser until you send it.</p>
               </motion.div>
             )}
             </AnimatePresence>
@@ -594,29 +614,12 @@ export default function ContactSection() {
           isolation: isolate;
           background: var(--cx-bg);
           color: var(--cx-ink);
-          padding: 140px 40px 260px;
+          padding: 140px 40px 400px;
         }
         .cx-mono { font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; letter-spacing: 0.12em; }
         .cx-guide { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--cx-line); z-index: 0; pointer-events: none; }
         .cx-guide-l { left: max(16px, calc(50% - 650px)); }
         .cx-guide-r { right: max(16px, calc(50% - 650px)); }
-        .cx-sky {
-          position: absolute;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          height: 460px;
-          z-index: -1;
-          background: url('/pixel/sky.webp') center bottom / cover no-repeat;
-          image-rendering: pixelated;
-          transform: scaleY(-1);
-          opacity: 0.55;
-          -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent);
-          mask-image: linear-gradient(to bottom, #000 30%, transparent);
-          animation: cxDrift 30s ease-in-out infinite alternate;
-        }
-        @keyframes cxDrift { from { background-position: 47% bottom; } to { background-position: 53% bottom; } }
-
         .cx-inner { position: relative; z-index: 1; max-width: 1172px; margin: 0 auto; }
 
         /* ── Headline ── */
@@ -837,16 +840,184 @@ export default function ContactSection() {
         .cx-sent .cx-btn-block { max-width: 320px; }
         .cx-plane { margin-bottom: 14px; }
 
+        /* ── Mail client ── */
+        .cx-mail {
+          background: #FFFFFF;
+          border: 1px solid #D9D5CE;
+          border-radius: 10px;
+          overflow: hidden;
+          box-shadow: 0 24px 48px -28px rgba(20, 20, 20, 0.35), 0 2px 6px rgba(20, 20, 20, 0.06);
+        }
+        .cx-mail.is-min { align-self: start; }
+        .cx-mail-bar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          height: 46px;
+          padding: 0 8px 0 18px;
+          background: #2B2F36;
+          color: #FFFFFF;
+        }
+        .cx-mail-title { font-size: 14.5px; font-weight: 500; letter-spacing: -0.01em; }
+        .cx-mail-controls { display: flex; gap: 2px; }
+        .cx-mail-controls button {
+          width: 34px;
+          height: 34px;
+          display: grid;
+          place-items: center;
+          background: transparent;
+          border: 0;
+          border-radius: 6px;
+          color: #D7DBE2;
+          cursor: pointer;
+          transition: background 140ms, color 140ms;
+        }
+        .cx-mail-controls button:hover { background: rgba(255, 255, 255, 0.12); color: #FFFFFF; }
+        .cx-mail-controls button:focus-visible { outline-color: #FFFFFF; }
+
+        .cx-mail-form { display: flex; flex-direction: column; }
+        .cx-mail-row {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          min-height: 46px;
+          padding: 0 18px;
+          border-bottom: 1px solid #ECE9E3;
+        }
+        .cx-mail-row:focus-within { box-shadow: inset 0 -1px 0 #0B57D0; }
+        .cx-mail-row.has-error { box-shadow: inset 0 -1px 0 #B11F55; }
+        .cx-mail-label { flex: 0 0 46px; font-size: 14px; color: #6E6E6E; }
+        .cx-mail-to { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 14.5px; color: var(--cx-ink); flex-wrap: wrap; }
+        .cx-mail-addr { color: #6E6E6E; overflow-wrap: anywhere; }
+        .cx-mail-avatar {
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          display: grid;
+          place-items: center;
+          background: var(--brand);
+          color: #FFFFFF;
+          font-size: 11.5px;
+          font-weight: 600;
+        }
+        .cx-mail-copy { width: 32px; height: 32px; color: #6E6E6E; }
+        .cx-mail-input {
+          flex: 1;
+          min-width: 0;
+          height: 44px;
+          border: 0;
+          background: transparent;
+          font: 400 15px 'Geist', system-ui, sans-serif;
+          color: var(--cx-ink);
+        }
+        .cx-mail-input:focus { outline: none; }
+        .cx-mail-input::placeholder, .cx-mail-textarea::placeholder { color: #8F8F8F; }
+        .cx-mail-subject { font-weight: 500; }
+        .cx-mail-body { position: relative; }
+        .cx-mail-body.has-error { box-shadow: inset 0 -1px 0 #B11F55; }
+        .cx-mail-textarea {
+          display: block;
+          width: 100%;
+          min-height: 240px;
+          padding: 16px 18px;
+          border: 0;
+          resize: none;
+          background: transparent;
+          font: 400 15px/1.65 'Geist', system-ui, sans-serif;
+          color: var(--cx-ink);
+          overflow-y: auto;
+        }
+        .cx-mail-textarea:focus { outline: none; }
+        .cx-mail-body .cx-skeleton { inset: 0; padding: 18px; border-radius: 0; }
+        .cx-mail-error { margin: 0; padding: 8px 18px; font-size: 13px; font-weight: 500; color: #B11F55; background: #FFF5F8; border-bottom: 1px solid #ECE9E3; }
+        .cx-mail-error-flat { padding: 0; background: none; border: 0; }
+        .cx-mail .cx-ai { margin: 0; padding: 14px 18px; border-top: 1px solid #ECE9E3; background: #F7F9FD; }
+        .cx-ai-label { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 500; color: #0B57D0; }
+        .cx-mail .cx-failed { margin: 0 18px 14px; }
+
+        .cx-mail-toolbar {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 12px 14px 14px 18px;
+          border-top: 1px solid #ECE9E3;
+        }
+        .cx-btn-send-pill {
+          background: #0B57D0;
+          color: #FFFFFF;
+          border: 0;
+          border-radius: 999px;
+          padding: 10px 22px;
+          min-height: 40px;
+          font-weight: 500;
+        }
+        .cx-btn-send-pill:hover:not(:disabled) { background: #0A4AB0; color: #FFFFFF; }
+        .cx-btn-send-pill:disabled { background: #AFC4EB; cursor: not-allowed; }
+        .cx-tool {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          height: 38px;
+          padding: 0 10px;
+          margin-left: 6px;
+          background: transparent;
+          border: 0;
+          border-radius: 999px;
+          color: #444746;
+          font: 500 14px 'Geist', system-ui, sans-serif;
+          cursor: pointer;
+          transition: background 140ms, color 140ms;
+        }
+        .cx-tool:hover { background: #F1F3F4; }
+        .cx-tool.is-on { background: #E8F0FE; color: #0B57D0; }
+        .cx-tool-end { margin-left: 0; }
+        .cx-mail-hint { margin-left: auto; font-size: 12.5px; color: #8F8F8F; }
+        .cx-mail .cx-sent { padding: 44px 24px 34px; }
+
+        /* ── Places along the journey ── */
+        .cx-places {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 0;
+          overflow: hidden;
+          pointer-events: none;
+          background: linear-gradient(to bottom, rgba(250, 249, 247, 0), #D7ECFB 45%, #CDE7FA);
+          padding-top: 120px;
+        }
+        .cx-places-art { position: relative; width: 100%; min-width: 1100px; left: 50%; transform: translateX(-50%); }
+        .cx-places-art img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+        .cx-place {
+          position: absolute;
+          bottom: 12%;
+          transform: translateX(-50%);
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 3px 7px;
+          background: rgba(255, 255, 255, 0.92);
+          border: 1px solid rgba(20, 20, 20, 0.15);
+          border-radius: 3px;
+          font-size: 10.5px;
+          font-weight: 500;
+          letter-spacing: 0.1em;
+          color: var(--cx-ink);
+          white-space: nowrap;
+        }
+        .cx-place i { width: 6px; height: 6px; background: var(--brand); }
+        .cx-place.is-high { bottom: 52%; }
+
         /* ── Responsive ── */
         @media (max-width: 1023px) {
-          .cx-section { padding: 112px 32px 220px; }
+          .cx-section { padding: 112px 32px 340px; }
           .cx-grid { grid-template-columns: 1fr; }
           .cx-side { order: 2; }
           .cx-only-desktop { display: none !important; }
           .cx-grid.is-wide .cx-side { display: flex; }
         }
         @media (max-width: 767px) {
-          .cx-section { padding: 96px 16px 180px; }
+          .cx-section { padding: 96px 16px 300px; }
           .cx-guide { display: none; }
           .cx-head { margin-bottom: 36px; }
           .cx-lead { font-size: 16px; }
@@ -855,7 +1026,9 @@ export default function ContactSection() {
           .cx-strip-split { padding-right: 6px; }
           .cx-field-pair { grid-template-columns: 1fr; }
           .cx-ai-row { flex-direction: column; }
-          .cx-sky { height: 300px; }
+          .cx-mail-hint, .cx-tool-text { display: none; }
+          .cx-mail-addr { display: none; }
+          .cx-mail-label { flex-basis: 40px; }
         }
       `}</style>
     </section>

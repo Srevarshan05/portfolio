@@ -49,6 +49,10 @@ export default function CodingProfilesSection() {
 
   return (
     <section id="coding-profiles" className="pf-section" ref={sectionRef} aria-labelledby="profiles-title">
+      {/* Faint pixel clouds drifting across the black field */}
+      <img className="pf-cloud pf-cloud-a" src="/pixel/clouds-white.png" alt="" aria-hidden="true" width={1800} height={480} />
+      <img className="pf-cloud pf-cloud-b" src="/pixel/clouds-white.png" alt="" aria-hidden="true" width={1800} height={480} />
+      <img className="pf-cloud pf-cloud-c" src="/pixel/clouds-white.png" alt="" aria-hidden="true" width={1800} height={480} />
       <img className="pf-doodle pf-doodle-l" src="/icons/doodle-stars.png" alt="" aria-hidden="true" width={60} height={60} loading="lazy" />
       <img className="pf-doodle pf-doodle-r" src="/icons/doodle-stars.png" alt="" aria-hidden="true" width={60} height={60} loading="lazy" />
 
@@ -89,6 +93,18 @@ export default function CodingProfilesSection() {
         }
         .pf-inner { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; }
 
+        .pf-cloud {
+          position: absolute;
+          height: auto;
+          image-rendering: pixelated;
+          pointer-events: none;
+          z-index: 0;
+          animation: pfDrift 60s linear infinite;
+        }
+        .pf-cloud-a { width: 900px; top: 4%; left: -180px; opacity: 0.1; }
+        .pf-cloud-b { width: 600px; top: 46%; right: -120px; opacity: 0.08; animation-duration: 75s; animation-direction: reverse; }
+        .pf-cloud-c { width: 600px; bottom: 2%; left: 34%; opacity: 0.06; animation-duration: 90s; }
+        @keyframes pfDrift { 0% { transform: translateX(0); } 50% { transform: translateX(40px); } 100% { transform: translateX(0); } }
         .pf-doodle { position: absolute; top: 44px; width: 60px; height: auto; opacity: 0.55; filter: invert(1); pointer-events: none; z-index: 1; }
         .pf-doodle-l { left: 6%; }
         .pf-doodle-r { right: 6%; transform: scaleX(-1); }

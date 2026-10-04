@@ -1626,8 +1626,8 @@ export default function ProjectsSection() {
           background: url('/pixel/sky.webp') center top / cover no-repeat;
           image-rendering: pixelated;
           opacity: 0.32;
-          -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent 100%);
-          mask-image: linear-gradient(to bottom, #000 25%, transparent 100%);
+          -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30%, #000 45%, transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 30%, #000 45%, transparent 100%);
           pointer-events: none;
           z-index: 0;
         }

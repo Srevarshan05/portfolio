@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import { useDialog } from "@/lib/useDialog";
 import { EASE_OUT, Reveal, Stagger, StaggerItem } from "@/components/motion";
+import PixelRunner from "@/components/motion/PixelRunner";
 
 interface ReportSection {
   title: string;
@@ -172,9 +173,9 @@ const ROLES: Role[] = [
 ];
 
 /** Per-role banner colour and wide pixel scene */
-const LOOK: Record<string, { banner: [string, string]; scene: string; tag: string }> = {
-  emedlogix: { banner: ["#0A5FB4", "#1690E8"], scene: "emed-wide", tag: "Healthcare SaaS · Production" },
-  microsoft: { banner: ["#0B7E62", "#16A97F"], scene: "nose-wide", tag: "IoT · Machine Learning" },
+const LOOK: Record<string, { banner: [string, string]; tag: string }> = {
+  emedlogix: { banner: ["#0A5FB4", "#1690E8"], tag: "Healthcare SaaS · Production" },
+  microsoft: { banner: ["#0B7E62", "#16A97F"], tag: "IoT · Machine Learning" },
 };
 const SQUARES = ["#1E88E5", "#F2A33A", "#E4572E"];
 
@@ -279,9 +280,6 @@ function RoleBlock({ r, index, onWorkflow }: { r: Role; index: number; onWorkflo
 
       {/* ── What I built: one card ── */}
       <Reveal kind="up" className="px-one">
-        <div className="px-one-art px-notch-sm">
-          <img src={`/pixel/${look.scene}.webp`} alt="" aria-hidden="true" width={1200} height={300} loading="lazy" decoding="async" />
-        </div>
         <div className="px-one-body">
           <div className="px-one-head">
             <p className="px-mono px-card-label">
@@ -392,6 +390,7 @@ export default function ExperienceSection() {
       {/* ── Sky hero ── */}
       <div ref={heroRef} className="px-hero">
         <motion.div className="px-sky" style={{ y: skyY }} aria-hidden="true" />
+        <PixelRunner />
         <div className="px-hero-copy">
           <Reveal kind="up" as="p" className="px-mono px-kicker">Work experience · 02 roles</Reveal>
           <Reveal kind="up" delay={0.08}>
@@ -451,12 +450,32 @@ export default function ExperienceSection() {
           background: var(--px-bg);
           color: var(--px-ink);
           font-family: 'Geist', system-ui, sans-serif;
-          padding: 0 0 120px;
+          padding: 0 0 200px;
+        }
+        /* Smudge into the Projects section: no visible seam */
+        .px-section::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          height: 260px;
+          background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #FFFFFF 92%);
+          pointer-events: none;
+          z-index: 1;
         }
         .px-mono { font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; }
 
         /* thin guide rules framing the content column */
-        .px-guide { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--px-line); z-index: 1; pointer-events: none; }
+        .px-guide {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 1px;
+          background: linear-gradient(to bottom, var(--px-line) 0, var(--px-line) calc(100% - 320px), rgba(230, 227, 221, 0));
+          z-index: 1;
+          pointer-events: none;
+        }
         .px-guide-l { left: max(16px, calc(50% - 650px)); }
         .px-guide-r { right: max(16px, calc(50% - 650px)); }
 
@@ -645,10 +664,7 @@ export default function ExperienceSection() {
         .px-role-id .px-index { margin: 0; }
 
         /* ── Single "What I built" card ── */
-        .px-one { margin-top: 24px; background: #FFFFFF; border: 1px solid var(--px-line); padding: 8px; }
-        .px-one-art { overflow: hidden; aspect-ratio: 4 / 1; background: #BFE5FC; }
-        .px-one-art img { display: block; width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1); }
-        .px-one:hover .px-one-art img { transform: scale(1.03); }
+        .px-one { margin-top: 24px; background: #FFFFFF; border: 1px solid var(--px-line); }
         .px-one-body {
           display: grid;
           grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.6fr);
@@ -795,7 +811,6 @@ export default function ExperienceSection() {
           .px-role-desc { justify-self: start; text-align: left; }
           .px-banner { padding: 44px 24px 32px; min-height: 0; }
           .px-one-list { grid-template-columns: 1fr; }
-          .px-one-art { aspect-ratio: 2.4 / 1; }
           .px-one-body { padding: 24px 14px 20px; }
           .px-meta { padding: 20px; }
           .px-report-inner { padding: 22px 18px; }
