@@ -336,6 +336,7 @@ export default function GallerySection() {
       style={{
         paddingLeft: 0,
         paddingRight: 0,
+        paddingBottom: 0,
         background: "#120F17", // Rich dark background matching overlayBlurColor
         position: "relative",
         borderTop: "4px solid var(--border-default)",
@@ -363,7 +364,7 @@ export default function GallerySection() {
           </div>
           <div className="reveal reveal-right" style={{ paddingBottom: "4px" }}>
             <p className="leading" style={{ color: "var(--neutral-primary-soft)", opacity: 0.8 }}>
-              A 3D gallery of my engineering journey. This sphere holds snapshots of the competitions I've tackled, the places my work has taken me, and the physical builds I am most proud of. Drag to rotate and click to view
+              A 3D gallery of my engineering journey. This sphere holds snapshots of the competitions I&apos;ve tackled, the places my work has taken me, and the physical builds I am most proud of. Drag to rotate and click to view
             </p>
           </div>
         </div>
@@ -378,7 +379,6 @@ export default function GallerySection() {
           position: "relative",
           zIndex: 2,
           borderTop: "2px solid rgba(255, 255, 255, 0.08)",
-          borderBottom: "2px solid rgba(255, 255, 255, 0.08)",
         }}
       >
         <DomeGallery

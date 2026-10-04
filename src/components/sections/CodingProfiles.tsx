@@ -49,13 +49,13 @@ export default function CodingProfilesSection() {
 
   return (
     <section id="coding-profiles" className="pf-section" ref={sectionRef} aria-labelledby="profiles-title">
-      {/* Faint pixel clouds drifting slowly across the black field */}
+      {/* Pixel clouds drifting slowly across a soft sky */}
       <div className="pf-sky" aria-hidden="true">
-        <img className="pf-cloud pf-cloud-1" src="/pixel/cloud-3.png" alt="" width={368} height={168} />
-        <img className="pf-cloud pf-cloud-2" src="/pixel/cloud-1.png" alt="" width={288} height={144} />
-        <img className="pf-cloud pf-cloud-3" src="/pixel/cloud-2.png" alt="" width={224} height={120} />
-        <img className="pf-cloud pf-cloud-4" src="/pixel/cloud-1.png" alt="" width={288} height={144} />
-        <img className="pf-cloud pf-cloud-5" src="/pixel/cloud-3.png" alt="" width={368} height={168} />
+        <img className="pf-cloud pf-cloud-1" src="/pixel/cloud-sky-3.png" alt="" width={368} height={168} />
+        <img className="pf-cloud pf-cloud-2" src="/pixel/cloud-sky-1.png" alt="" width={288} height={144} />
+        <img className="pf-cloud pf-cloud-3" src="/pixel/cloud-sky-2.png" alt="" width={224} height={120} />
+        <img className="pf-cloud pf-cloud-4" src="/pixel/cloud-sky-1.png" alt="" width={288} height={144} />
+        <img className="pf-cloud pf-cloud-5" src="/pixel/cloud-sky-3.png" alt="" width={368} height={168} />
       </div>
       <img className="pf-doodle pf-doodle-l" src="/icons/doodle-stars.png" alt="" aria-hidden="true" width={60} height={60} loading="lazy" />
       <img className="pf-doodle pf-doodle-r" src="/icons/doodle-stars.png" alt="" aria-hidden="true" width={60} height={60} loading="lazy" />
@@ -90,50 +90,35 @@ export default function CodingProfilesSection() {
         .pf-section {
           position: relative;
           overflow: hidden;
-          background: #0B0B0D;
-          padding: 230px 40px 112px;
-          border-bottom: 1px solid #1F2128;
+          /* white at both edges so it melts into Projects above and the resume section below */
+          background: linear-gradient(to bottom,
+            #FFFFFF 0%, #F6FAFE 6%, #E9F4FD 16%, #DFEFFC 30%, #DCEEFB 50%,
+            #DFEFFC 70%, #E9F4FD 84%, #F6FAFE 94%, #FFFFFF 100%);
+          padding: 140px 40px 140px;
         }
         .pf-inner { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; }
-
-        /* Smudge in from the white Projects section above: eased, no visible edge */
-        .pf-section::before {
-          content: "";
-          position: absolute;
-          left: 0;
-          right: 0;
-          top: 0;
-          height: 320px;
-          z-index: 1;
-          /* smoothstep-shaped: flat where it leaves white and where it reaches black */
-          background: linear-gradient(to bottom,
-            #FFFFFF 0%, rgba(255, 255, 255, 0.975) 8%, rgba(255, 255, 255, 0.9) 17%, rgba(255, 255, 255, 0.76) 28%,
-            rgba(255, 255, 255, 0.57) 40%, rgba(255, 255, 255, 0.37) 53%, rgba(255, 255, 255, 0.2) 66%,
-            rgba(255, 255, 255, 0.08) 79%, rgba(255, 255, 255, 0.02) 90%, rgba(255, 255, 255, 0) 100%);
-          pointer-events: none;
-        }
-        .pf-sky { position: absolute; inset: 300px 0 0 0; z-index: 0; overflow: hidden; pointer-events: none; }   /* below the white fade */
+        .pf-sky { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
         .pf-cloud {
           position: absolute;
           left: 0;
           image-rendering: pixelated;
-          opacity: 0.13;
+          opacity: 0.85;
           will-change: transform;
           animation: pfAcross linear infinite;
         }
         /* each cloud crosses the full width; negative delays spread them out on load */
         @keyframes pfAcross { from { transform: translateX(-420px); } to { transform: translateX(calc(100vw + 40px)); } }
-        .pf-cloud-1 { top: 7%;  animation-duration: 140s; animation-delay: -30s; }
-        .pf-cloud-2 { top: 30%; animation-duration: 175s; animation-delay: -120s; opacity: 0.1; }
-        .pf-cloud-3 { top: 52%; animation-duration: 160s; animation-delay: -70s; opacity: 0.09; }
-        .pf-cloud-4 { top: 74%; animation-duration: 190s; animation-delay: -150s; opacity: 0.1; }
-        .pf-cloud-5 { top: 88%; animation-duration: 150s; animation-delay: -10s; opacity: 0.08; }
+        .pf-cloud-1 { top: 9%;  animation-duration: 140s; animation-delay: -30s; }
+        .pf-cloud-2 { top: 31%; animation-duration: 175s; animation-delay: -120s; opacity: 0.7; }
+        .pf-cloud-3 { top: 53%; animation-duration: 160s; animation-delay: -70s; opacity: 0.65; }
+        .pf-cloud-4 { top: 72%; animation-duration: 190s; animation-delay: -150s; opacity: 0.7; }
+        .pf-cloud-5 { top: 86%; animation-duration: 150s; animation-delay: -10s; opacity: 0.6; }
         @media (prefers-reduced-motion: reduce) {
           .pf-cloud { animation: none; }
           .pf-cloud-1 { transform: translateX(8vw); } .pf-cloud-2 { transform: translateX(70vw); }
           .pf-cloud-3 { transform: translateX(30vw); } .pf-cloud-4 { transform: translateX(84vw); } .pf-cloud-5 { transform: translateX(50vw); }
         }
-        .pf-doodle { position: absolute; top: 190px; width: 60px; height: auto; opacity: 0.55; filter: invert(1); pointer-events: none; z-index: 1; }
+        .pf-doodle { position: absolute; top: 110px; width: 60px; height: auto; opacity: 0.8; pointer-events: none; z-index: 1; }
         .pf-doodle-l { left: 6%; }
         .pf-doodle-r { right: 6%; transform: scaleX(-1); }
 
@@ -142,7 +127,7 @@ export default function CodingProfilesSection() {
           font-size: clamp(40px, 5.8vw, 72px);
           letter-spacing: -0.04em;
           font-weight: 600;
-          color: #FFFFFF;
+          color: #141414;
           margin: 0;
           text-wrap: balance;
         }
@@ -157,16 +142,16 @@ export default function CodingProfilesSection() {
           gap: 4px 16px;
           padding-bottom: 14px;
           margin-bottom: 30px;
-          border-bottom: 1px dashed rgba(255, 255, 255, 0.18);
+          border-bottom: 1px dashed rgba(20, 20, 20, 0.2);
         }
         .pf-group-title {
           font-size: clamp(26px, 3vw, 34px);
           letter-spacing: -0.03em;
           font-weight: 600;
-          color: #FFFFFF;
+          color: #141414;
           margin: 0;
         }
-        .pf-group-note { margin: 0; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12.5px; letter-spacing: 0.12em; text-transform: uppercase; color: #8B90A0; }
+        .pf-group-note { margin: 0; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12.5px; letter-spacing: 0.12em; text-transform: uppercase; color: #4D5566; }
 
         .pf-grid {
           list-style: none;
@@ -192,7 +177,7 @@ export default function CodingProfilesSection() {
             radial-gradient(circle at 50% 0, transparent 5px, #FFFFFF 5.5px) top / 20px 10px repeat-x,
             radial-gradient(circle at 50% 100%, transparent 5px, #FFFFFF 5.5px) bottom / 20px 10px repeat-x,
             linear-gradient(#FFFFFF, #FFFFFF) center / calc(100% - 18px) calc(100% - 18px) no-repeat;
-          filter: drop-shadow(5px 5px 0 #2A2D36);
+          filter: drop-shadow(5px 5px 0 #1C202B);
           transform: rotate(var(--tilt));
           transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), filter 220ms cubic-bezier(0.22, 1, 0.36, 1);
         }
@@ -201,8 +186,8 @@ export default function CodingProfilesSection() {
           filter: drop-shadow(8px 8px 0 var(--accent));
           color: #1C202B;
         }
-        .pf-stamp:active { transform: rotate(0deg) translateY(1px); filter: drop-shadow(2px 2px 0 #2A2D36); }
-        .pf-stamp:focus-visible { outline: 3px solid #FFFFFF; outline-offset: 6px; }
+        .pf-stamp:active { transform: rotate(0deg) translateY(1px); filter: drop-shadow(2px 2px 0 #1C202B); }
+        .pf-stamp:focus-visible { outline: 3px solid var(--brand); outline-offset: 6px; }
         .pf-inset {
           position: absolute;
           inset: 12px;
@@ -279,15 +264,15 @@ export default function CodingProfilesSection() {
         }
 
         @media (max-width: 1023px) {
-          .pf-section { padding: 200px 32px 96px; }
+          .pf-section { padding: 112px 32px 120px; }
           .pf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
         }
         @media (max-width: 559px) {
-          .pf-section { padding: 170px 16px 80px; }
+          .pf-section { padding: 96px 16px 100px; }
           .pf-header { margin-bottom: 40px; }
           .pf-grid { grid-template-columns: 1fr; gap: 20px; }
           .pf-stamp { transform: none; }
-          .pf-doodle { width: 40px; top: 150px; }
+          .pf-doodle { width: 40px; top: 70px; }
           .pf-group + .pf-group { margin-top: 48px; }
         }
       `}</style>

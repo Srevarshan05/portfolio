@@ -316,21 +316,29 @@ export default function ContactSection() {
         <div className={`cx-grid ${expanded ? "is-wide" : ""}`}>
           {/* ── Left: channels + optional AI card ── */}
           <div className="cx-side">
-            <Reveal kind="up" className="cx-card">
-              <div className="cx-strip">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z" /><circle cx="12" cy="10" r="2.5" /></svg>
-                <span className="cx-mono">Based in Tiruchirappalli, India</span>
+            <Reveal kind="up" className="cx-card cx-find">
+              <div className="cx-find-top">
+                <img className="cx-find-cloud cx-find-cloud-a" src="/pixel/cloud-sky-2.png" alt="" aria-hidden="true" width={224} height={120} />
+                <img className="cx-find-cloud cx-find-cloud-b" src="/pixel/cloud-sky-3.png" alt="" aria-hidden="true" width={368} height={168} />
+                <p className="cx-mono cx-find-kicker">Find me online</p>
+                <p className="cx-find-big"><span>@</span>srevarshan05</p>
+                <p className="cx-mono cx-find-caption">On GitHub and LinkedIn</p>
+                <p className="cx-find-copy">
+                  Every channel below reaches me directly. Write to me by email, or find my code,
+                  write-ups and project demos on the rest.
+                </p>
+                <a className="cx-btn cx-btn-green cx-btn-block cx-find-cta" href={`mailto:${TO_EMAIL}`}>
+                  Email me
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" /></svg>
+                </a>
               </div>
-              <div className="cx-card-body">
-                <h3 className="cx-card-title">Find me online</h3>
-                <p className="cx-card-sub">Every channel below reaches me directly.</p>
+              <div className="cx-find-bottom">
                 <Stagger as="ul" className="cx-rows" gap={0.07}>
                   <StaggerItem as="li" className="cx-row">
                     <span className="cx-row-text">
                       <span className="cx-row-name">Email</span>
                       <a className="cx-mono cx-row-handle cx-row-mail" href={`mailto:${TO_EMAIL}`}>{TO_EMAIL}</a>
                     </span>
-                    <span className="cx-tag">Primary</span>
                     <button type="button" className="cx-icon-btn" onClick={copyEmail} aria-label={copied ? "Email address copied" : "Copy email address"}>
                       {copied ? (
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>
@@ -355,6 +363,9 @@ export default function ContactSection() {
                     </StaggerItem>
                   ))}
                 </Stagger>
+                <p className="cx-find-fine">
+                  Based in Tiruchirappalli, India. Messages sent from this page land in the same inbox as email.
+                </p>
               </div>
             </Reveal>
 
@@ -703,6 +714,37 @@ export default function ContactSection() {
           letter-spacing: 0.12em;
           text-transform: uppercase;
         }
+
+        /* "Find me online" — sky-topped card */
+        .cx-find { overflow: hidden; }
+        .cx-find-top {
+          position: relative;
+          overflow: hidden;
+          padding: 30px 26px 28px;
+          background: linear-gradient(to bottom, #DDF0FC 0%, #EEF7FD 45%, #FFFFFF 100%);
+          border-bottom: 1px solid var(--cx-line);
+        }
+        .cx-find-cloud { position: absolute; height: auto; image-rendering: pixelated; pointer-events: none; }
+        .cx-find-cloud-a { width: 112px; top: 18px; right: 70px; }
+        .cx-find-cloud-b { width: 184px; top: 86px; right: -46px; }
+        .cx-find-top > :not(img) { position: relative; z-index: 1; }
+        .cx-find-kicker { margin: 0 0 10px; font-size: 13px; font-weight: 500; letter-spacing: 0.22em; color: #333; }
+        .cx-find-big {
+          margin: 0;
+          font-family: 'Geist Mono', ui-monospace, monospace;
+          font-size: clamp(34px, 3.6vw, 48px);
+          font-weight: 600;
+          line-height: 1.05;
+          letter-spacing: -0.04em;
+          color: #141414;
+        }
+        .cx-find-big span { color: #0B5FA5; }
+        .cx-find-caption { margin: 12px 0 20px; font-size: 13px; font-weight: 500; letter-spacing: 0.22em; color: #333; }
+        .cx-find-copy { margin: 0 0 22px; font-size: 16.5px; line-height: 1.6; color: #333; max-width: 42ch; }
+        .cx-find-cta { min-height: 48px; font-size: 16px; }
+        .cx-find-bottom { padding: 8px 26px 22px; }
+        .cx-find-bottom .cx-rows { border-top: 0; }
+        .cx-find-fine { margin: 16px 0 0; font-size: 14px; line-height: 1.55; color: #6E6E6E; }
 
         /* Tinted optional card */
         .cx-card-tint {

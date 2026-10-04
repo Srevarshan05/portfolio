@@ -13,8 +13,7 @@ export default function AboutSection() {
       className="section"
       ref={sectionRef}
       style={{
-        background: "#120F17", // Rich dark background matching Visual Archive
-        borderTop: "4px solid var(--border-default)",
+        background: "#120F17", // Same as Visual Archive above: one continuous band, no seam
         position: "relative",
         overflow: "hidden",
       }}
@@ -94,10 +93,10 @@ export default function AboutSection() {
                 color: "#14171F",
                 fontFamily: "'Geist', sans-serif",
                 fontWeight: 800,
-                fontSize: "12px",
+                fontSize: "15px",
                 textTransform: "uppercase",
                 letterSpacing: "1.5px",
-                padding: "6px 14px",
+                padding: "8px 16px",
                 border: "2px solid #000",
                 transform: "rotate(-2deg)",
                 transformOrigin: "left center",
@@ -113,8 +112,8 @@ export default function AboutSection() {
               className="reveal reveal-left stagger-2"
               style={{
                 fontFamily: "'Geist', sans-serif", fontWeight: 600,
-                fontSize: "clamp(46px, 6vw, 76px)",
-                lineHeight: "0.85",
+                fontSize: "clamp(52px, 5.3vw, 84px)",   // largest that still fits the 4-column text track beside the map
+                lineHeight: "0.88",
                 color: "white",
                 textTransform: "none",
                 marginBottom: "24px",
@@ -130,7 +129,7 @@ export default function AboutSection() {
               className="reveal stagger-3"
               style={{
                 fontFamily: "'Geist', sans-serif",
-                fontSize: "clamp(15px, 2.2vw, 18px)",
+                fontSize: "clamp(20px, 2.2vw, 26px)",
                 fontWeight: 600,
                 lineHeight: "1.6",
                 color: "white",
@@ -145,8 +144,9 @@ export default function AboutSection() {
               className="reveal stagger-4"
               style={{
                 fontFamily: "'Geist', sans-serif",
-                fontSize: "14px",
+                fontSize: "clamp(16px, 1.4vw, 19px)",
                 lineHeight: "1.65",
+                maxWidth: "40ch",
                 color: "var(--neutral-quaternary)",
                 marginBottom: "0",
               }}

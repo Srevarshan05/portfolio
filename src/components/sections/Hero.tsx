@@ -28,6 +28,9 @@ export default function HeroSection() {
       {/* The name and title live inside the hand-drawn hero artwork; this gives them to search engines and screen readers */}
       <h1 id="hero-title" className="sr-only">Sre Varshan — Applied AI Engineer, building the next generation of intelligence</h1>
 
+      {/* Hero artwork on its own layer, edges masked so the paper melts into the page colour */}
+      <div className="hero-art" aria-hidden="true" />
+
       {/* ── Full page interactive 3D Lanyard Canvas ── */}
       <div 
         className="hero-lanyard-canvas"
@@ -82,16 +85,29 @@ export default function HeroSection() {
           display: flex;
           align-items: center;
           padding-top: 90px;
-          background-image: 
-            linear-gradient(to right, #f3f1e5 0%, rgba(243, 241, 229, 0) 15%, rgba(243, 241, 229, 0) 85%, #f3f1e5 100%),
-            linear-gradient(to top, #f3f1e5 0%, rgba(243, 241, 229, 0) 10%),
-            url('/hero.png');
-          background-position: center top, center top, center top;
-          background-size: 100% 100%, 100% 100%, contain;
-          background-repeat: no-repeat, no-repeat, no-repeat;
-          background-origin: padding-box, padding-box, content-box;
-          background-color: #f3f1e5;
+          /* average of the artwork's own paper edges */
+          background-color: #F1EEE6;
           overflow: hidden;
+        }
+        .hero-art {
+          position: absolute;
+          top: 90px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: min(100%, calc((100vh - 90px) * 1.7902));
+          aspect-ratio: 1024 / 572;
+          background: url('/hero.png') center / 100% 100% no-repeat;
+          z-index: 0;
+          pointer-events: none;
+          /* fade all four edges; intersected so the corners fade too */
+          -webkit-mask-image:
+            linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%),
+            linear-gradient(to bottom, transparent 0%, #000 7%, #000 86%, transparent 100%);
+          -webkit-mask-composite: source-in;
+          mask-image:
+            linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%),
+            linear-gradient(to bottom, transparent 0%, #000 7%, #000 86%, transparent 100%);
+          mask-composite: intersect;
         }
         @keyframes heroFloat {
           0%, 100% { transform: translateY(0px); }
@@ -103,36 +119,20 @@ export default function HeroSection() {
         }
         @media (max-width: 960px) {
           #home {
-            /* padding-top creates the space below the nav bar */
             padding-top: var(--nav-h);
-            /* Height = image height (aspect ratio) + nav height */
             height: calc(100vw / 1.7902 + var(--nav-h)) !important;
             min-height: unset !important;
-            /* background-origin: content-box pushes the image to start AFTER padding-top */
-            background-origin: padding-box, padding-box, content-box !important;
-            background-size: 100% 100%, 100% 100%, 100% 100% !important;
-            background-position: center, center, center !important;
             align-items: flex-end !important;
           }
-          .hero-lanyard-canvas {
-            display: none !important;
-          }
-        }
-        @media (max-width: 767px) {
-          #home {
-            padding-top: var(--nav-h) !important;
-            height: calc(100vw / 1.7902 + var(--nav-h)) !important;
-            min-height: unset !important;
-            /* content-box: image starts below the nav padding */
-            background-origin: padding-box, padding-box, content-box !important;
-            background-size: 100% 100%, 100% 100%, 100% 100% !important;
-            background-position: center, center, center !important;
-            background-image:
-              linear-gradient(to right, #f3f1e5 0%, rgba(243,241,229,0) 6%, rgba(243,241,229,0) 94%, #f3f1e5 100%),
-              linear-gradient(to top, #f3f1e5 0%, rgba(243,241,229,0) 8%),
-              url('/hero.png') !important;
-            background-color: #f3f1e5;
-            overflow: hidden !important;
+          .hero-art {
+            top: var(--nav-h);
+            width: 100%;
+            -webkit-mask-image:
+              linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%),
+              linear-gradient(to bottom, #000 0%, #000 90%, transparent 100%);
+            mask-image:
+              linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%),
+              linear-gradient(to bottom, #000 0%, #000 90%, transparent 100%);
           }
           .hero-lanyard-canvas {
             display: none !important;
