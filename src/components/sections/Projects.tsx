@@ -3,8 +3,36 @@
 import { useRef, useState } from "react";
 import { useScrollReveal } from "@/lib/useScrollReveal";
 import { useDialog } from "@/lib/useDialog";
+import EnvAlgaeDetails from "./projects/EnvAlgaeDetails";
+import { profileById } from "@/lib/profiles";
 
 const PROJECTS = [
+  {
+    id: "env-algae",
+    accent: "#FF9900",
+    badgeText: "AWS ENVIRONMENTAL HACKS '26",
+    isPinkCard: false,
+    image: "/env/prototype-live.webp",
+    tetromino: (
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="#FF9900">
+        <rect x="0" y="0" width="8" height="8" stroke="#1C202B" strokeWidth="1.5" />
+        <rect x="0" y="10" width="8" height="8" stroke="#1C202B" strokeWidth="1.5" />
+        <rect x="10" y="10" width="8" height="8" stroke="#1C202B" strokeWidth="1.5" />
+        <rect x="20" y="10" width="8" height="8" stroke="#1C202B" strokeWidth="1.5" />
+      </svg>
+    ),
+    illustration: null,
+    title: "Thin-Film Algae Air Purifier — Edge to AWS",
+    description: "A working prototype built in four days: living algae cleans the air while an ESP32 node streams readings over LoRa and Wi-Fi to AWS, with a live dashboard and hydrate-to-earn rewards.",
+    features: [
+      { icon: "", text: "ESP32 + BME680, readings every 10 s" },
+      { icon: "", text: "API Gateway, Lambda & DynamoDB" },
+      { icon: "", text: "Cognito, FastAPI on Lambda & RDS" },
+      { icon: "", text: "React dashboard on AWS Amplify" }
+    ],
+    btnText: "VIEW ON GITHUB",
+    btnLink: "https://github.com/Srevarshan05/env-hacks-2026",
+  },
   {
     id: "agrocare",
     accent: "#2BB04A",
@@ -242,6 +270,7 @@ const PROJECTS = [
 
 // Card-size WebP versions of each project image (originals still used in the detail view)
 const CARD_THUMBS: Record<string, string> = {
+  "env-algae": "/thumbs/env-algae.webp",
   "agrocare": "/thumbs/agrocare.webp",
   "textlens": "/thumbs/textlens.webp",
   "rag-pipeline": "/thumbs/rag-pipeline.webp",
@@ -252,6 +281,7 @@ const CARD_THUMBS: Record<string, string> = {
 };
 
 const PROJECT_ORDER = [
+  "env-algae",
   "banana-weevil",
   "agrocare",
   "textlens",
@@ -392,6 +422,20 @@ export default function ProjectsSection() {
                   ))}
                 </ul>
                 
+                {p.id === "env-algae" && (
+                  <div className="project-card-links">
+                    <a href="https://github.com/Srevarshan05/env-hacks-2026" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository (opens in a new tab)" title="GitHub">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={profileById("github").svgPath} /></svg>
+                    </a>
+                    <a href="https://youtu.be/zw1ZXmUXFCU" target="_blank" rel="noopener noreferrer" aria-label="Video walkthrough on YouTube (opens in a new tab)" title="YouTube">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="#FF0000" aria-hidden="true"><path d={profileById("youtube").svgPath} /></svg>
+                    </a>
+                    <a href="https://webapp-fronted.d2g9yn1a89sqiw.amplifyapp.com/" target="_blank" rel="noopener noreferrer" aria-label="Live site on AWS (opens in a new tab)" title="Live site">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18" /></svg>
+                    </a>
+                  </div>
+                )}
+
                 {/* Dashed Separator */}
                 <div className="project-card-separator" />
 
@@ -445,7 +489,9 @@ export default function ProjectsSection() {
 
             {/* Modal Body */}
             <div className="project-modal-body">
-              {activeProject.id === "agrocare" ? (
+              {activeProject.id === "env-algae" ? (
+                <EnvAlgaeDetails />
+              ) : activeProject.id === "agrocare" ? (
                 /* AgroCare Details */
                 <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                   <div className="modal-overview">
@@ -1784,6 +1830,20 @@ export default function ProjectsSection() {
         .project-dashed-card.is-featured .project-card-btn { width: auto; align-self: flex-start; padding-left: 28px; padding-right: 28px; margin-top: 0; }
         .project-dashed-card.is-featured .project-card-badge { left: calc(46% + 18px); top: 22px; }
 
+        .project-card-links { display: flex; gap: 10px; margin: -6px 0 20px; }
+        .project-card-links a {
+          width: 44px;
+          height: 44px;
+          display: grid;
+          place-items: center;
+          background: #FFFFFF;
+          border: 2px solid #1C202B;
+          border-radius: 6px;
+          color: #1C202B;
+          box-shadow: 3px 3px 0 0 #1C202B;
+          transition: transform 100ms, box-shadow 100ms;
+        }
+        .project-card-links a:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 #1C202B; }
         .project-card-separator {
           border-top: 2px dashed rgba(28, 32, 43, 0.15);
           margin: 0 0 20px 0;
