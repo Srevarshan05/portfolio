@@ -16,36 +16,6 @@ interface Achievement {
 
 const ACHIEVEMENTS: Achievement[] = [
   {
-    id: "mcc-best-presentation",
-    emoji: "",
-    title: "Best Presentation — Physical AI MCC",
-    subtitle: "Prof. Minoru Sasaki, Gifu University | $50 Prize",
-    description: "Won Best Presentation for CocoSense, an autonomous Physical AI drone for coconut plantation monitoring, at a 5-day international micro-credential course on Physical AI & Robotics.",
-    accent: "var(--brand)",
-    accentBg: "rgba(226,45,109,0.12)",
-    image: "/mcc/team-award.webp"
-  },
-  {
-    id: "spectrum",
-    emoji: "🏆",
-    title: "1st Place — Spectrum '25",
-    subtitle: "VIT Chennai | $500 Prize",
-    description: "Won first place at the Spectrum '25 National Hackathon for our innovative AI solution, competing against top university teams.",
-    accent: "var(--warning)",
-    accentBg: "rgba(255,176,32,0.12)",
-    image: "/photos/WhatsApp Image 2026-06-24 at 10.55.18 AM (11).jpeg"
-  },
-  {
-    id: "solvex",
-    emoji: "🤖",
-    title: "1st Place — SolveX AI Challenge",
-    subtitle: "SolveX AI | Rs. 5,000 Prize",
-    description: "Awarded first place for building outstanding AI prototypes addressing real-world operational challenges.",
-    accent: "var(--teal)",
-    accentBg: "rgba(45,207,160,0.12)",
-    image: "/photos/WhatsApp Image 2026-06-24 at 10.55.18 AM (20).jpeg"
-  },
-  {
     id: "niftem",
     emoji: "🎥",
     title: "2nd Prize — Video Making",
@@ -139,6 +109,71 @@ const ACHIEVEMENTS: Achievement[] = [
 
 const ALL = [...ACHIEVEMENTS, ...ACHIEVEMENTS];
 
+interface Featured {
+  id: string;
+  photo: string;
+  photoAlt: string;
+  tag: string;
+  kicker: string;
+  title: string;
+  text: React.ReactNode;
+  chips: string[];
+  person?: { img: string; name: string; role: string };
+  team?: string;
+}
+
+const FEATURED: Featured[] = [
+  {
+    id: "mcc",
+    photo: "/mcc/group.webp",
+    photoAlt: "Team CocoSense with Prof. Minoru Sasaki at the SRM Nihon Culture and Education Centre",
+    tag: "Best Presentation · $50 cash prize",
+    kicker: "Latest · Micro-Credential Course, SRM IST Trichy × Gifu University",
+    title: "Best Presentation at the Physical AI & Robotics MCC",
+    text: (
+      <>
+        My first in-person course taught by an international professor: five days on AI, robotics, Physical AI, sensing and
+        autonomous systems, plus a window into Japanese culture and work life. On the final day our team turned a real-world use case
+        into <strong>CocoSense</strong>, an autonomous drone that maps coconut plantations and flags affected trees for targeted treatment
+        instead of blanket pesticide spraying.
+      </>
+    ),
+    chips: ["Edge AI", "Computer Vision", "LiDAR", "SLAM", "GPS", "Jetson Orin Nano"],
+    person: { img: "/mcc/prof-sasaki.webp", name: "Prof. Minoru Sasaki", role: "Professor Emeritus, Gifu University, Japan" },
+    team: "With Sushma Karthikeyan, Raga Amirtha A, Madhan Kumar and Bumeeswar S.",
+  },
+  {
+    id: "spectrum",
+    photo: "/mcc/spectrum.webp",
+    photoAlt: "Winning teams on stage at Spectrum '25, VIT Chennai",
+    tag: "1st Prize · $500 in prizes",
+    kicker: "National hackathon · Spectrum '25, VIT Chennai",
+    title: "1st Prize at Spectrum '25 with AgroCare",
+    text: (
+      <>
+        Built in just <strong>24 hours</strong>: <strong>AgroCare</strong>, a precision farming platform for cotton that combines a custom
+        soil probe, drone crop imaging, CNN disease detection and LLM-guided advice for farmers. It won first place against top
+        university teams for joining practical hardware, AI and farmer-focused decision support.
+      </>
+    ),
+    chips: ["ESP32 + LoRa", "Soil pH / NPK probe", "Drone imaging + SLAM", "CNN disease detection", "LLM advice"],
+  },
+  {
+    id: "solvex",
+    photo: "/mcc/solvex.webp",
+    photoAlt: "Receiving the first place certificate at the SolveX AI Challenge",
+    tag: "1st Place · Rs. 5,000 prize",
+    kicker: "AI challenge · SolveX AI",
+    title: "1st Place at the SolveX AI Challenge",
+    text: (
+      <>
+        Awarded first place for building outstanding AI prototypes that address real-world operational challenges.
+      </>
+    ),
+    chips: ["Applied AI", "Rapid prototyping"],
+  },
+];
+
 export default function AchievementsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   useScrollReveal(sectionRef as React.RefObject<HTMLElement>);
@@ -178,35 +213,34 @@ export default function AchievementsSection() {
         </div>
       </div>
 
-      {/* ── Spotlight: latest achievement ── */}
-      <div className="section-content mcc-wrap reveal">
-        <article className="mcc" aria-labelledby="mcc-title">
-          <div className="mcc-photo">
-            <img src="/mcc/team-award.webp" alt="Team CocoSense receiving the Best Presentation award with Prof. Minoru Sasaki" width={1280} height={960} loading="lazy" />
-            <span className="mcc-tag">Best Presentation · $50 cash prize</span>
-          </div>
-          <div className="mcc-body">
-            <p className="mcc-kicker">Latest · Micro-Credential Course, SRM IST Trichy × Gifu University</p>
-            <h3 id="mcc-title" className="mcc-title">Best Presentation at the Physical AI &amp; Robotics MCC</h3>
-            <p className="mcc-text">
-              My first in-person course taught by an international professor: five days on AI, robotics, Physical AI, sensing and
-              autonomous systems, plus a window into Japanese culture and work life. On the final day our team turned a real-world use case
-              into <strong>CocoSense</strong>, an autonomous drone that maps coconut plantations and flags affected trees for targeted treatment
-              instead of blanket pesticide spraying.
-            </p>
-            <ul className="mcc-stack" aria-label="CocoSense technology">
-              {["Edge AI", "Computer Vision", "LiDAR", "SLAM", "GPS", "Jetson Orin Nano"].map((t) => <li key={t}>{t}</li>)}
-            </ul>
-            <div className="mcc-prof">
-              <img src="/mcc/prof-sasaki.webp" alt="Prof. Minoru Sasaki" width={56} height={56} loading="lazy" />
-              <div>
-                <strong>Prof. Minoru Sasaki</strong>
-                <span>Professor Emeritus, Gifu University, Japan</span>
-              </div>
+      {/* ── Featured achievements ── */}
+      <div className="section-content mcc-wrap">
+        {FEATURED.map((f, i) => (
+          <article key={f.id} className={`mcc ${i % 2 ? "is-flip" : ""}`} aria-labelledby={`feat-${f.id}`}>
+            <div className="mcc-photo">
+              <img src={f.photo} alt={f.photoAlt} loading="lazy" decoding="async" />
+              <span className="mcc-tag">{f.tag}</span>
             </div>
-            <p className="mcc-team">With Sushma Karthikeyan, Raga Amirtha A, Madhan Kumar and Bumeeswar S.</p>
-          </div>
-        </article>
+            <div className="mcc-body">
+              <p className="mcc-kicker">{f.kicker}</p>
+              <h3 id={`feat-${f.id}`} className="mcc-title">{f.title}</h3>
+              <p className="mcc-text">{f.text}</p>
+              <ul className="mcc-stack" aria-label={`${f.title}: key elements`}>
+                {f.chips.map((t) => <li key={t}>{t}</li>)}
+              </ul>
+              {f.person && (
+                <div className="mcc-prof">
+                  <img src={f.person.img} alt={f.person.name} width={56} height={56} loading="lazy" />
+                  <div>
+                    <strong>{f.person.name}</strong>
+                    <span>{f.person.role}</span>
+                  </div>
+                </div>
+              )}
+              {f.team && <p className="mcc-team">{f.team}</p>}
+            </div>
+          </article>
+        ))}
       </div>
 
       {/* Marquee — full bleed with Custom Stamp themed cards */}
@@ -495,7 +529,7 @@ export default function AchievementsSection() {
           }
         }
       
-        .mcc-wrap { padding: 0 40px; margin-bottom: 56px; }
+        .mcc-wrap { padding: 0 40px; margin-bottom: 64px; display: flex; flex-direction: column; gap: 40px; }
         .mcc {
           max-width: 1240px;
           margin: 0 auto;
@@ -507,6 +541,9 @@ export default function AchievementsSection() {
           font-family: 'Geist', system-ui, sans-serif;
         }
         .mcc-photo { position: relative; border-right: 3px solid #1C202B; min-height: 100%; }
+        .mcc.is-flip { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); box-shadow: 8px 8px 0 0 #FFB020; }
+        .mcc.is-flip .mcc-photo { order: 2; border-right: 0; border-left: 3px solid #1C202B; }
+        .mcc:nth-child(3) { box-shadow: 8px 8px 0 0 #2DC8E2; }
         .mcc-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
         .mcc-tag {
           position: absolute; left: 14px; top: 14px;
@@ -530,6 +567,9 @@ export default function AchievementsSection() {
           .mcc-wrap { padding: 0 16px; }
           .mcc { grid-template-columns: 1fr; box-shadow: 5px 5px 0 0 var(--brand); }
           .mcc-photo { border-right: 0; border-bottom: 3px solid #1C202B; aspect-ratio: 4 / 3; }
+          .mcc.is-flip { grid-template-columns: 1fr; box-shadow: 5px 5px 0 0 #FFB020; }
+          .mcc.is-flip .mcc-photo { order: 0; border-left: 0; }
+          .mcc:nth-child(3) { box-shadow: 5px 5px 0 0 #2DC8E2; }
           .mcc-body { padding: 22px 18px; }
         }
       `}</style>
