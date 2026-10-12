@@ -289,8 +289,12 @@ export default function ContactSection() {
     <section id="contact" className="cx-section" aria-labelledby="contact-title">
       <span className="cx-guide cx-guide-l" aria-hidden="true" />
       <span className="cx-guide cx-guide-r" aria-hidden="true" />
-      <div className="cx-places" aria-hidden="true">
-        <div className="cx-places-art">
+      <div className="cx-places">
+        <div className="cx-places-head">
+          <p className="cx-mono cx-places-kicker">The road so far</p>
+          <h3 className="cx-places-title">Places I went, events I conquered, and mistakes I learned from.</h3>
+        </div>
+        <div className="cx-places-art" aria-hidden="true">
           <img src="/pixel/places.png" alt="" width={2280} height={510} loading="lazy" decoding="async" />
           {PLACES.map((p) => (
             <span key={p.name} className={`cx-mono cx-place ${p.high ? "is-high" : ""}`} style={{ left: `${p.x}%` }}>
@@ -625,7 +629,7 @@ export default function ContactSection() {
           isolation: isolate;
           background: var(--cx-bg);
           color: var(--cx-ink);
-          padding: 140px 40px 400px;
+          padding: 140px 40px 520px;
         }
         .cx-mono { font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; letter-spacing: 0.12em; }
         .cx-guide { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--cx-line); z-index: 0; pointer-events: none; }
@@ -1026,7 +1030,18 @@ export default function ContactSection() {
           overflow: hidden;
           pointer-events: none;
           background: linear-gradient(to bottom, rgba(250, 249, 247, 0), #D7ECFB 45%, #CDE7FA);
-          padding-top: 120px;
+          padding-top: 72px;
+        }
+        .cx-places-head { position: relative; z-index: 1; max-width: 760px; margin: 0 auto 8px; padding: 0 20px; text-align: center; }
+        .cx-places-kicker {
+          display: inline-block; margin: 0 0 12px; padding: 6px 12px;
+          background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(21, 128, 61, 0.25);
+          font-size: 12px; font-weight: 600; color: #166534;
+        }
+        .cx-places-title {
+          margin: 0; font-family: 'Geist', system-ui, sans-serif;
+          font-size: clamp(22px, 2.6vw, 34px); font-weight: 600; line-height: 1.2; letter-spacing: -0.03em;
+          text-transform: none; color: var(--cx-ink); text-wrap: balance;
         }
         .cx-places-art { position: relative; width: 100%; min-width: 1100px; left: 50%; transform: translateX(-50%); }
         .cx-places-art img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
@@ -1052,14 +1067,14 @@ export default function ContactSection() {
 
         /* ── Responsive ── */
         @media (max-width: 1023px) {
-          .cx-section { padding: 112px 32px 340px; }
+          .cx-section { padding: 112px 32px 450px; }
           .cx-grid { grid-template-columns: 1fr; }
           .cx-side { order: 2; }
           .cx-only-desktop { display: none !important; }
           .cx-grid.is-wide .cx-side { display: flex; }
         }
         @media (max-width: 767px) {
-          .cx-section { padding: 96px 16px 300px; }
+          .cx-section { padding: 96px 16px 420px; }
           .cx-guide { display: none; }
           .cx-head { margin-bottom: 36px; }
           .cx-lead { font-size: 16px; }

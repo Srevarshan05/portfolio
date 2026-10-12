@@ -52,28 +52,36 @@ function measureObstacles(layer: HTMLElement, avoid: HTMLElement): Rect[] {
   return out;
 }
 
+/**
+ * Steps span the full width at an even, hop-able spacing. Under the text they form a low row
+ * (zig-zagging slightly); beside the text they ramp up toward the heading, never more than
+ * MAX_RISE between neighbours, so every hop is a short, believable jump.
+ */
+const GAP_MAX = 230;
+const MAX_RISE = 64;
+const LOW_CLEAR = 64;     // space between the text bottom and the top of the character on the low row
+
 function layoutSteps(W: number, obstacles: Rect[]) {
   const textL = Math.min(...obstacles.map((o) => o.l));
   const textR = Math.max(...obstacles.map((o) => o.r));
   const textB = Math.max(...obstacles.map((o) => o.b));
-  const head = obstacles.reduce((a, o) => (o.r - o.l > a.r - a.l ? o : a));   // the widest block: the heading
-  const low = textB + CHAR_H + 40;              // the row beneath the text
-  const near = low - 30;                        // side steps next to the row, still clear of the text
-  const high = (head.t + head.b) / 2;           // side steps level with the heading
+  const head = obstacles.reduce((a, o) => (o.r - o.l > a.r - a.l ? o : a));   // widest block: the heading
+  const low = textB + CHAR_H + LOW_CLEAR;
+  const high = Math.max(head.t + CHAR_H, (head.t + head.b) / 2);
 
-  const steps: Step[] = [];
-  const leftZone = textL - 20;
-  steps.push({ x: -PLAT_W * 0.3, y: leftZone > PLAT_W * 1.7 ? high : near });
-  if (leftZone - PLAT_W > PLAT_W * 0.7 + 30) steps.push({ x: leftZone - PLAT_W, y: near });
+  const span = W - PLAT_W;
+  const n = Math.max(2, Math.ceil(span / GAP_MAX));
+  const gap = span / n;
+  const xs = Array.from({ length: n + 1 }, (_, i) => Math.round(i * gap));
+  const under = (x: number) => x + PLAT_W > textL - 10 && x < textR + 10;
 
-  const tw = textR - textL;
-  steps.push({ x: textL + tw * 0.16, y: low });
-  steps.push({ x: textR - tw * 0.16 - PLAT_W, y: low + 34 });
-
-  const rightZone = textR + 20;
-  const lastX = W - PLAT_W * 0.7;
-  if (lastX - rightZone > PLAT_W + 30) steps.push({ x: rightZone, y: near });
-  steps.push({ x: lastX, y: W - rightZone > PLAT_W * 1.7 ? high : near });
+  // distance (in steps) from the nearest step that sits under the text
+  const underIdx = xs.map((x, i) => (under(x) ? i : -1)).filter((i) => i >= 0);
+  const steps: Step[] = xs.map((x, i) => {
+    if (under(x)) return { x, y: low + ((i - underIdx[0]) % 2 ? 30 : 0) };
+    const k = underIdx.length ? Math.min(...underIdx.map((u) => Math.abs(u - i))) : 1;
+    return { x, y: Math.max(high, low - k * MAX_RISE) };
+  });
   return { steps, floor: Math.max(...steps.map((s) => s.y)) + PLAT_H };
 }
 
@@ -82,17 +90,21 @@ function buildPath(W: number, steps: Step[], obstacles: Rect[]): Seg[] {
   const run = (x0: number, x1: number, y: number) => segs.push({ kind: "run", x0, x1, y, t: Math.abs(x1 - x0) / RUN_SPEED });
   const idle = (x: number, y: number, t: number) => segs.push({ kind: "idle", x, y, t });
   const jump = (x0: number, y0: number, x1: number, y1: number) => {
-    const t = JUMP_TIME + Math.abs(x1 - x0) / 1400;
-    const natural = Math.max(54, Math.min(110, Math.abs(x1 - x0) * 0.22));
-    // highest arc that stays clear of the text
-    for (const h of [natural, 70, 44, 24, 10, 0]) {
+    const dx = Math.abs(x1 - x0);
+    const rise = Math.max(0, y0 - y1);
+    const t = JUMP_TIME + dx / 1400 + rise / 900;
+    const natural = Math.max(40, rise * 0.6 + 26 + dx * 0.08);
+    // highest arc that stays clear of the text; never lower than what clears the landing step
+    const floorH = Math.max(18, rise * 0.55);
+    for (const h of [natural, natural * 0.8, natural * 0.6, floorH]) {
+      if (h < floorH && h !== floorH) continue;
       let clear = true;
       for (let i = 0; i <= 24 && clear; i++) {
         const k = i / 24;
         const box = charBox(x0 + (x1 - x0) * k, jumpY({ y0, y1, h }, k));
         clear = !obstacles.some((o) => hits(box, o));
       }
-      if (clear || h === 0) { segs.push({ kind: "jump", x0, y0, x1, y1, h, t }); return; }
+      if (clear || h === floorH) { segs.push({ kind: "jump", x0, y0, x1, y1, h, t }); return; }
     }
   };
 
@@ -108,7 +120,7 @@ function buildPath(W: number, steps: Step[], obstacles: Rect[]): Seg[] {
     const from = i === 0 ? mid(steps[0]) : nearRight(steps[i]);
     jump(from, steps[i].y, nearLeft(steps[i + 1]), steps[i + 1].y);
     run(nearLeft(steps[i + 1]), i + 1 === last ? mid(steps[last]) : nearRight(steps[i + 1]), steps[i + 1].y);
-    if (steps[i + 1].y > steps[i].y + 10 && i + 1 < last) idle(nearRight(steps[i + 1]), steps[i + 1].y, 1.3);
+    if (i + 1 === Math.floor(last / 2) || i + 1 === 1 || i + 1 === last - 1) idle(nearRight(steps[i + 1]), steps[i + 1].y, 1.1);
   }
   idle(mid(steps[last]), steps[last].y, 0.9);
   run(mid(steps[last]), W + 24, steps[last].y);       // off the right edge; the loop re-enters from the left
