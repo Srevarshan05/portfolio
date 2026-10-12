@@ -22,7 +22,7 @@ const PROJECTS = [
       </svg>
     ),
     illustration: null,
-    title: "Thin-Film Algae Air Purifier — Edge to AWS",
+    title: "Thin-Film Algae Air Purifier: Edge to AWS",
     description: "A working prototype built in four days: living algae cleans the air while an ESP32 node streams readings over LoRa and Wi-Fi to AWS, with a live dashboard and hydrate-to-earn rewards.",
     features: [
       { icon: "", text: "ESP32 + BME680, readings every 10 s" },
@@ -1830,6 +1830,7 @@ export default function ProjectsSection() {
         .project-dashed-card.is-featured .project-card-btn { width: auto; align-self: flex-start; padding-left: 28px; padding-right: 28px; margin-top: 0; }
         .project-dashed-card.is-featured .project-card-badge { left: calc(46% + 18px); top: 22px; }
 
+        #env-algae .project-card-image { object-fit: contain; background: #FFFFFF; padding: 12px; }
         .project-card-links { display: flex; gap: 10px; margin: -6px 0 20px; }
         .project-card-links a {
           width: 44px;

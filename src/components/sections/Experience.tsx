@@ -212,7 +212,7 @@ function RoleBlock({ r, index, onWorkflow }: { r: Role; index: number; onWorkflo
     <article id={r.id} className="px-role" aria-labelledby={`${r.id}-role`}>
       {/* ── Header row ── */}
       <div className="px-role-head">
-        <Reveal kind="up" className="px-role-title">
+        <Reveal kind="fade" duration={0.6} className="px-role-title">
           <div className="px-role-id">
             <span className="px-logo">
               <img src={r.logo} alt={`${r.company} logo`} width={r.logoWidth} height={40} loading="lazy" decoding="async" />
@@ -223,15 +223,15 @@ function RoleBlock({ r, index, onWorkflow }: { r: Role; index: number; onWorkflo
           </div>
           <h3 id={`${r.id}-role`} className="px-h3">{r.role}</h3>
         </Reveal>
-        <Reveal kind="up" delay={0.12} as="p" className="px-role-desc">{r.description}</Reveal>
+        <Reveal kind="fade" duration={0.6} delay={0.12} as="p" className="px-role-desc">{r.description}</Reveal>
       </div>
 
       {/* ── Banner — observed on an unclipped wrapper: a fully clipped element never reports as in view ── */}
       <motion.div initial="hidden" whileInView="shown" viewport={{ once: true, amount: 0.3 }}>
       <motion.div
         className="px-banner-wrap"
-        variants={{ hidden: { clipPath: "inset(0 100% 0 0)" }, shown: { clipPath: "inset(0 0% 0 0)" } }}
-        transition={{ duration: 0.9, ease: (t: number) => Math.ceil(t * 12) / 12 }}
+        variants={{ hidden: { opacity: 0, y: 28 }, shown: { opacity: 1, y: 0 } }}
+        transition={{ duration: 0.6, ease: EASE_OUT }}
       >
         <div
           className="px-banner px-notch"
@@ -279,7 +279,7 @@ function RoleBlock({ r, index, onWorkflow }: { r: Role; index: number; onWorkflo
       </motion.div>
 
       {/* ── What I built: one card ── */}
-      <Reveal kind="up" className="px-one">
+      <Reveal kind="fade" duration={0.6} amount={0.06} className="px-one">
         <div className="px-one-body">
           <div className="px-one-head">
             <p className="px-mono px-card-label">
@@ -291,7 +291,7 @@ function RoleBlock({ r, index, onWorkflow }: { r: Role; index: number; onWorkflo
           </div>
           <Stagger as="ol" className="px-one-list" gap={0.07} amount={0.1}>
             {built.map(([title, body], i) => (
-              <StaggerItem as="li" key={body} className="px-one-item">
+              <StaggerItem as="li" kind="fade" key={body} className="px-one-item">
                 <i style={{ background: SQUARES[i % SQUARES.length] }} aria-hidden="true" />
                 <div>
                   {title && <h5>{title}</h5>}
@@ -305,16 +305,16 @@ function RoleBlock({ r, index, onWorkflow }: { r: Role; index: number; onWorkflo
 
       {/* ── Highlights + stack ── */}
       <div className="px-meta-grid">
-        <Reveal kind="up" className="px-meta">
+        <Reveal kind="fade" duration={0.6} className="px-meta">
           <p className="px-mono px-meta-label">Key highlights</p>
           <ul className="px-highlights">
             {r.highlights.map((hl) => <li key={hl}>{hl}</li>)}
           </ul>
         </Reveal>
-        <Reveal kind="up" delay={0.1} className="px-meta">
+        <Reveal kind="fade" duration={0.6} delay={0.1} className="px-meta">
           <p className="px-mono px-meta-label">Stack</p>
-          <Stagger as="ul" className="px-stack" gap={0.035}>
-            {r.skills.map((s) => <StaggerItem as="li" kind="pop" key={s}>{s}</StaggerItem>)}
+          <Stagger as="ul" className="px-stack" gap={0.025}>
+            {r.skills.map((s) => <StaggerItem as="li" kind="fade" key={s}>{s}</StaggerItem>)}
           </Stagger>
         </Reveal>
       </div>
@@ -392,15 +392,15 @@ export default function ExperienceSection() {
         <motion.div className="px-sky" style={{ y: skyY }} aria-hidden="true" />
         <PixelRunner avoid=".px-hero-copy" />
         <div className="px-hero-copy">
-          <Reveal kind="up" as="p" className="px-mono px-kicker">Work experience · 02 roles</Reveal>
-          <Reveal kind="up" delay={0.08}>
+          <Reveal kind="fade" duration={0.6} as="p" className="px-mono px-kicker">Work experience · 02 roles</Reveal>
+          <Reveal kind="fade" duration={0.6} delay={0.08}>
             <h2 id="experience-title" className="px-h2">Real work, real impact.</h2>
           </Reveal>
-          <Reveal kind="up" delay={0.16} as="p" className="px-lead">
+          <Reveal kind="fade" duration={0.6} delay={0.16} as="p" className="px-lead">
             Every role I&apos;ve taken has been about building something
             that genuinely works for real people — not just demos.
           </Reveal>
-          <Reveal kind="blur" delay={0.3} as="p" className="px-mono px-hero-note">
+          <Reveal kind="fade" duration={0.6} delay={0.3} as="p" className="px-mono px-hero-note">
             Healthcare SaaS · IoT + machine learning · Remote
           </Reveal>
         </div>

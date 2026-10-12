@@ -16,6 +16,16 @@ interface Achievement {
 
 const ACHIEVEMENTS: Achievement[] = [
   {
+    id: "mcc-best-presentation",
+    emoji: "",
+    title: "Best Presentation — Physical AI MCC",
+    subtitle: "Prof. Minoru Sasaki, Gifu University | $50 Prize",
+    description: "Won Best Presentation for CocoSense, an autonomous Physical AI drone for coconut plantation monitoring, at a 5-day international micro-credential course on Physical AI & Robotics.",
+    accent: "var(--brand)",
+    accentBg: "rgba(226,45,109,0.12)",
+    image: "/mcc/team-award.webp"
+  },
+  {
     id: "spectrum",
     emoji: "🏆",
     title: "1st Place — Spectrum '25",
@@ -166,6 +176,37 @@ export default function AchievementsSection() {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* ── Spotlight: latest achievement ── */}
+      <div className="section-content mcc-wrap reveal">
+        <article className="mcc" aria-labelledby="mcc-title">
+          <div className="mcc-photo">
+            <img src="/mcc/team-award.webp" alt="Team CocoSense receiving the Best Presentation award with Prof. Minoru Sasaki" width={1280} height={960} loading="lazy" />
+            <span className="mcc-tag">Best Presentation · $50 cash prize</span>
+          </div>
+          <div className="mcc-body">
+            <p className="mcc-kicker">Latest · Micro-Credential Course, SRM IST Trichy × Gifu University</p>
+            <h3 id="mcc-title" className="mcc-title">Best Presentation at the Physical AI &amp; Robotics MCC</h3>
+            <p className="mcc-text">
+              My first in-person course taught by an international professor: five days on AI, robotics, Physical AI, sensing and
+              autonomous systems, plus a window into Japanese culture and work life. On the final day our team turned a real-world use case
+              into <strong>CocoSense</strong>, an autonomous drone that maps coconut plantations and flags affected trees for targeted treatment
+              instead of blanket pesticide spraying.
+            </p>
+            <ul className="mcc-stack" aria-label="CocoSense technology">
+              {["Edge AI", "Computer Vision", "LiDAR", "SLAM", "GPS", "Jetson Orin Nano"].map((t) => <li key={t}>{t}</li>)}
+            </ul>
+            <div className="mcc-prof">
+              <img src="/mcc/prof-sasaki.webp" alt="Prof. Minoru Sasaki" width={56} height={56} loading="lazy" />
+              <div>
+                <strong>Prof. Minoru Sasaki</strong>
+                <span>Professor Emeritus, Gifu University, Japan</span>
+              </div>
+            </div>
+            <p className="mcc-team">With Sushma Karthikeyan, Raga Amirtha A, Madhan Kumar and Bumeeswar S.</p>
+          </div>
+        </article>
       </div>
 
       {/* Marquee — full bleed with Custom Stamp themed cards */}
@@ -452,6 +493,44 @@ export default function AchievementsSection() {
             grid-template-columns: 1fr !important;
             gap: 16px !important;
           }
+        }
+      
+        .mcc-wrap { padding: 0 40px; margin-bottom: 56px; }
+        .mcc {
+          max-width: 1240px;
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+          background: #FFFFFF;
+          border: 3px solid #1C202B;
+          box-shadow: 8px 8px 0 0 var(--brand);
+          font-family: 'Geist', system-ui, sans-serif;
+        }
+        .mcc-photo { position: relative; border-right: 3px solid #1C202B; min-height: 100%; }
+        .mcc-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+        .mcc-tag {
+          position: absolute; left: 14px; top: 14px;
+          background: #FFB020; color: #1C202B; border: 2px solid #1C202B;
+          padding: 5px 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+        }
+        .mcc-body { padding: 30px 32px; display: flex; flex-direction: column; gap: 14px; }
+        .mcc-kicker { margin: 0; font-family: 'Geist Mono', monospace; font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase; color: #B11F55; }
+        .mcc-title { margin: 0; font-size: clamp(24px, 2.4vw, 32px); font-weight: 600; letter-spacing: -0.03em; line-height: 1.15; color: #1C202B; text-transform: none; }
+        .mcc-text { margin: 0; font-size: 15.5px; line-height: 1.65; color: #2F3645; }
+        .mcc-text strong { color: #1C202B; }
+        .mcc-stack { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+        .mcc-stack li { padding: 5px 10px; border: 1.5px solid #1C202B; background: #F4F6FF; font-size: 12.5px; font-weight: 600; color: #1C202B; }
+        .mcc-prof { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border: 1.5px dashed rgba(28,32,43,0.3); }
+        .mcc-prof img { width: 56px; height: 56px; object-fit: cover; border-radius: 50%; border: 2px solid #1C202B; }
+        .mcc-prof div { display: flex; flex-direction: column; gap: 2px; }
+        .mcc-prof strong { font-size: 15px; color: #1C202B; }
+        .mcc-prof span { font-size: 13px; color: #4A5468; }
+        .mcc-team { margin: 0; font-size: 13.5px; color: #4A5468; }
+        @media (max-width: 900px) {
+          .mcc-wrap { padding: 0 16px; }
+          .mcc { grid-template-columns: 1fr; box-shadow: 5px 5px 0 0 var(--brand); }
+          .mcc-photo { border-right: 0; border-bottom: 3px solid #1C202B; aspect-ratio: 4 / 3; }
+          .mcc-body { padding: 22px 18px; }
         }
       `}</style>
     </section>

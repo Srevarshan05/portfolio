@@ -80,9 +80,11 @@ export function TetrisText({ text, as = "span", className, id, delay = 0, step =
 /* ─────────────────────────────────────────────────────────────
    Reveal — one element entering on scroll
    ───────────────────────────────────────────────────────────── */
-type RevealKind = "up" | "left" | "right" | "scale" | "wipe" | "blur" | "drop";
+type RevealKind = "up" | "left" | "right" | "scale" | "wipe" | "blur" | "drop" | "fade";
 
 const revealVariants: Record<RevealKind, Variants> = {
+  // compositor-only (transform + opacity): smooth on large surfaces
+  fade:  { hidden: { opacity: 0, y: 28 }, shown: { opacity: 1, y: 0 } },
   up:    { hidden: { opacity: 0, y: 56, filter: "blur(10px)" }, shown: { opacity: 1, y: 0, filter: "blur(0px)" } },
   left:  { hidden: { opacity: 0, x: -72, filter: "blur(10px)" }, shown: { opacity: 1, x: 0, filter: "blur(0px)" } },
   right: { hidden: { opacity: 0, x: 72, filter: "blur(10px)" }, shown: { opacity: 1, x: 0, filter: "blur(0px)" } },
@@ -142,6 +144,7 @@ export function Stagger({
 }
 
 const itemVariants: Record<string, Variants> = {
+  fade:  { hidden: { opacity: 0, y: 14 }, shown: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE_OUT } } },
   up:    { hidden: { opacity: 0, y: 36, filter: "blur(8px)" }, shown: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.8, ease: EASE_OUT } } },
   right: { hidden: { opacity: 0, x: 60, filter: "blur(8px)" }, shown: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.8, ease: EASE_OUT } } },
   pop:   { hidden: { opacity: 0, scale: 0.4, rotate: -8 }, shown: { opacity: 1, scale: 1, rotate: 0, transition: { type: "spring", stiffness: 520, damping: 20 } } },
