@@ -629,7 +629,7 @@ export default function ContactSection() {
           isolation: isolate;
           background: var(--cx-bg);
           color: var(--cx-ink);
-          padding: 140px 40px 520px;
+          padding: 140px 40px 470px;
         }
         .cx-mono { font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; letter-spacing: 0.12em; }
         .cx-guide { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--cx-line); z-index: 0; pointer-events: none; }
@@ -1043,7 +1043,7 @@ export default function ContactSection() {
           font-size: clamp(22px, 2.6vw, 34px); font-weight: 600; line-height: 1.2; letter-spacing: -0.03em;
           text-transform: none; color: var(--cx-ink); text-wrap: balance;
         }
-        .cx-places-art { position: relative; width: 100%; min-width: 1100px; left: 50%; transform: translateX(-50%); }
+        .cx-places-art { position: relative; margin-top: calc(-0.058 * max(100vw, 1100px));   /* tuck the art's empty sky under the heading */ width: 100%; min-width: 1100px; left: 50%; transform: translateX(-50%); }
         .cx-places-art img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
         .cx-place {
           position: absolute;
@@ -1067,14 +1067,14 @@ export default function ContactSection() {
 
         /* ── Responsive ── */
         @media (max-width: 1023px) {
-          .cx-section { padding: 112px 32px 450px; }
+          .cx-section { padding: 112px 32px 370px; }
           .cx-grid { grid-template-columns: 1fr; }
           .cx-side { order: 2; }
           .cx-only-desktop { display: none !important; }
           .cx-grid.is-wide .cx-side { display: flex; }
         }
         @media (max-width: 767px) {
-          .cx-section { padding: 96px 16px 420px; }
+          .cx-section { padding: 96px 16px 340px; }
           .cx-guide { display: none; }
           .cx-head { margin-bottom: 36px; }
           .cx-lead { font-size: 16px; }
