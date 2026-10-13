@@ -68,6 +68,17 @@ const EXPECT = [
   { title: "Startup friendly", text: "Scoped to your budget, starting with what matters most." },
 ];
 
+/* ─── Portfolio template (sold separately) ─────────────────────────────────── */
+// Razorpay payment page link. Set NEXT_PUBLIC_TEMPLATE_PAYMENT_URL once the page exists;
+// until then the button shows "Coming soon" instead of linking anywhere.
+const TEMPLATE_PAYMENT_URL = process.env.NEXT_PUBLIC_TEMPLATE_PAYMENT_URL || "";
+const TEMPLATE_INCLUDES = [
+  "The complete Next.js + TypeScript source of this portfolio",
+  "Every section, animation and the pixel-sky design system",
+  "Placeholder content and images, ready for your own",
+  "A step-by-step SKILL.md guide to customise and deploy it",
+];
+
 /* ─── Small parts ─────────────────────────────────────────────────────────── */
 
 function Arrow() {
@@ -252,6 +263,36 @@ export default function ServicesPage() {
           </Stagger>
         </section>
 
+        {/* ══ TEMPLATE ══ */}
+        <section className="sv-block" aria-labelledby="sv-template">
+          <Reveal kind="fade" className="sv-tpl">
+            <div className="sv-tpl-main">
+              <p className="sv-mono sv-kicker">Portfolio template</p>
+              <h2 id="sv-template" className="sv-h2">Like this website? Get the whole thing for your own portfolio.</h2>
+              <p className="sv-sub">The full codebase behind this site, with placeholders where my content goes. Drop in your work and launch.</p>
+              <ul className="sv-tpl-list">
+                {TEMPLATE_INCLUDES.map((t) => <li key={t}>{t}</li>)}
+              </ul>
+            </div>
+            <div className="sv-tpl-buy">
+              <p className="sv-tpl-price"><span>₹</span>399</p>
+              <p className="sv-mono sv-tpl-once">One-time payment</p>
+              <ol className="sv-tpl-steps">
+                <li><span className="sv-tpl-n">1</span><div><strong>Complete purchase</strong><em>Secure checkout with Razorpay</em></div></li>
+                <li><span className="sv-tpl-n">2</span><div><strong>Get the codebase</strong><em>You get access to the entire codebase template</em></div></li>
+              </ol>
+              {TEMPLATE_PAYMENT_URL ? (
+                <a className="sv-btn sv-btn-green sv-btn-lg sv-tpl-cta" href={TEMPLATE_PAYMENT_URL} target="_blank" rel="noopener noreferrer">
+                  Buy the template · ₹399 <Arrow />
+                  <span className="sr-only">(opens Razorpay in a new tab)</span>
+                </a>
+              ) : (
+                <span className="sv-btn sv-btn-lg sv-tpl-cta sv-tpl-soon" aria-disabled="true">Checkout coming soon</span>
+              )}
+            </div>
+          </Reveal>
+        </section>
+
         {/* ══ CTA ══ */}
         <section className="sv-cta" aria-labelledby="sv-cta">
           <div className="sv-cta-sky" aria-hidden="true" />
@@ -416,6 +457,34 @@ export default function ServicesPage() {
         .sv-expect h3 { margin: 0 0 6px; font-size: 19px; font-weight: 600; letter-spacing: -0.02em; text-transform: none; color: var(--ink); }
         .sv-expect p { margin: 0; font-size: 15px; line-height: 1.6; color: var(--body); }
 
+        /* Template */
+        .sv-tpl {
+          max-width: 1200px; margin: 0 auto;
+          display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+          background: #FFFFFF; border: 2px solid #1C202B; box-shadow: 8px 8px 0 0 var(--brand);
+        }
+        .sv-tpl-main { padding: 40px 40px 36px; }
+        .sv-tpl-main .sv-h2 { max-width: 20ch; }
+        .sv-tpl-list { list-style: none; display: grid; gap: 10px; margin-top: 24px; }
+        .sv-tpl-list li { position: relative; padding-left: 20px; font-size: 15.5px; font-weight: 500; color: var(--ink); }
+        .sv-tpl-list li::before { content: ""; position: absolute; left: 0; top: 7px; width: 9px; height: 9px; background: var(--green); }
+        .sv-tpl-buy {
+          display: flex; flex-direction: column; padding: 40px 36px 36px;
+          border-left: 2px solid #1C202B;
+          background: linear-gradient(to bottom, #DDF0FC, #F4FAFE 60%, #FFFFFF);
+        }
+        .sv-tpl-price { margin: 0; font-size: clamp(56px, 6vw, 76px); font-weight: 600; letter-spacing: -0.05em; line-height: 1; color: var(--ink); }
+        .sv-tpl-price span { color: #0B5FA5; font-size: 0.6em; vertical-align: 0.35em; margin-right: 2px; }
+        .sv-tpl-once { margin: 10px 0 24px; font-size: 12px; color: #4D5566; }
+        .sv-tpl-steps { list-style: none; display: grid; gap: 14px; margin-bottom: 26px; }
+        .sv-tpl-steps li { display: flex; gap: 14px; align-items: flex-start; }
+        .sv-tpl-n { flex-shrink: 0; width: 30px; height: 30px; display: grid; place-items: center; background: #1C202B; color: #FFFFFF; font: 600 13px 'Geist Mono', monospace; }
+        .sv-tpl-steps div { display: flex; flex-direction: column; gap: 2px; }
+        .sv-tpl-steps strong { font-size: 16px; font-weight: 600; color: var(--ink); }
+        .sv-tpl-steps em { font-style: normal; font-size: 14px; color: var(--body); }
+        .sv-tpl-cta { width: 100%; margin-top: auto; }
+        .sv-tpl-soon { background: #EDEBE6; color: #6E6E6E; border: 1px dashed #B9B4AA; cursor: not-allowed; }
+
         /* CTA */
         .sv-cta { position: relative; overflow: hidden; padding: 140px 40px 160px; text-align: center; isolation: isolate; }
         .sv-cta-sky {
@@ -447,6 +516,8 @@ export default function ServicesPage() {
           .sv-step-dot { position: absolute; left: -66px; top: -4px; }
           .sv-step h3 { margin-top: 0; }
           .sv-expect { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .sv-tpl { grid-template-columns: 1fr; }
+          .sv-tpl-buy { border-left: 0; border-top: 2px solid #1C202B; }
         }
         @media (max-width: 640px) {
           .sv-hero { padding: 110px 16px 0; }
@@ -457,6 +528,8 @@ export default function ServicesPage() {
           .sv-layer { grid-template-columns: 1fr; gap: 12px; padding: 20px; }
             .sv-cases, .sv-services, .sv-expect { grid-template-columns: 1fr; }
           .sv-cta { padding: 100px 16px 120px; }
+          .sv-tpl { box-shadow: 5px 5px 0 0 var(--brand); }
+          .sv-tpl-main, .sv-tpl-buy { padding: 26px 20px; }
         }
       `}</style>
     </MotionConfig>

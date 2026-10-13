@@ -138,6 +138,10 @@ export default function TopNav(_props: TopNavProps) {
           ))}
           <button type="button" className={active === "contact" ? "is-on" : ""} onClick={() => scrollTo("contact")}>Contact</button>
           <Link href="/services" className="tn-solutions" onClick={() => setMenuOpen(false)}>Solutions</Link>
+          <div className="tn-menu-contact">
+            <a href={PHONE_HREF}>Call {PHONE}</a>
+            <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+          </div>
         </div>
       )}
 
@@ -220,6 +224,8 @@ export default function TopNav(_props: TopNavProps) {
           animation: tnIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
         }
         .tn-menu button, .tn-menu a { text-align: left; padding: 12px 12px; font-size: 12.5px; }
+        .tn-menu-contact { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; padding-top: 8px; border-top: 1px solid #E6E3DD; }
+        .tn-menu .tn-menu-contact a { font-family: 'Geist', system-ui, sans-serif; font-size: 14px; letter-spacing: 0; text-transform: none; color: #1F7A4C; font-weight: 600; overflow-wrap: anywhere; white-space: normal; }
 
         @media (max-width: 1180px) {
           .tn { gap: 12px; }
@@ -228,6 +234,7 @@ export default function TopNav(_props: TopNavProps) {
         @media (max-width: 980px) {
           .tn-links { display: none; }
           .tn-burger { display: flex; }
+          .tn-contact { display: none; }   /* on mobile, phone + email live in the menu */
         }
         @media (max-width: 480px) {
           .tn-brand span { display: none; }
