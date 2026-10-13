@@ -113,6 +113,7 @@ interface Featured {
   id: string;
   photo: string;
   photoAlt: string;
+  contain?: boolean;
   tag: string;
   kicker: string;
   title: string;
@@ -141,6 +142,25 @@ const FEATURED: Featured[] = [
     chips: ["Edge AI", "Computer Vision", "LiDAR", "SLAM", "GPS", "Jetson Orin Nano"],
     person: { img: "/mcc/prof-sasaki.webp", name: "Prof. Minoru Sasaki", role: "Professor Emeritus, Gifu University, Japan" },
     team: "With Sushma Karthikeyan, Raga Amirtha A, Madhan Kumar and Bumeeswar S.",
+  },
+  {
+    id: "amazon-ml",
+    photo: "/mcc/amazon-ml-pipeline.webp",
+    photoAlt: "Our AI-powered business entity resolution pipeline: transliteration, normalisation, candidate generation, feature engineering and ML matching",
+    contain: true,
+    tag: "Top 1,000 of 11,000+ teams",
+    kicker: "Amazon ML Challenge 2026 · 4 days",
+    title: "Top 1,000 at the Amazon ML Challenge 2026",
+    text: (
+      <>
+        Match noisy business records from three sources with no shared ID, across millions of rows in <strong>23+ Indic languages</strong>.
+        We built a transliteration engine on AI4Bharat&apos;s model, ran experiments in parallel on 4 PCs and every GPU we had, and
+        combined our models into a stacked ensemble. We beat <strong>94.1%</strong> of submissions on the live leaderboard, finishing
+        just 0.0053 from the top score, on a test set that quietly added France, a country we had never trained on.
+      </>
+    ),
+    chips: ["Entity resolution", "AI4Bharat transliteration", "XGBoost on GPU", "LightGBM", "Stacked ensemble"],
+    team: "With Karthik K. S and Pranav Sanjeevi Kumari.",
   },
   {
     id: "spectrum",
@@ -217,7 +237,7 @@ export default function AchievementsSection() {
       <div className="section-content mcc-wrap">
         {FEATURED.map((f, i) => (
           <article key={f.id} className={`mcc ${i % 2 ? "is-flip" : ""}`} aria-labelledby={`feat-${f.id}`}>
-            <div className="mcc-photo">
+            <div className={`mcc-photo ${f.contain ? "is-contain" : ""}`}>
               <img src={f.photo} alt={f.photoAlt} loading="lazy" decoding="async" />
               <span className="mcc-tag">{f.tag}</span>
             </div>
@@ -544,6 +564,10 @@ export default function AchievementsSection() {
         .mcc.is-flip { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); box-shadow: 8px 8px 0 0 #FFB020; }
         .mcc.is-flip .mcc-photo { order: 2; border-right: 0; border-left: 3px solid #1C202B; }
         .mcc:nth-child(3) { box-shadow: 8px 8px 0 0 #2DC8E2; }
+        .mcc:nth-child(4) { box-shadow: 8px 8px 0 0 #2BB04A; }
+        .mcc-photo.is-contain { background: #FFFFFF; display: flex; align-items: center; }
+        .mcc-photo.is-contain img { height: auto; object-fit: contain; padding: 16px 12px 12px; }
+        .mcc-photo.is-contain .mcc-tag { z-index: 1; }
         .mcc-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
         .mcc-tag {
           position: absolute; left: 14px; top: 14px;
@@ -570,6 +594,8 @@ export default function AchievementsSection() {
           .mcc.is-flip { grid-template-columns: 1fr; box-shadow: 5px 5px 0 0 #FFB020; }
           .mcc.is-flip .mcc-photo { order: 0; border-left: 0; }
           .mcc:nth-child(3) { box-shadow: 5px 5px 0 0 #2DC8E2; }
+          .mcc:nth-child(4) { box-shadow: 5px 5px 0 0 #2BB04A; }
+          .mcc-photo.is-contain { aspect-ratio: auto; padding-top: 44px; }
           .mcc-body { padding: 22px 18px; }
         }
       `}</style>
