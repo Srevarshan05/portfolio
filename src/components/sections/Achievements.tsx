@@ -155,8 +155,8 @@ const FEATURED: Featured[] = [
       <>
         Match noisy business records from three sources with no shared ID, across millions of rows in <strong>23+ Indic languages</strong>.
         We built a transliteration engine on AI4Bharat&apos;s model, ran experiments in parallel on 4 PCs and every GPU we had, and
-        combined our models into a stacked ensemble. We beat <strong>94.1%</strong> of submissions on the live leaderboard, finishing
-        just 0.0053 from the top score, on a test set that quietly added France, a country we had never trained on.
+        combined our models into a stacked ensemble. We held a <strong>top 350–500</strong> rank on the live public leaderboard throughout the challenge and beat
+        <strong>94.1%</strong> of submissions, finishing just 0.0053 from the top score, on a test set that quietly added France, a country we had never trained on.
       </>
     ),
     chips: ["Entity resolution", "AI4Bharat transliteration", "XGBoost on GPU", "LightGBM", "Stacked ensemble"],
