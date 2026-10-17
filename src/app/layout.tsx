@@ -1,49 +1,138 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+const SITE = "https://www.srevarshan.in";
+
+const CERTIFICATIONS = [
+  ["Model Context Protocol: Advanced Topics", "Anthropic"],
+  ["Introduction to Model Context Protocol", "Anthropic"],
+  ["AI Azure Internship", "Microsoft × Edunet Foundation × AICTE"],
+  ["Getting Started with AI on Jetson Nano", "NVIDIA"],
+  ["OCI 2025 AI Foundations Associate", "Oracle"],
+  ["Supervised Machine Learning: Regression and Classification", "DeepLearning.AI × Stanford Online"],
+  ["Prompt Design in Vertex AI", "Google Cloud"],
+  ["Getting Started with Artificial Intelligence", "IBM SkillsBuild"],
+  ["Database Structures and Management with MySQL", "Meta"],
+  ["Generative AI Mastery Workshop", "OpenAI Academy × NxtWave"],
+  ["Drone Systems & AI/ML for Drone Vision", "IIT Goa"],
+  ["Machine Learning Workshop · Currents '24", "NIT Tiruchirappalli"],
+];
+
+/* Structured data Google reads for the knowledge panel and rich results */
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "Person",
-  "name": "Sre Varshan",
-  "jobTitle": "Applied AI & Generative AI Engineer",
-  "url": "https://www.srevarshan.in",
-  "sameAs": [
-    "https://github.com/Srevarshan05",
-    "https://www.linkedin.com/in/srevarshan",
-    "https://www.youtube.com/@SreVarshanAI"
-  ],
-  "knowsAbout": [
-    "Large Language Models (LLMs)",
-    "Vision Language Models (VLMs)",
-    "Optical Character Recognition (OCR)",
-    "Edge AI",
-    "AI Agents",
-    "Retrieval-Augmented Generation (RAG)",
-    "Intelligent Systems",
-    "Full-Stack AI Engineering",
-    "NVIDIA Jetson Edge Computing"
-  ],
-  "creator": [
+  "@graph": [
     {
-      "@type": "SoftwareApplication",
-      "name": "TextLens",
-      "applicationCategory": "DeveloperApplication",
-      "operatingSystem": "Cross-platform",
-      "description": "An open-source OCR framework focused on simplifying document intelligence and reusable OCR workflows for Python developers."
-    }
-  ],
-  "hasPatent": [
+      "@type": "WebSite",
+      "@id": `${SITE}/#website`,
+      "url": SITE,
+      "name": "Sre Varshan",
+      "alternateName": ["SreVarshan", "Sre Varshan Portfolio"],
+      "description": "Portfolio of Sre Varshan, Applied AI & Generative AI Engineer.",
+      "inLanguage": "en",
+      "publisher": { "@id": `${SITE}/#person` },
+    },
     {
-      "@type": "Patent",
-      "name": "Banana Weevil Detection through Dual-Mode Acoustic Sensing and Edge AI"
-    }
-  ]
+      "@type": "ProfilePage",
+      "@id": `${SITE}/#profile`,
+      "url": SITE,
+      "name": "Sre Varshan — Applied AI & GenAI Engineer",
+      "isPartOf": { "@id": `${SITE}/#website` },
+      "mainEntity": { "@id": `${SITE}/#person` },
+      "primaryImageOfPage": `${SITE}/og-image.png`,
+    },
+    {
+      "@type": "Person",
+      "@id": `${SITE}/#person`,
+      "name": "Sre Varshan",
+      "alternateName": "SreVarshan",
+      "jobTitle": "Applied AI & Generative AI Engineer",
+      "description": "Applied AI & Generative AI Engineer building production AI systems with LLMs, VLMs, OCR, AI agents, RAG and Edge AI. Creator of TextLens, published researcher and patent holder.",
+      "url": SITE,
+      "image": `${SITE}/Profile.jpg`,
+      "email": "mailto:srevarshan9600622@gmail.com",
+      "nationality": { "@type": "Country", "name": "India" },
+      "alumniOf": { "@type": "CollegeOrUniversity", "name": "SRM Institute of Science and Technology, Tiruchirappalli" },
+      "sameAs": [
+        "https://github.com/Srevarshan05",
+        "https://www.linkedin.com/in/srevarshan05/",
+        "https://www.youtube.com/@SreVarshanAI",
+        "https://medium.com/@srevarshan9600622",
+        "https://leetcode.com/u/srevarshan9600622/",
+        "https://www.hackerrank.com/profile/srevarshan960061",
+        "https://www.codechef.com/users/ss2535srmist",
+        "https://www.hackerearth.com/@srevarshan9600622/",
+      ],
+      "knowsAbout": [
+        "Large Language Models (LLMs)",
+        "Vision Language Models (VLMs)",
+        "Optical Character Recognition (OCR)",
+        "Generative AI",
+        "Edge AI",
+        "AI Agents",
+        "Model Context Protocol (MCP)",
+        "Retrieval-Augmented Generation (RAG)",
+        "Intelligent Document Processing",
+        "Text-to-SQL",
+        "Machine Learning",
+        "IoT",
+        "Full-Stack AI Engineering",
+        "NVIDIA Jetson Edge Computing",
+        "Python", "FastAPI", "PyTorch", "AWS", "Microsoft Azure",
+      ],
+      "award": [
+        "1st Prize, Spectrum '25 National Hackathon, VIT Chennai",
+        "1st Prize, Solve-X AI Challenge, Kalasalingam Academy",
+        "Best Presentation, Physical AI & Robotics MCC",
+        "Top 1,000, Amazon ML Challenge 2026",
+        "Top 8 National, NAF's Uzhavu Hackathon, Shaastra IIT Madras",
+        "2nd Prize, Video Making Competition, NIFTEM Thanjavur",
+        "Best Innovation, IIC Regional Meet 2025",
+      ],
+      "hasCredential": CERTIFICATIONS.map(([name, by]) => ({
+        "@type": "EducationalOccupationalCredential",
+        "name": name,
+        "credentialCategory": "certificate",
+        "recognizedBy": { "@type": "Organization", "name": by },
+      })),
+      "owns": [
+        {
+          "@type": "SoftwareApplication",
+          "name": "TextLens",
+          "applicationCategory": "DeveloperApplication",
+          "operatingSystem": "Cross-platform",
+          "description": "An open-source OCR framework focused on simplifying document intelligence and reusable OCR workflows for Python developers.",
+        },
+      ],
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Banana Weevil Detection through Dual-Mode Acoustic Sensing and Edge AI",
+      "description": "Published Indian patent application No. 202541116228 A.",
+      "creator": { "@id": `${SITE}/#person` },
+    },
+  ],
 };
 
 export const metadata: Metadata = {
-  title: "Sre Varshan — Applied AI & GenAI Engineer | LLMs, Edge AI, OCR, AI Systems",
+  metadataBase: new URL(SITE),
+  title: {
+    default: "Sre Varshan — Applied AI & GenAI Engineer | LLMs, Edge AI, OCR, AI Systems",
+    template: "%s · Sre Varshan",
+  },
+  applicationName: "Sre Varshan",
+  category: "technology",
+  creator: "Sre Varshan",
+  publisher: "Sre Varshan",
+  alternates: { canonical: "/" },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+  },
+  formatDetection: { telephone: false, email: false, address: false },
   description:
-    "Official portfolio of Sre Varshan, an Applied AI & Generative AI Engineer, Software Developer, and AI Researcher specializing in Large Language Models (LLMs), Vision Language Models (VLMs), Edge AI, Optical Character Recognition (OCR), AI Agents, Retrieval-Augmented Generation (RAG), Intelligent Document Processing, Full-Stack AI Engineering, NVIDIA Jetson Edge Computing, and production-ready AI systems. Creator of TextLens, an open-source OCR framework focused on simplifying document intelligence and reusable OCR workflows for Python developers. Author of technical AI content and complete project demonstrations on YouTube. Published researcher with accepted Springer conference publications, book chapter author, patent holder for an innovative banana weevil early detection system using dual-mode acoustic sensing and Edge AI, multiple national hackathon winner, open-source contributor, and builder of scalable AI products that transform cutting-edge research into real-world applications.",
+    "Sre Varshan is an Applied AI & GenAI Engineer building production AI with LLMs, VLMs, OCR, AI agents, RAG and Edge AI. Creator of TextLens, researcher and patent holder.",
   keywords: [
     "Sre Varshan",
     "SreVarshan",
@@ -97,7 +186,7 @@ export const metadata: Metadata = {
     "AI Engineer India",
     "Sre Varshan Portfolio"
   ],
-  authors: [{ name: "Sre Varshan" }],
+  authors: [{ name: "Sre Varshan", url: SITE }],
   icons: {
     icon: [
       { url: "/Portfolio-favi.png" },
@@ -110,8 +199,12 @@ export const metadata: Metadata = {
     title: "Sre Varshan — Applied AI & GenAI Engineer",
     description:
       "Applied AI Engineer building production-ready AI systems using LLMs, VLMs, OCR, Edge AI, AI Agents, and scalable AI infrastructure. Creator of TextLens, researcher, patent holder, open-source contributor, and technical educator.",
-    type: "website",
-    url: "https://www.srevarshan.in",
+    type: "profile",
+    firstName: "Sre",
+    lastName: "Varshan",
+    siteName: "Sre Varshan",
+    locale: "en_IN",
+    url: SITE,
     images: [
       {
         url: "https://www.srevarshan.in/og-image.png",
@@ -126,6 +219,7 @@ export const metadata: Metadata = {
     title: "Sre Varshan — Applied AI & GenAI Engineer",
     description:
       "Building production-ready AI systems with LLMs, OCR, Edge AI, AI Agents, and Intelligent Systems. Creator of TextLens.",
+    images: [`${SITE}/og-image.png`],
   },
   other: {
     youtube: "https://www.youtube.com/@SreVarshanAI",
