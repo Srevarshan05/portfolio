@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 
-const Lanyard = dynamic(() => import("../layout/Lanyard"), { ssr: false });
+const Lanyard = dynamic(() => import("../reactbits/Lanyard"), { ssr: false });
 
 export default function HeroSection() {
   const [loaded, setLoaded] = useState(false);
@@ -12,13 +12,6 @@ export default function HeroSection() {
     const t = setTimeout(() => setLoaded(true), 120);
     return () => clearTimeout(t);
   }, []);
-
-  const fade = (delay: number): React.CSSProperties => ({
-    opacity:    loaded ? 1 : 0,
-    transform:  loaded ? "translateY(0)" : "translateY(28px)",
-    transition: `opacity 700ms ${delay}ms cubic-bezier(0.22,1,0.36,1),
-                 transform  700ms ${delay}ms cubic-bezier(0.22,1,0.36,1)`,
-  });
 
   const scrollTo = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -43,12 +36,13 @@ export default function HeroSection() {
       >
         <div style={{ width: "100%", height: "100%", pointerEvents: "auto" }}>
           <Lanyard
-            position={[0, 0, 16.5]}
-            gravity={[0, -40, 0]}
-            frontImage="/photos/Profile Home page.jpeg"
+            frontImage="/lanyard-front.webp"
+            backImage="/lanyard-back.webp"
             imageFit="cover"
-            lanyardWidth={1.2}
-            cardXOffset={3.5}
+            anchor="right"
+            size={0.42}
+            strapLength={0.6}
+            strapColor="#1C202B"
           />
         </div>
       </div>
