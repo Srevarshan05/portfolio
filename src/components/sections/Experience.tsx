@@ -303,19 +303,13 @@ function RoleBlock({ r, index, onWorkflow }: { r: Role; index: number; onWorkflo
         </div>
       </Reveal>
 
-      {/* ── Highlights + stack ── */}
+      {/* ── Highlights ── */}
       <div className="px-meta-grid">
         <Reveal kind="fade" duration={0.6} className="px-meta">
           <p className="px-mono px-meta-label">Key highlights</p>
           <ul className="px-highlights">
             {r.highlights.map((hl) => <li key={hl}>{hl}</li>)}
           </ul>
-        </Reveal>
-        <Reveal kind="fade" duration={0.6} delay={0.1} className="px-meta">
-          <p className="px-mono px-meta-label">Stack</p>
-          <Stagger as="ul" className="px-stack" gap={0.025}>
-            {r.skills.map((s) => <StaggerItem as="li" kind="fade" key={s}>{s}</StaggerItem>)}
-          </Stagger>
         </Reveal>
       </div>
 
@@ -384,8 +378,6 @@ export default function ExperienceSection() {
 
   return (
     <section id="experience" className="px-section" aria-labelledby="experience-title">
-      <span className="px-guide px-guide-l" aria-hidden="true" />
-      <span className="px-guide px-guide-r" aria-hidden="true" />
 
       {/* ── Sky hero ── */}
       <div ref={heroRef} className="px-hero">
@@ -468,19 +460,6 @@ export default function ExperienceSection() {
           z-index: 1;
         }
         .px-mono { font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; }
-
-        /* thin guide rules framing the content column */
-        .px-guide {
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          width: 1px;
-          background: linear-gradient(to bottom, rgba(230, 227, 221, 0) 0, var(--px-line) 300px, var(--px-line) calc(100% - 320px), rgba(230, 227, 221, 0));
-          z-index: 1;
-          pointer-events: none;
-        }
-        .px-guide-l { left: max(16px, calc(50% - 650px)); }
-        .px-guide-r { right: max(16px, calc(50% - 650px)); }
 
         /* ── Sky hero ── */
         .px-hero { position: relative; overflow: hidden; padding: 250px 24px 120px; padding-bottom: max(120px, var(--runner-floor, 0px)); text-align: center; }
@@ -732,10 +711,10 @@ export default function ExperienceSection() {
         }
         .px-one-item p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--px-body); }
 
-        /* ── Highlights + stack ── */
+        /* ── Highlights ── */
         .px-meta-grid {
           display: grid;
-          grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+          grid-template-columns: minmax(0, 1fr);
           gap: 24px;
           margin-top: 24px;
         }
@@ -744,16 +723,6 @@ export default function ExperienceSection() {
         .px-highlights { list-style: none; display: grid; gap: 10px; }
         .px-highlights li { position: relative; padding-left: 18px; font-size: 15px; font-weight: 500; line-height: 1.4; color: var(--px-ink); }
         .px-highlights li::before { content: ""; position: absolute; left: 0; top: 6px; width: 8px; height: 8px; background: #1E88E5; }
-        .px-stack { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
-        .px-stack li {
-          font-family: 'Geist Mono', ui-monospace, monospace;
-          font-size: 12.5px;
-          letter-spacing: 0.02em;
-          color: var(--px-ink);
-          background: var(--px-bg);
-          border: 1px solid var(--px-line);
-          padding: 6px 10px;
-        }
 
         .px-actions { display: flex; flex-wrap: wrap; gap: 28px; margin-top: 28px; }
         .px-action {

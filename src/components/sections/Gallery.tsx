@@ -1,7 +1,5 @@
 "use client";
 
-import { useRef } from "react";
-import { useScrollReveal } from "@/lib/useScrollReveal";
 import DomeGallery from "../layout/DomeGallery";
 
 const IMAGES = [
@@ -325,14 +323,10 @@ const IMAGES = [
 
 
 export default function GallerySection() {
-  const sectionRef = useRef<HTMLElement>(null);
-  useScrollReveal(sectionRef as React.RefObject<HTMLElement>);
-
   return (
     <section
       id="gallery"
       className="section"
-      ref={sectionRef}
       style={{
         paddingLeft: 0,
         paddingRight: 0,
@@ -346,7 +340,7 @@ export default function GallerySection() {
       {/* Header */}
       <div className="section-content" style={{ padding: "0 40px", marginBottom: "40px" }}>
         <div className="container" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px", alignItems: "flex-end" }}>
-          <div className="reveal reveal-left">
+          <div>
             <div className="eyebrow" style={{ color: "var(--fg-brand)" }}>Showcase</div>
             <h2 style={{ color: "white", marginBottom: 0, display: "flex", alignItems: "center", gap: "12px" }}>
               <span>Visual Archive</span>
@@ -362,7 +356,7 @@ export default function GallerySection() {
               />
             </h2>
           </div>
-          <div className="reveal reveal-right" style={{ paddingBottom: "4px" }}>
+          <div style={{ paddingBottom: "4px" }}>
             <p className="leading" style={{ color: "var(--neutral-primary-soft)", opacity: 0.8 }}>
               A 3D gallery of my engineering journey. This sphere holds snapshots of the competitions I&apos;ve tackled, the places my work has taken me, and the physical builds I am most proud of. Drag to rotate and click to view
             </p>
@@ -372,7 +366,7 @@ export default function GallerySection() {
 
       {/* Gallery Canvas Container */}
       <div
-        className="reveal"
+        className="gl-canvas"
         style={{
           width: "100%",
           height: "720px",
@@ -415,7 +409,7 @@ export default function GallerySection() {
           #gallery .section-content {
             padding: 0 16px !important;
           }
-          #gallery .reveal[style*="height: 720px"] {
+          #gallery .gl-canvas {
             height: 380px !important;
           }
         }
