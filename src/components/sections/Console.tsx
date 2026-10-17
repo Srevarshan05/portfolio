@@ -55,16 +55,7 @@ export default function ConsoleSection() {
         <a
           href="/resume.pdf"
           download="Srevarshan_Resume_AIML27.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn claude-mix-btn"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "10px",
-            padding: "14px 28px",
-          }}
+          className="rs-btn"
         >
           <svg
             width="16"
@@ -86,16 +77,18 @@ export default function ConsoleSection() {
       </div>
 
       <style>{`
-        .claude-mix-btn {
-          background-color: #C15F3C !important;
-          color: #FFFFFF !important;
-          border: 0 !important;
+        /* brand pink, with the site's hard ink shadow */
+        .rs-btn {
+          display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+          min-height: 50px; padding: 13px 26px; border-radius: 4px;
+          background: var(--brand); color: #FFFFFF; border: 1px solid #C21F58;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 4px 4px 0 0 #1C202B;
+          font: 600 16px 'Geist', system-ui, sans-serif; letter-spacing: -0.01em; text-decoration: none;
+          transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 160ms cubic-bezier(0.22, 1, 0.36, 1), background 160ms;
         }
-        .claude-mix-btn:hover {
-          filter: brightness(1.1) !important;
-          color: #FFFFFF !important;
-          text-decoration: none !important;
-        }
+        .rs-btn:hover { background: #C8235E; color: #FFFFFF; text-decoration: none; transform: translate(-2px, -2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 6px 6px 0 0 #1C202B; }
+        .rs-btn:active { transform: translate(2px, 2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 1px 1px 0 0 #1C202B; }
+        .rs-btn:focus-visible { outline: 3px solid var(--brand); outline-offset: 4px; }
         @media (max-width: 900px) {
           #console {
             background-image: none !important;
