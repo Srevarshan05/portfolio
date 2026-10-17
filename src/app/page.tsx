@@ -13,6 +13,7 @@ import GallerySection      from "@/components/sections/Gallery";
 import AboutSection        from "@/components/sections/About";
 import SkillsSection       from "@/components/sections/Skills";
 import ContactSection      from "@/components/sections/Contact";
+import CertificationsSection from "@/components/sections/Certifications";
 import Footer              from "@/components/layout/Footer";
 
 import TopNav            from "@/components/layout/TopNav";
@@ -53,6 +54,7 @@ export default function Home() {
         <ExperienceSection />
         <ProjectsSection />
         <CodingProfilesSection />
+        <CertificationsSection />
         <ConsoleSection />
         <AchievementsSection />
         <ContactSection />
