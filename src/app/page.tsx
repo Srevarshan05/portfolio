@@ -39,7 +39,7 @@ export default function Home() {
     <MotionConfig reducedMotion="user">
       <a href="#main" className="skip-link">Skip to content</a>
 
-      {/* ── Services popup modal (shown after 3s) ── */}
+      {/* ── Booking modal: opens only via /?book=1 from the Solutions page ── */}
       <ServicesModal />
 
       {/* ── Fixed top navigation ── */}

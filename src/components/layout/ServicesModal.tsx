@@ -66,7 +66,7 @@ export default function ServicesModal() {
   const cells = buildCalendar(calYear, calMonth);
 
   useEffect(() => {
-    // ?book=1 (from the Services page) opens immediately
+    // Opens only on request: ?book=1 (from the Services page). No automatic pop-up on load.
     if (new URLSearchParams(window.location.search).get("book") === "1") {
       const url = new URL(window.location.href);
       url.searchParams.delete("book");
@@ -74,9 +74,6 @@ export default function ServicesModal() {
       const t = setTimeout(() => setVisible(true), 0);
       return () => clearTimeout(t);
     }
-    try { if (sessionStorage.getItem("sv-modal-v20")) return; } catch { /* storage blocked */ }
-    const t = setTimeout(() => setVisible(true), 3000);
-    return () => clearTimeout(t);
   }, []);
 
   const close = () => {
